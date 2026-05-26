@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #006666;
+}
+
+/* Leaflet Overrides */
+.custom-map-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid white;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: all 0.2s ease-in-out;
+}
+.custom-map-marker:hover {
+  transform: scale(1.15) rotate(5deg);
+}
+
+.marker-bowl {
+  background-color: #e05624;
+}
+
+.marker-compass {
+  background-color: #006666;
+}
+
+/* Animations */
+@keyframes pulseG {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+@keyframes pulseY {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+@keyframes pulseR {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+.led-green-pulse {
+  animation: pulseG 1.5s infinite;
+}
+.led-yellow-pulse {
+  animation: pulseY 1.5s infinite;
+}
+.led-red-pulse {
+  animation: pulseR 1.5s infinite;
+}
+
+.glow-btn-red:hover {
+  box-shadow: 0 0 15px rgba(220, 53, 69, 0.5);
+}
+
+.glow-text-green {
+  text-shadow: 0 0 8px rgba(57, 255, 20, 0.3);
+}
+
+/* Star rating custom transition */
+.rating-label:hover,
+.rating-label:hover ~ .rating-label {
+  color: #f59e0b !important;
+}
