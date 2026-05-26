@@ -254,6 +254,12 @@
       "action": "BLOCKED"
     }
   ],
+  "users": [
+    { "username": "wisatawan", "password": "password", "role": "wisatawan", "fullname": "Budi Wisatawan" },
+    { "username": "umkm", "password": "password", "role": "umkm", "fullname": "Haji Azza (Pemilik UMKM)" },
+    { "username": "itsec", "password": "password", "role": "itsec", "fullname": "Satria IT Cybersec" },
+    { "username": "admin", "password": "password", "role": "superadmin", "fullname": "Dinas Pariwisata Gresik" }
+  ],
   "cache": {
     "394bc5bdcd37afe784b1f4a9746da5d77621f794d7989d24cc6b786c380c0350": {
       "expiry": "2026-05-27T11:41:34.594Z",

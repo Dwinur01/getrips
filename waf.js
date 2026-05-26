@@ -82,18 +82,34 @@ function scanHeuristics(text) {
     return { isBlocked: false, type: "Clean Traffic", reason: "" };
 }
 
+// Global feedback loop whitelist for Human-in-the-Loop context correction
+const localBypassWhitelist = [];
+
+function addToWhitelist(text) {
+    if (text) {
+        const cleaned = text.trim().toLowerCase();
+        if (!localBypassWhitelist.includes(cleaned)) {
+            localBypassWhitelist.push(cleaned);
+        }
+    }
+}
+
 // AI WAF using official Google AI Studio SDK
 async function scanWAF(text, ipAddress, userKey = null) {
+    if (text) {
+        const cleanedText = text.trim().toLowerCase();
+        if (localBypassWhitelist.includes(cleanedText)) {
+            return {
+                isBlocked: false,
+                type: "Clean Traffic (Whitelisted)",
+                reason: "Lolos via verifikasi manual IT Security"
+            };
+        }
+    }
+
     const rateLimit = checkRateLimit();
     if (rateLimit.remaining === 0) {
         // Automatically block due to Rate Limiting
-        const threat = {
-            ip: ipAddress,
-            type: "Rate Limit Triggered",
-            payload: "API calls exceeded 15 RPM Free Tier limit.",
-            severity: "MEDIUM"
-        };
-        await db.addThreat(threat);
         return {
             isBlocked: true,
             type: "Rate Limiting",
@@ -185,5 +201,6 @@ Respond ONLY in valid, strict JSON format matching this schema:
 module.exports = {
     scanWAF,
     checkRateLimit,
-    scanHeuristics
+    scanHeuristics,
+    addToWhitelist
 };

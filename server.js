@@ -10,6 +10,10 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'client', 'dist')));
+// Serve static dashboard (public/) at /dashboard route
+app.use('/dashboard', express.static(path.join(__dirname, 'public')));
+// Also serve public/ files at root (for direct /index.html, /app.js, /styles.css access)
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Helper to get client IP
 function getClientIp(req) {
@@ -171,7 +175,10 @@ app.post('/api/itinerary', async (req, res) => {
 
     // Call Gemini API via official SDK to build the Itinerary
     try {
-        console.log("[AI Itinerary SDK] Generating custom itinerary via Google AI Studio SDK...");
+        console.log("[AI Itinerary SDK] Request rute baru masuk. Proteksi medis aktif.");
+        
+        // Sanitize allergies to prevent Prompt Injection and excessive data exposure
+        const sanitizedAllergies = (allergies || '').trim().substring(0, 100) || 'Tidak ada';
         
         // Get merchant catalog database snippet so Gemini can generate routes matching our REAL data
         const merchants = await db.getMerchants();
@@ -188,7 +195,7 @@ app.post('/api/itinerary', async (req, res) => {
 1. Durasi Perjalanan: ${duration} hari
 2. Anggaran Maksimal: Rp ${budget}
 3. Preferensi Wisatawan: ${JSON.stringify(preferences)}
-4. Riwayat Batasan Alergi Makanan/Kesehatan Wisatawan: "${allergies || 'Tidak ada'}"
+4. Riwayat Batasan Alergi Makanan/Kesehatan Wisatawan: "${sanitizedAllergies}"
 
 Berikut adalah daftar merchant lokal riil (UMKM kuliner dan pariwisata) yang WAJIB Anda gunakan sebagai titik rute koordinat Leaflet.js:
 ${JSON.stringify(merchantsBrief)}
@@ -266,7 +273,8 @@ app.post('/api/reviews', async (req, res) => {
 
     if (wafResult.isBlocked) {
         console.warn(`[WAF BLOCKED] Attacker IP: ${ipAddress} - Type: ${wafResult.type} - Payload: "${wafResult.highlight}"`);
-        return res.status(403).json({
+        const statusCode = wafResult.type === "Rate Limiting" ? 429 : 403;
+        return res.status(statusCode).json({
             isBlocked: true,
             type: wafResult.type,
             reason: wafResult.reason,
@@ -286,6 +294,22 @@ app.post('/api/reviews', async (req, res) => {
         isBlocked: false,
         review: cleanReview
     });
+});
+
+// Get all reviews across all merchants
+app.get('/api/reviews', async (req, res) => {
+    try {
+        const merchants = await db.getMerchants();
+        let allReviews = [];
+        for (const merchant of merchants) {
+            const reviews = await db.getReviews(merchant.id);
+            allReviews = allReviews.concat(reviews);
+        }
+        res.json(allReviews);
+    } catch (error) {
+        console.error("Error combining reviews:", error);
+        res.status(500).json({ error: "Proses penggabungan data gagal" });
+    }
 });
 
 // 4. Get Reviews for Merchant
@@ -420,6 +444,78 @@ app.post('/api/waf/test', async (req, res) => {
 
     const result = await waf.scanWAF(text, ipAddress, userKey);
     res.json(result);
+});
+
+// 8b. Human-in-the-Loop Feedback Loop Whitelist API
+app.post('/api/waf/whitelist', (req, res) => {
+    const { text } = req.body;
+    if (!text) {
+        return res.status(400).json({ error: "Teks ulasan wajib diisi" });
+    }
+
+    waf.addToWhitelist(text);
+    res.json({ success: true, whitelisted: text });
+});
+
+// Auth 1. User Registration API
+app.post('/api/auth/register', async (req, res) => {
+    const { username, password, role, fullname } = req.body;
+    
+    if (!username || !password || !role || !fullname) {
+        return res.status(400).json({ error: "Semua field pendaftaran wajib diisi" });
+    }
+
+    const trimmedUsername = username.trim().toLowerCase();
+
+    try {
+        const existingUser = await db.getUser(trimmedUsername);
+        if (existingUser) {
+            return res.status(400).json({ error: "Username sudah terdaftar" });
+        }
+
+        const newUser = {
+            username: trimmedUsername,
+            password: password,
+            role: role,
+            fullname: fullname.trim()
+        };
+
+        await db.addUser(newUser);
+        res.json({ success: true, user: { username: newUser.username, role: newUser.role, fullname: newUser.fullname } });
+    } catch (e) {
+        console.error("Auth registration error:", e);
+        res.status(500).json({ error: "Pendaftaran gagal" });
+    }
+});
+
+// Auth 2. User Login API
+app.post('/api/auth/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ error: "Username dan password wajib diisi" });
+    }
+
+    const trimmedUsername = username.trim().toLowerCase();
+
+    try {
+        const user = await db.getUser(trimmedUsername);
+        if (!user || user.password !== password) {
+            return res.status(401).json({ error: "Username atau password salah" });
+        }
+
+        res.json({
+            success: true,
+            user: {
+                username: user.username,
+                role: user.role,
+                fullname: user.fullname
+            }
+        });
+    } catch (e) {
+        console.error("Auth login error:", e);
+        res.status(500).json({ error: "Login gagal" });
+    }
 });
 
 // 9. Update catalog (Merchant portal)

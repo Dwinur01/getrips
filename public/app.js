@@ -3,6 +3,390 @@
    Grestrip Smart & Secure Navigator
    ========================================================================== */
 
+/* ==========================================================================
+   AUTH MODULE - SESSION MANAGEMENT & ROLE-BASED ACCESS CONTROL
+   ========================================================================== */
+(function AuthModule() {
+    // ---------------------------------------------------------------
+    // Session helpers
+    // ---------------------------------------------------------------
+    function getSession() {
+        try {
+            const saved = localStorage.getItem('grestrip_user');
+            return saved ? JSON.parse(saved) : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function setSession(user) {
+        localStorage.setItem('grestrip_user', JSON.stringify(user));
+    }
+
+    function clearSession() {
+        localStorage.removeItem('grestrip_user');
+    }
+
+    // ---------------------------------------------------------------
+    // RBAC: Show/hide sidebar nav items based on role
+    // ---------------------------------------------------------------
+    function updateRolePermissionsUI(user) {
+        const navWisatawan    = document.getElementById('nav-wisatawan');
+        const navUmkm         = document.getElementById('nav-umkm');
+        const navItsec        = document.getElementById('nav-itsec');
+        const navSuperadmin   = document.getElementById('nav-superadmin');
+        const userProfileBox  = document.getElementById('user-profile-header');
+        const guestProfileBox = document.getElementById('guest-profile-header');
+        const btnLogin        = document.getElementById('btn-sidebar-login');
+        const btnLogout       = document.getElementById('btn-sidebar-logout');
+        const guestBanner     = document.getElementById('welcome-guest-banner');
+        const btnWelcomeReg   = document.getElementById('btn-welcome-register');
+
+        const role = user ? user.role : null;
+
+        // Determine visibility per access matrix:
+        // wisatawan  → only nav-wisatawan
+        // umkm       → only nav-umkm
+        // itsec      → all 4 navs
+        // superadmin → wisatawan + umkm + superadmin (no itsec)
+        // guest/null → only nav-wisatawan (read-only)
+
+        const showWisatawan  = !role || role === 'wisatawan' || role === 'itsec' || role === 'superadmin';
+        const showUmkm       = role === 'umkm' || role === 'itsec' || role === 'superadmin';
+        const showItsec      = role === 'itsec';
+        const showSuperadmin = role === 'superadmin' || role === 'itsec';
+
+        const toggle = (el, show) => {
+            if (!el) return;
+            if (show) {
+                el.classList.remove('hidden');
+                el.style.display = '';
+            } else {
+                el.classList.add('hidden');
+                el.style.display = 'none';
+            }
+        };
+
+        toggle(navWisatawan,  showWisatawan);
+        toggle(navUmkm,       showUmkm);
+        toggle(navItsec,      showItsec);
+        toggle(navSuperadmin, showSuperadmin);
+
+        if (user) {
+            // Show logged-in profile
+            if (userProfileBox) {
+                userProfileBox.classList.remove('hidden');
+                userProfileBox.style.display = 'flex';
+            }
+            if (guestProfileBox) {
+                guestProfileBox.style.display = 'none';
+            }
+
+            // Populate profile info
+            const avatarText = document.getElementById('user-avatar-text');
+            const fullnameText = document.getElementById('user-fullname-text');
+            const roleText = document.getElementById('user-role-text');
+            if (avatarText) avatarText.textContent = user.fullname.substring(0, 2).toUpperCase();
+            if (fullnameText) fullnameText.textContent = user.fullname;
+            if (roleText) roleText.textContent = user.role.toUpperCase();
+
+            // Show logout, hide login
+            toggle(btnLogin,  false);
+            toggle(btnLogout, true);
+
+            // Hide guest banner
+            toggle(guestBanner, false);
+
+        } else {
+            // Guest state
+            if (userProfileBox) {
+                userProfileBox.classList.add('hidden');
+                userProfileBox.style.display = 'none';
+            }
+            if (guestProfileBox) {
+                guestProfileBox.style.display = 'flex';
+            }
+
+            // Show login, hide logout
+            toggle(btnLogin,  true);
+            toggle(btnLogout, false);
+
+            // Show guest banner
+            toggle(guestBanner, true);
+        }
+    }
+
+    // ---------------------------------------------------------------
+    // Navigate to correct portal after login
+    // ---------------------------------------------------------------
+    function navigateToRolePortal(role) {
+        let targetPortal = 'wisatawan'; // default
+        if (role === 'umkm') targetPortal = 'umkm';
+        else if (role === 'itsec') targetPortal = 'itsec';
+        else if (role === 'superadmin') targetPortal = 'superadmin';
+
+        // Programmatically click the nav item
+        const targetNavBtn = document.querySelector(`[data-portal="${targetPortal}"]`);
+        if (targetNavBtn) {
+            targetNavBtn.click();
+        }
+    }
+
+    // ---------------------------------------------------------------
+    // Auth Modal control helpers
+    // ---------------------------------------------------------------
+    let currentAuthMode = 'login'; // 'login' | 'register'
+
+    function openAuthModal(mode) {
+        currentAuthMode = mode || 'login';
+        const modal = document.getElementById('auth-modal');
+        if (modal) modal.classList.add('active');
+        syncAuthModalUI();
+        lucide.createIcons();
+    }
+
+    function closeAuthModal() {
+        const modal = document.getElementById('auth-modal');
+        if (modal) modal.classList.remove('active');
+        clearAuthError();
+        resetAuthForm();
+    }
+
+    function syncAuthModalUI() {
+        const isLogin = currentAuthMode === 'login';
+
+        // Tab highlighting
+        document.querySelectorAll('.auth-tab-btn').forEach(btn => {
+            const btnMode = btn.getAttribute('data-mode');
+            if (btnMode === currentAuthMode) {
+                btn.style.color = '#006666';
+                btn.style.borderBottomColor = '#006666';
+            } else {
+                btn.style.color = '#94a3b8';
+                btn.style.borderBottomColor = 'transparent';
+            }
+        });
+
+        // Title & subtitle
+        const title    = document.getElementById('auth-modal-title');
+        const subtitle = document.getElementById('auth-modal-subtitle');
+        if (title)    title.textContent    = isLogin ? 'Masuk ke Grestrip' : 'Daftar Akun Baru';
+        if (subtitle) subtitle.textContent = isLogin
+            ? 'Gunakan kredensial terdaftar untuk masuk portal'
+            : 'Lengkapi formulir pendaftaran di bawah';
+
+        // Submit label
+        const submitLabel = document.getElementById('auth-submit-label');
+        if (submitLabel) submitLabel.textContent = isLogin ? 'Masuk Sekarang' : 'Daftar & Buat Akun';
+
+        // Toggle register-only fields
+        const registerFields = document.getElementById('auth-register-fields');
+        if (registerFields) registerFields.style.display = isLogin ? 'none' : 'block';
+
+        // Toggle preset section (only on login)
+        const presetsSection = document.getElementById('auth-presets-section');
+        if (presetsSection) presetsSection.style.display = isLogin ? 'block' : 'none';
+
+        // Toggle text link
+        const toggleLabel   = document.getElementById('auth-toggle-label');
+        const toggleModeBtn = document.getElementById('auth-toggle-mode-btn');
+        if (toggleLabel)   toggleLabel.textContent   = isLogin ? 'Belum memiliki akun? ' : 'Sudah memiliki akun? ';
+        if (toggleModeBtn) toggleModeBtn.textContent = isLogin ? 'Daftar Sekarang' : 'Masuk di sini';
+    }
+
+    function showAuthError(msg) {
+        const box  = document.getElementById('auth-error-box');
+        const text = document.getElementById('auth-error-text');
+        if (box)  box.style.display  = 'flex';
+        if (text) text.textContent   = msg;
+    }
+
+    function clearAuthError() {
+        const box = document.getElementById('auth-error-box');
+        if (box) box.style.display = 'none';
+    }
+
+    function resetAuthForm() {
+        const form = document.getElementById('auth-form');
+        if (form) form.reset();
+    }
+
+    function setSubmitLoading(isLoading) {
+        const btn   = document.getElementById('auth-submit-btn');
+        const label = document.getElementById('auth-submit-label');
+        if (btn)   btn.disabled       = isLoading;
+        if (label) label.textContent  = isLoading ? 'Memproses...' : (currentAuthMode === 'login' ? 'Masuk Sekarang' : 'Daftar & Buat Akun');
+    }
+
+    // ---------------------------------------------------------------
+    // Perform login via API
+    // ---------------------------------------------------------------
+    async function doLogin(username, password) {
+        clearAuthError();
+        setSubmitLoading(true);
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username.trim().toLowerCase(), password })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Login gagal');
+
+            setSession(data.user);
+            closeAuthModal();
+            updateRolePermissionsUI(data.user);
+            navigateToRolePortal(data.user.role);
+        } catch (err) {
+            showAuthError(err.message);
+        } finally {
+            setSubmitLoading(false);
+        }
+    }
+
+    // ---------------------------------------------------------------
+    // Perform register via API
+    // ---------------------------------------------------------------
+    async function doRegister(username, password, role, fullname) {
+        clearAuthError();
+        setSubmitLoading(true);
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username.trim().toLowerCase(), password, role, fullname: fullname.trim() })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Pendaftaran gagal');
+
+            alert('Pendaftaran akun berhasil! Silakan masuk dengan akun baru Anda.');
+            currentAuthMode = 'login';
+            syncAuthModalUI();
+            resetAuthForm();
+            clearAuthError();
+        } catch (err) {
+            showAuthError(err.message);
+        } finally {
+            setSubmitLoading(false);
+        }
+    }
+
+    // ---------------------------------------------------------------
+    // Bind all auth events when DOM is ready
+    // ---------------------------------------------------------------
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // === Restore session on page load ===
+        const savedUser = getSession();
+        updateRolePermissionsUI(savedUser);
+
+        // If logged in as umkm/itsec/superadmin, redirect to their portal
+        if (savedUser && savedUser.role !== 'wisatawan') {
+            setTimeout(() => navigateToRolePortal(savedUser.role), 200);
+        }
+
+        // === Sidebar: Open auth modal ===
+        const btnSidebarLogin = document.getElementById('btn-sidebar-login');
+        if (btnSidebarLogin) {
+            btnSidebarLogin.addEventListener('click', () => openAuthModal('login'));
+        }
+
+        // === Sidebar: Logout button ===
+        const btnSidebarLogout = document.getElementById('btn-sidebar-logout');
+        if (btnSidebarLogout) {
+            btnSidebarLogout.addEventListener('click', () => {
+                clearSession();
+                updateRolePermissionsUI(null);
+                // Navigate back to wisatawan portal
+                const wisatawanNav = document.querySelector('[data-portal="wisatawan"]');
+                if (wisatawanNav) wisatawanNav.click();
+            });
+        }
+
+        // === Guest welcome banner: "Daftar Akun" button ===
+        const btnWelcomeRegister = document.getElementById('btn-welcome-register');
+        if (btnWelcomeRegister) {
+            btnWelcomeRegister.addEventListener('click', () => openAuthModal('register'));
+        }
+
+        // === Auth modal: Close button ===
+        const btnCloseAuth = document.getElementById('btn-close-auth-modal');
+        if (btnCloseAuth) {
+            btnCloseAuth.addEventListener('click', closeAuthModal);
+        }
+
+        // === Auth modal: Close on backdrop click ===
+        const authModal = document.getElementById('auth-modal');
+        if (authModal) {
+            authModal.addEventListener('click', (e) => {
+                if (e.target === authModal) closeAuthModal();
+            });
+        }
+
+        // === Auth modal: Tab switching (login/register) ===
+        document.querySelectorAll('.auth-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentAuthMode = btn.getAttribute('data-mode');
+                syncAuthModalUI();
+                clearAuthError();
+                resetAuthForm();
+            });
+        });
+
+        // === Auth modal: Toggle mode link at bottom ===
+        const toggleModeBtn = document.getElementById('auth-toggle-mode-btn');
+        if (toggleModeBtn) {
+            toggleModeBtn.addEventListener('click', () => {
+                currentAuthMode = currentAuthMode === 'login' ? 'register' : 'login';
+                syncAuthModalUI();
+                clearAuthError();
+                resetAuthForm();
+            });
+        }
+
+        // === Auth form: Submit handler ===
+        const authForm = document.getElementById('auth-form');
+        if (authForm) {
+            authForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = (document.getElementById('auth-username')?.value || '').trim();
+                const password = (document.getElementById('auth-password')?.value || '');
+
+                if (!username || !password) {
+                    showAuthError('Username dan password wajib diisi.');
+                    return;
+                }
+
+                if (currentAuthMode === 'login') {
+                    await doLogin(username, password);
+                } else {
+                    const fullname = (document.getElementById('auth-fullname')?.value || '').trim();
+                    const role     = (document.getElementById('auth-role')?.value || 'wisatawan');
+                    if (!fullname) {
+                        showAuthError('Nama lengkap wajib diisi untuk pendaftaran.');
+                        return;
+                    }
+                    await doRegister(username, password, role, fullname);
+                }
+            });
+        }
+
+        // === Preset quick-login buttons ===
+        document.querySelectorAll('.preset-login-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const username = btn.getAttribute('data-user');
+                const password = btn.getAttribute('data-pass');
+                doLogin(username, password);
+            });
+            // Hover effect
+            btn.addEventListener('mouseenter', () => { btn.style.background = '#f1f5f9'; });
+            btn.addEventListener('mouseleave', () => { btn.style.background = '#f8fafc'; });
+        });
+
+    }); // end DOMContentLoaded
+
+})(); // end AuthModule IIFE
+
 document.addEventListener("DOMContentLoaded", () => {
     // -------------------------------------------------------------
     // GLOBAL APP STATE
@@ -15,7 +399,8 @@ document.addEventListener("DOMContentLoaded", () => {
         map: null,
         routeLayerGroup: null,
         threatChart: null,
-        apiRateLimit: { count: 0, limit: 15, remaining: 15, status: "green", percentage: 100 }
+        apiRateLimit: { count: 0, limit: 15, remaining: 15, status: "green", percentage: 100 },
+        currentItinerary: null
     };
 
     // -------------------------------------------------------------
@@ -238,10 +623,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function renderItineraryTimeline(data) {
+        state.currentItinerary = data;
+
         const titleEl = document.getElementById("iti-title");
         const descEl = document.getElementById("iti-desc");
         const allergyAlertEl = document.getElementById("iti-allergy-alert");
-        const flowContainer = document.getElementById("timeline-flow");
         const totalCostEl = document.getElementById("iti-total-cost");
         const summaryFooter = document.getElementById("iti-summary-footer");
 
@@ -258,6 +644,20 @@ document.addEventListener("DOMContentLoaded", () => {
             allergyAlertEl.classList.add("hidden");
         }
 
+        // Show the filter select container
+        const filterContainer = document.getElementById("iti-filter-container");
+        if (filterContainer) {
+            filterContainer.classList.remove("hidden");
+        }
+
+        const filterSelect = document.getElementById("timeline-filter-select");
+        const currentFilter = filterSelect ? filterSelect.value : 'default';
+
+        renderItineraryFlowOnly(data, currentFilter);
+    }
+
+    function renderItineraryFlowOnly(data, filterValue = 'default') {
+        const flowContainer = document.getElementById("timeline-flow");
         flowContainer.innerHTML = "";
 
         if (!data.timeline || data.timeline.length === 0) {
@@ -265,7 +665,34 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        data.timeline.forEach(item => {
+        let items = [...data.timeline];
+        const refLat = -7.1610;
+        const refLng = 112.6565;
+
+        const getDistance = (lat, lng) => {
+            return Math.sqrt(Math.pow(lat - refLat, 2) + Math.pow(lng - refLng, 2));
+        };
+
+        const getMerchantRating = (locationName) => {
+            const merchant = state.merchants.find(m => m.name.toLowerCase() === locationName.toLowerCase());
+            return merchant ? merchant.rating : 5.0;
+        };
+
+        if (filterValue === 'terdekat') {
+            items.sort((a, b) => getDistance(a.lat, a.lng) - getDistance(b.lat, b.lng));
+        } else if (filterValue === 'terjauh') {
+            items.sort((a, b) => getDistance(b.lat, b.lng) - getDistance(a.lat, a.lng));
+        } else if (filterValue === 'termurah') {
+            items.sort((a, b) => a.cost - b.cost);
+        } else if (filterValue === 'termahal') {
+            items.sort((a, b) => b.cost - a.cost);
+        } else if (filterValue === 'terbagus') {
+            items.sort((a, b) => getMerchantRating(b.location) - getMerchantRating(a.location));
+        } else if (filterValue === 'terjelek') {
+            items.sort((a, b) => getMerchantRating(a.location) - getMerchantRating(b.location));
+        }
+
+        items.forEach(item => {
             const itemClass = item.type === "kuliner" ? "kuliner" : "wisata";
             const iconName = item.type === "kuliner" ? "utensils" : "map";
             
@@ -286,6 +713,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         lucide.createIcons();
+    }
+
+    // Bind event listener for the public filter select element
+    const filterSelectEl = document.getElementById("timeline-filter-select");
+    if (filterSelectEl) {
+        filterSelectEl.addEventListener("change", (e) => {
+            if (state.currentItinerary) {
+                renderItineraryFlowOnly(state.currentItinerary, e.target.value);
+            }
+        });
     }
 
     // Toggle tabs inside display card
@@ -329,7 +766,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await response.json();
 
-            if (response.status === 403 && data.isBlocked) {
+            if ((response.status === 403 || response.status === 429) && data.isBlocked) {
                 // WAF INTERRUPT TRIGGER!
                 triggerWafVisualBlockAlert(data);
                 return;

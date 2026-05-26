@@ -10,7 +10,6 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
   const [activeTab, setActiveTab] = useState('map-view')
   const [itinerary, setItinerary] = useState(null)
   const [isGenerating, setIsGenerating] = useState(false)
-
   // UGC Review states
   const [revMerchantId, setRevMerchantId] = useState('')
   const [revUserName, setRevUserName] = useState('')
@@ -19,6 +18,9 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
 
   // WAF Threat block modal
   const [wafBlock, setWafBlock] = useState(null)
+
+  // Filter for Timeline
+  const [timelineFilter, setTimelineFilter] = useState('default')
 
   // Leaflet refs
   const mapContainerRef = useRef(null)
@@ -189,7 +191,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
 
       const data = await response.json()
 
-      if (response.status === 403 && data.isBlocked) {
+      if ((response.status === 403 || response.status === 429) && data.isBlocked) {
         setWafBlock(data)
         return
       }
@@ -205,6 +207,39 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
       alert("Error WAF / Server: " + err.message)
     }
   }
+
+  const getSortedTimeline = () => {
+    if (!itinerary || !itinerary.timeline) return [];
+    let items = [...itinerary.timeline];
+    
+    const refLat = -7.1610;
+    const refLng = 112.6565;
+    
+    const getDistance = (lat, lng) => {
+      return Math.sqrt(Math.pow(lat - refLat, 2) + Math.pow(lng - refLng, 2));
+    };
+
+    const getMerchantRating = (locationName) => {
+      const merchant = merchants.find(m => m.name.toLowerCase() === locationName.toLowerCase());
+      return merchant ? merchant.rating : 5.0;
+    };
+
+    if (timelineFilter === 'terdekat') {
+      items.sort((a, b) => getDistance(a.lat, a.lng) - getDistance(b.lat, b.lng));
+    } else if (timelineFilter === 'terjauh') {
+      items.sort((a, b) => getDistance(b.lat, b.lng) - getDistance(a.lat, a.lng));
+    } else if (timelineFilter === 'termurah') {
+      items.sort((a, b) => a.cost - b.cost);
+    } else if (timelineFilter === 'termahal') {
+      items.sort((a, b) => b.cost - a.cost);
+    } else if (timelineFilter === 'terbagus') {
+      items.sort((a, b) => getMerchantRating(b.location) - getMerchantRating(a.location));
+    } else if (timelineFilter === 'terjelek') {
+      items.sort((a, b) => getMerchantRating(a.location) - getMerchantRating(b.location));
+    }
+    
+    return items;
+  };
 
   return (
     <div className="space-y-8 animate-fade-in text-gray-800">
@@ -390,8 +425,26 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
                   )}
                 </div>
 
-                <div className="relative pl-5 border-l-2 border-gray-200 ml-2 space-y-5 flex-grow">
-                  {itinerary.timeline.map((item, idx) => {
+                {/* Dropdown Filter for Timeline */}
+                <div className="flex justify-between items-center bg-gray-50 rounded-xl p-3 border border-gray-200">
+                  <span className="text-xs font-semibold text-gray-600">Urutkan / Filter Rute:</span>
+                  <select
+                    value={timelineFilter}
+                    onChange={(e) => setTimelineFilter(e.target.value)}
+                    className="bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-700 outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                  >
+                    <option value="default">Default (Urutan Rute Asli)</option>
+                    <option value="terdekat">📍 Terdekat (dari Pusat Kota)</option>
+                    <option value="terjauh">📍 Terjauh (dari Pusat Kota)</option>
+                    <option value="termurah">💵 Termurah</option>
+                    <option value="termahal">💵 Termahal</option>
+                    <option value="terbagus">⭐ Ulasan Terbagus</option>
+                    <option value="terjelek">⭐ Ulasan Terjelek</option>
+                  </select>
+                </div>
+
+                <div className="relative pl-5 border-l-2 border-gray-200 ml-2 space-y-5 flex-grow max-h-[400px] overflow-y-auto pr-2">
+                  {getSortedTimeline().map((item, idx) => {
                     const isFood = item.type === "kuliner"
                     return (
                       <div key={idx} className="relative group">

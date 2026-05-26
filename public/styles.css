@@ -750,9 +750,12 @@ h1, h2, h3, h4, h5, h6 {
     gap: 16px;
     position: relative;
     padding-left: 20px;
+    padding-right: 8px;
     border-left: 2px solid var(--color-border);
     margin-left: 10px;
     flex-grow: 1;
+    max-height: 400px;
+    overflow-y: auto;
 }
 
 .timeline-empty {

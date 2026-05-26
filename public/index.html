@@ -27,32 +27,57 @@
                 </div>
             </div>
             
+            <!-- User Session Profile Header for Public -->
+            <div id="user-profile-header" class="user-profile-box hidden" style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; margin: 15px 0;">
+                <div class="avatar-circle" id="user-avatar-text" style="width: 32px; height: 32px; border-radius: 50%; background: #006666; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px;">US</div>
+                <div class="profile-info-text" style="display: flex; flex-direction: column; leading-none: 1;">
+                    <span id="user-fullname-text" class="fullname" style="font-size: 12px; font-weight: 600; color: #1e293b;">Guest</span>
+                    <span id="user-role-text" class="role-badge" style="font-size: 9px; font-weight: 700; color: #006666; text-transform: uppercase; margin-top: 2px;">ROLE</span>
+                </div>
+            </div>
+            <div id="guest-profile-header" class="guest-profile-box" style="display: flex; flex-direction: column; padding: 12px; background: #fef3c7; border: 1px solid #fde68a; border-radius: 12px; margin: 15px 0; color: #92400e;">
+                <span class="guest-title" style="font-size: 12px; font-weight: 600;">Guest Mode (Unregistered)</span>
+                <span class="guest-desc" style="font-size: 9px; font-weight: 500; margin-top: 2px;">Akses Terbatas</span>
+            </div>
+            
             <nav class="sidebar-nav">
-                <button class="nav-item active" data-portal="wisatawan">
+                <button class="nav-item active" data-portal="wisatawan" id="nav-wisatawan">
                     <i data-lucide="map"></i>
                     <span>Wisatawan</span>
                 </button>
-                <button class="nav-item" data-portal="umkm">
+                <button class="nav-item hidden" data-portal="umkm" id="nav-umkm">
                     <i data-lucide="store"></i>
                     <span>Pemilik UMKM</span>
                 </button>
-                <button class="nav-item dark-btn" data-portal="itsec">
+                <button class="nav-item dark-btn hidden" data-portal="itsec" id="nav-itsec">
                     <i data-lucide="shield-check"></i>
                     <span>IT Security</span>
                 </button>
-                <button class="nav-item" data-portal="superadmin">
+                <button class="nav-item hidden" data-portal="superadmin" id="nav-superadmin">
                     <i data-lucide="sliders"></i>
                     <span>Super Admin</span>
                 </button>
             </nav>
 
-            <div class="api-key-config">
+            <div class="api-key-config" style="margin-top: 15px;">
                 <div class="config-title">
                     <i data-lucide="key"></i>
                     <span>Gemini API Key</span>
                 </div>
                 <input type="password" id="global-api-key" placeholder="Masukkan Key untuk AI Asli..." />
                 <span class="key-badge badge-sim">Simulation Mode</span>
+            </div>
+
+            <!-- Auth Buttons in Sidebar -->
+            <div class="sidebar-auth-area" style="margin-top: 15px; margin-bottom: 15px;">
+                <button id="btn-sidebar-login" class="btn-primary" style="background-color: var(--color-primary); font-size: 12px; padding: 10px 14px; box-shadow: none;">
+                    <i data-lucide="log-in"></i>
+                    <span>Daftar / Masuk</span>
+                </button>
+                <button id="btn-sidebar-logout" class="btn-primary hidden" style="background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; font-size: 12px; padding: 10px 14px; box-shadow: none;">
+                    <i data-lucide="log-out"></i>
+                    <span>Keluar (Logout)</span>
+                </button>
             </div>
             
             <div class="sidebar-footer">
@@ -72,6 +97,21 @@
                         <p>Rencanakan perjalanan impian Anda dengan AI Itinerary Planner pintar dan terlindung.</p>
                     </div>
                 </header>
+
+                <!-- Welcome Banner for Guest Users -->
+                <div id="welcome-guest-banner" class="welcome-banner-box" style="margin-bottom: 24px; padding: 24px; background: linear-gradient(135deg, #006666 0%, #008080 100%); border-radius: 16px; color: white; display: flex; justify-content: space-between; align-items: center; gap: 20px; box-shadow: 0 10px 25px rgba(0, 102, 102, 0.15);">
+                    <div style="max-w: 580px;">
+                        <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.25); border-radius: 20px; font-size: 10px; font-weight: 750; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">
+                            <i data-lucide="sparkles" style="width: 12px; height: 12px; color: #f59e0b;"></i> Mode Tamu Navigasi
+                        </div>
+                        <h3 style="font-family: 'Outfit'; font-size: 20px; font-weight: 800; margin: 0 0 6px 0;">Selamat Datang di Grestrip Navigator!</h3>
+                        <p style="font-size: 12px; color: #ccf2f2; line-height: 1.5; margin: 0;">Eksplorasi destinasi wisata sejarah dan kelezatan kuliner Gresik secara aman, didukung teknologi AI Itinerary Planner cerdas dan perlindungan pertahanan AI WAF. Daftar akun baru untuk membuka dashboard partner UMKM, IT Security log siber, dan panel Super Admin!</p>
+                    </div>
+                    <button id="btn-welcome-register" class="btn-primary" style="background-color: white; color: #006666; font-size: 11px; padding: 10px 20px; width: auto; font-family: 'Outfit'; font-weight: 800; border-radius: 10px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px;">
+                        <span>Daftar Akun</span>
+                        <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+                    </button>
+                </div>
 
                 <div class="wisatawan-grid">
                     <!-- Form Control Panel -->
@@ -168,6 +208,19 @@
                                 <h4 id="iti-title">Eksplorasi Rute Liburan Gresik</h4>
                                 <p id="iti-desc">Tekan tombol 'Rangkai Rute dengan AI' untuk menjadwalkan rute terpersonalisasi yang aman.</p>
                                 <div id="iti-allergy-alert" class="allergy-alert-card hidden"></div>
+                                <!-- Dropdown Filter for Timeline in public HTML -->
+                                <div id="iti-filter-container" class="timeline-filter-box hidden" style="margin-top: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 16px;">
+                                    <span style="font-size: 11px; font-weight: 600; color: #475569;">Urutkan / Filter Rute:</span>
+                                    <select id="timeline-filter-select" style="font-size: 11px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 500; color: #334155; outline: none; background: white;">
+                                        <option value="default">Default (Urutan Rute Asli)</option>
+                                        <option value="terdekat">📍 Terdekat (dari Pusat Kota)</option>
+                                        <option value="terjauh">📍 Terjauh (dari Pusat Kota)</option>
+                                        <option value="termurah">💵 Termurah</option>
+                                        <option value="termahal">💵 Termahal</option>
+                                        <option value="terbagus">⭐ Ulasan Terbagus</option>
+                                        <option value="terjelek">⭐ Ulasan Terjelek</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="timeline-container" id="timeline-flow">
                                 <!-- Dynamic Itinerary Timeline Items Go Here -->
@@ -556,6 +609,104 @@
                     <span>Tambahkan ke Katalog</span>
                 </button>
             </form>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         AUTH MODAL OVERLAY (LOGIN & REGISTER)
+         ========================================================================= -->
+    <div id="auth-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+        <div class="modal-card" style="max-width: 460px; position: relative;">
+
+            <!-- Close button -->
+            <button id="btn-close-auth-modal" aria-label="Tutup" style="position: absolute; top: 14px; right: 14px; width: 28px; height: 28px; border-radius: 50%; background: #f1f5f9; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #64748b; line-height: 1; font-weight: 700;">&times;</button>
+
+            <!-- Header -->
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h2 id="auth-modal-title" style="font-family: 'Outfit'; font-size: 22px; font-weight: 800; color: #006666; margin: 0 0 4px 0;">
+                    Masuk ke Grestrip
+                </h2>
+                <p id="auth-modal-subtitle" style="font-size: 11px; color: #94a3b8; margin: 0;">
+                    Gunakan kredensial terdaftar untuk masuk portal
+                </p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px;">
+                <button id="auth-tab-login" class="auth-tab-btn auth-tab-active" data-mode="login" style="flex: 1; padding: 8px; font-size: 12px; font-weight: 700; border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; color: #006666; border-bottom-color: #006666; font-family: 'Inter';">Masuk</button>
+                <button id="auth-tab-register" class="auth-tab-btn" data-mode="register" style="flex: 1; padding: 8px; font-size: 12px; font-weight: 700; border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; color: #94a3b8; font-family: 'Inter';">Daftar Akun</button>
+            </div>
+
+            <!-- Error alert -->
+            <div id="auth-error-box" class="hidden" style="margin-bottom: 14px; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 10px; padding: 10px 14px; font-size: 11px; font-weight: 600; display: none; align-items: center; gap: 8px;">
+                <i data-lucide="shield" style="width: 14px; height: 14px; color: #dc2626;"></i>
+                <span id="auth-error-text">Error</span>
+            </div>
+
+            <!-- Auth Form -->
+            <form id="auth-form" autocomplete="off">
+
+                <!-- Register-only fields -->
+                <div id="auth-register-fields" style="display: none;">
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <label style="font-size: 11px; font-weight: 600; color: #475569; display: block; margin-bottom: 4px;">Nama Lengkap</label>
+                        <input type="text" id="auth-fullname" class="premium-input" placeholder="Masukkan nama lengkap Anda..." style="font-size: 12px;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <label style="font-size: 11px; font-weight: 600; color: #475569; display: block; margin-bottom: 4px;">Pilih Peran (Role)</label>
+                        <select id="auth-role" class="premium-select" style="font-size: 12px;">
+                            <option value="wisatawan">Wisatawan Biasa</option>
+                            <option value="umkm">Pemilik Mitra UMKM</option>
+                            <option value="itsec">IT Cyber Security Specialist</option>
+                            <option value="superadmin">Super Admin / Dinas Pariwisata</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Shared fields -->
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label style="font-size: 11px; font-weight: 600; color: #475569; display: block; margin-bottom: 4px;">Username</label>
+                    <input type="text" id="auth-username" class="premium-input" placeholder="Contoh: budi_wisatawan" required autocomplete="username" style="font-size: 12px;">
+                </div>
+                <div class="form-group" style="margin-bottom: 18px;">
+                    <label style="font-size: 11px; font-weight: 600; color: #475569; display: block; margin-bottom: 4px;">Password</label>
+                    <input type="password" id="auth-password" class="premium-input" placeholder="Masukkan sandi rahasia..." required autocomplete="current-password" style="font-size: 12px;">
+                </div>
+
+                <button type="submit" id="auth-submit-btn" class="btn-primary" style="font-family: 'Outfit'; font-weight: 700; font-size: 13px;">
+                    <i data-lucide="log-in" style="width: 14px; height: 14px;"></i>
+                    <span id="auth-submit-label">Masuk Sekarang</span>
+                </button>
+            </form>
+
+            <!-- Quick Preset accounts (login mode only) -->
+            <div id="auth-presets-section" style="margin-top: 18px; padding-top: 14px; border-top: 1px solid #e2e8f0;">
+                <span style="display: block; font-size: 9px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.8px; text-align: center; margin-bottom: 10px;">Preset Akun Demo Instan (Sekali Klik)</span>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button class="preset-login-btn" data-user="wisatawan" data-pass="password" style="padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 1px; transition: background 0.15s;">
+                        <span style="font-size: 10px; font-weight: 700; color: #006666;">Budi (Wisatawan)</span>
+                        <span style="font-size: 9px; color: #94a3b8;">wisatawan / password</span>
+                    </button>
+                    <button class="preset-login-btn" data-user="umkm" data-pass="password" style="padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 1px; transition: background 0.15s;">
+                        <span style="font-size: 10px; font-weight: 700; color: #006666;">Haji Azza (UMKM)</span>
+                        <span style="font-size: 9px; color: #94a3b8;">umkm / password</span>
+                    </button>
+                    <button class="preset-login-btn" data-user="itsec" data-pass="password" style="padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 1px; transition: background 0.15s;">
+                        <span style="font-size: 10px; font-weight: 700; color: #0369a1;">Satria (IT Cybersec)</span>
+                        <span style="font-size: 9px; color: #94a3b8;">itsec / password</span>
+                    </button>
+                    <button class="preset-login-btn" data-user="admin" data-pass="password" style="padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 1px; transition: background 0.15s;">
+                        <span style="font-size: 10px; font-weight: 700; color: #006666;">Dinas Pariwisata (Admin)</span>
+                        <span style="font-size: 9px; color: #94a3b8;">admin / password</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Toggle link -->
+            <div style="text-align: center; margin-top: 14px; font-size: 11px; color: #94a3b8;">
+                <span id="auth-toggle-label">Belum memiliki akun? </span>
+                <button id="auth-toggle-mode-btn" style="color: #006666; font-weight: 700; background: none; border: none; cursor: pointer; font-size: 11px; font-family: 'Inter';">Daftar Sekarang</button>
+            </div>
         </div>
     </div>
 

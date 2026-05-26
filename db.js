@@ -130,6 +130,12 @@ const initialData = {
         { id: "t2", ip: "182.253.90.11", timestamp: "2026-05-25T16:45:33Z", type: "SQL Injection", payload: "' OR '1'='1' --", severity: "HIGH", action: "BLOCKED" },
         { id: "t3", ip: "114.79.2.45", timestamp: "2026-05-26T02:11:05Z", type: "Cyberbullying / Profanity", payload: "Warung bangsat pelayanan kayak tahi babi!", severity: "MEDIUM", action: "BLOCKED" }
     ],
+    users: [
+        { username: "wisatawan", password: "password", role: "wisatawan", fullname: "Budi Wisatawan" },
+        { username: "umkm", password: "password", role: "umkm", fullname: "Haji Azza (Pemilik UMKM)" },
+        { username: "itsec", password: "password", role: "itsec", fullname: "Satria IT Cybersec" },
+        { username: "admin", password: "password", role: "superadmin", fullname: "Dinas Pariwisata Gresik" }
+    ],
     cache: {}
 };
 
@@ -248,6 +254,16 @@ async function bootstrapMySQLSchema() {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         `);
 
+        // 5. Users Table
+        await mysqlPool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                username VARCHAR(50) PRIMARY KEY,
+                password VARCHAR(255) NOT NULL,
+                role VARCHAR(50) NOT NULL,
+                fullname VARCHAR(255) NOT NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        `);
+
         // Check if merchants table is empty to populate mock
         const [rows] = await mysqlPool.query("SELECT COUNT(*) as count FROM merchants");
         if (rows[0].count === 0) {
@@ -276,7 +292,21 @@ async function bootstrapMySQLSchema() {
                     [t.id, t.ip, t.timestamp, t.type, t.payload, t.severity, t.action]
                 );
             }
-            console.log("[Database] Seeding complete.");
+
+            console.log("[Database] Merchants, reviews, threats seeded.");
+        }
+
+        // Always ensure default users exist (independent of merchants seed state)
+        const [userRows] = await mysqlPool.query("SELECT COUNT(*) as count FROM users");
+        if (userRows[0].count === 0) {
+            console.log("[Database] Seeding default user accounts...");
+            for (const u of initialData.users) {
+                await mysqlPool.query(
+                    "INSERT IGNORE INTO users (username, password, role, fullname) VALUES (?, ?, ?, ?)",
+                    [u.username, u.password, u.role, u.fullname]
+                );
+            }
+            console.log("[Database] Default user accounts seeded.");
         }
     } catch (err) {
         console.error("[Database Error] Bootstrapping failed:", err.message);
@@ -602,6 +632,43 @@ const db = {
         saveJsonDb(data);
         console.log(`[Cache Miss - JSON] Caching itinerary under key: ${key} (Expires: ${expiryStr})`);
         return true;
+    },
+
+    // User Authentication Helpers
+    getUser: async (username) => {
+        if (useMySQL && mysqlPool) {
+            try {
+                const [rows] = await mysqlPool.query("SELECT * FROM users WHERE username = ?", [username]);
+                if (rows.length > 0) return rows[0];
+                return null;
+            } catch (e) {
+                console.error("MySQL getUser failed:", e);
+            }
+        }
+
+        const data = loadJsonDb();
+        if (!data.users) data.users = [];
+        return data.users.find(u => u.username === username) || null;
+    },
+
+    addUser: async (user) => {
+        if (useMySQL && mysqlPool) {
+            try {
+                await mysqlPool.query(
+                    "INSERT INTO users (username, password, role, fullname) VALUES (?, ?, ?, ?)",
+                    [user.username, user.password, user.role, user.fullname]
+                );
+                return user;
+            } catch (e) {
+                console.error("MySQL addUser failed:", e);
+            }
+        }
+
+        const data = loadJsonDb();
+        if (!data.users) data.users = [];
+        data.users.push(user);
+        saveJsonDb(data);
+        return user;
     },
 
     // Encryption Helpers
