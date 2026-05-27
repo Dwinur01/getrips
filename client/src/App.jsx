@@ -43,6 +43,15 @@ function App() {
   const [authError, setAuthError] = useState('');
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
 
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return !localStorage.getItem('grestrip_onboarded');
+  });
+
+  const dismissOnboarding = () => {
+    localStorage.setItem('grestrip_onboarded', '1');
+    setShowOnboarding(false);
+  };
+
   // Fetch Startup Data
   const fetchData = async () => {
     try {
@@ -173,6 +182,25 @@ function App() {
   const showItSecBtn = user && user.role === 'itsec';
   const showAdminBtn = user && (user.role === 'superadmin' || user.role === 'itsec');
 
+  const portalLabels = {
+    'wisatawan': { label: 'Portal Wisatawan', icon: '🗺️' },
+    'umkm':      { label: 'Dashboard UMKM', icon: '🏪' },
+    'itsec':     { label: 'IT Security Center', icon: '🛡️' },
+    'superadmin':{ label: 'Super Admin', icon: '⚙️' }
+  };
+
+  useEffect(() => {
+    const handleKeydown = (e) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+      if (e.altKey && e.key === '1') setActivePortal('wisatawan');
+      if (e.altKey && e.key === '2' && showUmkmBtn) setActivePortal('umkm');
+      if (e.altKey && e.key === '3' && showItSecBtn) setActivePortal('itsec');
+      if (e.altKey && e.key === '4' && showAdminBtn) setActivePortal('superadmin');
+    };
+    window.addEventListener('keydown', handleKeydown);
+    return () => window.removeEventListener('keydown', handleKeydown);
+  }, [showUmkmBtn, showItSecBtn, showAdminBtn]);
+
   return (
     <div className={`flex min-h-screen w-screen transition-colors duration-300 ${activePortal === 'itsec' ? 'bg-[#090d10]' : 'bg-[#f3f6f6]'}`}>
       
@@ -221,6 +249,7 @@ function App() {
           {showWisatawanBtn && (
             <button 
               onClick={() => setActivePortal('wisatawan')}
+              title="Portal Wisatawan (Alt+1)"
               className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-sans text-sm font-medium text-left transition-all ${
                 activePortal === 'wisatawan'
                   ? 'bg-[#006666] text-white'
@@ -237,6 +266,7 @@ function App() {
           {showUmkmBtn && (
             <button 
               onClick={() => setActivePortal('umkm')}
+              title="Pemilik UMKM (Alt+2)"
               className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-sans text-sm font-medium text-left transition-all ${
                 activePortal === 'umkm'
                   ? 'bg-[#006666] text-white'
@@ -253,6 +283,7 @@ function App() {
           {showItSecBtn && (
             <button 
               onClick={() => setActivePortal('itsec')}
+              title="IT Security (Alt+3)"
               className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-sans text-sm font-medium text-left transition-all ${
                 activePortal === 'itsec'
                   ? 'bg-[#38bdf8] text-black font-semibold shadow-lg shadow-sky-500/10'
@@ -267,6 +298,7 @@ function App() {
           {showAdminBtn && (
             <button 
               onClick={() => setActivePortal('superadmin')}
+              title="Super Admin (Alt+4)"
               className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-sans text-sm font-medium text-left transition-all ${
                 activePortal === 'superadmin'
                   ? 'bg-[#006666] text-white'
@@ -360,6 +392,17 @@ function App() {
                 </button>
               </div>
             )}
+
+            {/* Breadcrumb */}
+            <div className={`flex items-center gap-2 text-[10px] font-semibold mb-2 ${
+              activePortal === 'itsec' ? 'text-gray-500' : 'text-gray-400'
+            }`}>
+              <span>Grestrip</span>
+              <span>/</span>
+              <span className={activePortal === 'itsec' ? 'text-sky-400' : 'text-primary'}>
+                {portalLabels[activePortal]?.icon} {portalLabels[activePortal]?.label}
+              </span>
+            </div>
 
             {/* Render Portal View */}
             {activePortal === 'wisatawan' && (
@@ -644,6 +687,23 @@ function App() {
           </div>
         </div>
       )}
+
+        {showOnboarding && !user && activePortal === 'wisatawan' && (
+          <div className="fixed bottom-20 left-[280px] z-[800] max-w-[260px] animate-fade-in">
+            <div className="bg-[#006666] text-white rounded-2xl p-4 shadow-2xl shadow-primary/30 relative">
+              <div className="absolute -left-2 top-5 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-[#006666]"></div>
+              <p className="text-xs font-semibold leading-relaxed">
+                💡 Mulai dengan mengisi preferensi perjalanan, lalu klik <strong>"Rangkai Rute dengan AI"</strong> untuk membuat itinerary otomatis!
+              </p>
+              <button
+                onClick={dismissOnboarding}
+                className="mt-3 w-full bg-white/20 hover:bg-white/30 text-white text-[10px] font-bold py-1.5 rounded-lg transition-colors"
+              >
+                Mengerti, Tutup →
+              </button>
+            </div>
+          </div>
+        )}
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { MessageSquare, Star, BrainCircuit, Smile, Frown, ShoppingBag, Plus, Trash2, X, RefreshCw, Pencil, TrendingUp, AlertTriangle } from 'lucide-react'
+import { MessageSquare, Star, BrainCircuit, Smile, Frown, ShoppingBag, Plus, Trash2, X, RefreshCw, Pencil, TrendingUp, AlertTriangle, Search } from 'lucide-react'
 import EmptyState from './EmptyState'
 
 function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToast }) {
@@ -29,6 +29,8 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
 
   // Delete confirm state
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+  const [catalogSearch, setCatalogSearch] = useState('');
+  const [lastSeenCount, setLastSeenCount] = useState(0);
 
   // Set default merchant
   useEffect(() => {
@@ -61,6 +63,13 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
   }
 
   const activeMerchant = merchants.find(m => m.id === selectedMerchantId)
+
+  const merchantReviews = reviews.filter(r => r.merchantId === selectedMerchantId);
+  const newReviewCount = Math.max(0, merchantReviews.length - lastSeenCount);
+  const filteredCatalog = (activeMerchant?.catalog || []).filter(item =>
+    item.name.toLowerCase().includes(catalogSearch.toLowerCase()) ||
+    item.description?.toLowerCase().includes(catalogSearch.toLowerCase())
+  );
 
   // Speedometer stroke-dashoffset math
   const radius = 54
@@ -201,7 +210,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
         </button>
 
         <button 
-          onClick={() => setActiveUmkmTab('reviews')}
+          onClick={() => { setActiveUmkmTab('reviews'); setLastSeenCount(merchantReviews.length); }}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-lg font-display text-sm font-semibold transition-all ${
             activeUmkmTab === 'reviews' 
               ? 'bg-primary-light text-primary' 
@@ -210,6 +219,11 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
         >
           <MessageSquare className="w-4 h-4" />
           <span>Ulasan Konsumen</span>
+          {activeUmkmTab !== 'reviews' && newReviewCount > 0 && (
+            <span className="ml-1.5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+              {newReviewCount} baru
+            </span>
+          )}
         </button>
       </div>
 
@@ -311,6 +325,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-center leading-none">
                         <span className="font-display font-extrabold text-2xl text-primary">{sentiment.sentimentScore}%</span>
                         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-1">Sentiment</label>
+                        <span className="text-[10px] text-gray-400 mt-1">dari {merchantReviews.length} ulasan</span>
                       </div>
                     </div>
 
@@ -320,7 +335,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
                         <div className="bg-primary" style={{ width: `${sentiment.positivePercentage}%` }}></div>
                         <div className="bg-secondary" style={{ width: `${sentiment.negativePercentage}%` }}></div>
                       </div>
-                      <div className="flex justify-between text-[9px] font-semibold">
+                      <div className="flex justify-between text-[10px] font-semibold">
                         <span className="text-primary flex items-center gap-0.5"><Smile className="w-3 h-3" /> Pos: {sentiment.positivePercentage}%</span>
                         <span className="text-secondary flex items-center gap-0.5"><Frown className="w-3 h-3" /> Neg: {sentiment.negativePercentage}%</span>
                       </div>
@@ -354,11 +369,33 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
                 </div>
 
                 <div className="space-y-3 max-h-[260px] overflow-y-auto pr-2 flex-grow">
+                  <div className="relative mb-3">
+                    <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={catalogSearch}
+                      onChange={(e) => setCatalogSearch(e.target.value)}
+                      placeholder="Cari menu..."
+                      className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-xl text-xs bg-gray-50 outline-none focus:border-primary focus:bg-white transition-colors"
+                    />
+                    {catalogSearch && (
+                      <span className="absolute right-3 top-2.5 text-[10px] text-gray-400">
+                        {filteredCatalog.length} hasil
+                      </span>
+                    )}
+                  </div>
                   {activeMerchant.catalog && activeMerchant.catalog.length > 0 ? (
-                    activeMerchant.catalog.map(item => (
+                    filteredCatalog.map((item, idx) => (
                       <div key={item.id} className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex justify-between items-center gap-4 hover:bg-gray-100 transition-colors">
                         <div className="flex flex-col">
-                          <strong className="text-xs text-gray-800 font-bold">{item.name}</strong>
+                          <div className="flex items-center gap-2">
+                            <strong className="text-xs text-gray-800 font-bold">{item.name}</strong>
+                            {idx === 0 && (
+                              <span className="shrink-0 bg-secondary/10 text-secondary border border-secondary/20 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                                🔥 Terlaris
+                              </span>
+                            )}
+                          </div>
                           <span className="text-[10px] text-gray-500 leading-snug mt-0.5">{item.description}</span>
                         </div>
                         <div className="flex items-center gap-2.5 shrink-0">
@@ -395,9 +432,36 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
           /* Consumers reviews tab */
           <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6">
             <h3 className="font-display font-semibold text-lg text-primary mb-4 pb-3 border-b border-gray-150">Ulasan Konsumen untuk {activeMerchant.name}</h3>
+              {merchantReviews.length > 0 && (
+                <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 mb-5">
+                  <div className="flex items-center gap-6">
+                    <div className="text-center shrink-0">
+                      <span className="font-display font-extrabold text-4xl text-primary">{activeMerchant?.rating || 0}</span>
+                      <div className="text-amber-400 text-base mt-0.5">{'★'.repeat(Math.round(activeMerchant?.rating || 0))}</div>
+                      <span className="text-[10px] text-gray-400">{merchantReviews.length} ulasan</span>
+                    </div>
+                    <div className="flex-grow space-y-1.5">
+                      {[5, 4, 3, 2, 1].map(star => {
+                        const count = merchantReviews.filter(r => r.rating === star).length;
+                        const pct = merchantReviews.length > 0 ? Math.round((count / merchantReviews.length) * 100) : 0;
+                        return (
+                          <div key={star} className="flex items-center gap-2">
+                            <span className="text-[10px] text-gray-500 w-3 shrink-0 font-semibold">{star}</span>
+                            <span className="text-amber-400 text-[10px]">★</span>
+                            <div className="flex-grow h-2 bg-gray-200 rounded-full overflow-hidden">
+                              <div className="h-full bg-amber-400 rounded-full transition-all duration-500" style={{ width: `${pct}%` }}></div>
+                            </div>
+                            <span className="text-[10px] text-gray-400 w-6 text-right shrink-0">{count}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
             <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
-              {reviews.filter(r => r.merchantId === selectedMerchantId).length > 0 ? (
-                reviews.filter(r => r.merchantId === selectedMerchantId).map(r => (
+              {merchantReviews.length > 0 ? (
+                merchantReviews.map(r => (
                   <div key={r.id} className="bg-gray-50 border border-gray-200 rounded-2xl p-4 transition-all hover:bg-gray-100 flex flex-col gap-2">
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-2">

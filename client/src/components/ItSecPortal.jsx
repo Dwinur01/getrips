@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { ShieldAlert, AlertTriangle, Shield, Terminal, Skull, ShieldX, Info, Play, Pause, RefreshCw } from 'lucide-react'
+import { ShieldAlert, AlertTriangle, Shield, Terminal, Skull, ShieldX, Info, Play, Pause, RefreshCw, Copy, CheckCircle } from 'lucide-react'
 import EmptyState from './EmptyState'
 
 function ItSecPortal({ threats, globalApiKey, onRefresh }) {
@@ -22,6 +22,8 @@ function ItSecPortal({ threats, globalApiKey, onRefresh }) {
   // Local flashing light indicator override
   const [sysStatus, setSysStatus] = useState('secure') // 'secure' | 'warning' | 'blocked'
   const [tempBlockType, setTempBlockType] = useState('')
+  const [copiedId, setCopiedId] = useState(null);
+  const [recentPayloads, setRecentPayloads] = useState([]);
 
   useEffect(() => {
     fetchQuota()
@@ -124,6 +126,13 @@ function ItSecPortal({ threats, globalApiKey, onRefresh }) {
       const data = await res.json()
       setConsoleOutput(JSON.stringify(data, null, 2))
 
+      if (payloadText.trim()) {
+        setRecentPayloads(prev => {
+          const updated = [payloadText, ...prev.filter(p => p !== payloadText)].slice(0, 5);
+          return updated;
+        });
+      }
+
       // Trigger refreshes
       onRefresh()
       fetchQuota()
@@ -160,6 +169,81 @@ function ItSecPortal({ threats, globalApiKey, onRefresh }) {
   const otherCount = threats.length - (xssCount + sqliCount + bullyingCount)
 
   const totalThreats = threats.length || 1
+
+  const renderConsoleOutput = (output) => {
+    if (!output) return null;
+    try {
+      const parsed = JSON.parse(output);
+      return (
+        <div className="font-mono text-[11px] space-y-1.5 leading-relaxed">
+          {Object.entries(parsed).map(([key, val]) => (
+            <div key={key} className="flex gap-2">
+              <span className="text-sky-400 shrink-0">"{key}"</span>
+              <span className="text-gray-500">:</span>
+              <span className={
+                key === 'isBlocked'
+                  ? (val ? 'text-red-400 font-bold' : 'text-emerald-400 font-bold')
+                  : key === 'type'
+                    ? 'text-amber-300 font-semibold'
+                    : key === 'highlight'
+                      ? 'text-red-300'
+                      : 'text-gray-300'
+              }>
+                {typeof val === 'boolean'
+                  ? String(val)
+                  : typeof val === 'string'
+                    ? `"${val}"`
+                    : JSON.stringify(val)}
+              </span>
+            </div>
+          ))}
+        </div>
+      );
+    } catch {
+      return <span className="text-gray-300 font-mono text-[11px]">{output}</span>;
+    }
+  };
+
+  const handleCopyPayload = (text, id) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const getHourlyActivity = (threatList) => {
+    const hourCounts = Array(24).fill(0);
+    threatList.forEach(t => {
+      const hour = new Date(t.timestamp).getHours();
+      hourCounts[hour]++;
+    });
+    return hourCounts;
+  };
+
+  const hourlyData = getHourlyActivity(threats);
+  const maxHour = Math.max(...hourlyData, 1);
+
+  const todayThreats = threats.filter(t => {
+    const threatDate = new Date(t.timestamp);
+    const today = new Date();
+    return threatDate.toDateString() === today.toDateString();
+  });
+
+  const yesterdayThreats = threats.filter(t => {
+    const threatDate = new Date(t.timestamp);
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return threatDate.toDateString() === yesterday.toDateString();
+  });
+
+  const getSeverityBadge = (type) => {
+    if (type === 'Stored XSS' || type === 'SQL Injection') {
+      return <span className="bg-red-500/20 text-red-400 border border-red-500/40 text-[10px] font-bold px-1.5 py-0.5 rounded">HIGH</span>;
+    }
+    if (type === 'Cyberbullying / Profanity') {
+      return <span className="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[10px] font-bold px-1.5 py-0.5 rounded">MED</span>;
+    }
+    return <span className="bg-blue-500/20 text-blue-400 border border-blue-500/40 text-[10px] font-bold px-1.5 py-0.5 rounded">LOW</span>;
+  };
 
   return (
     <div className="space-y-8 animate-fade-in text-[#e2e8f0]">
@@ -213,6 +297,21 @@ function ItSecPortal({ threats, globalApiKey, onRefresh }) {
                 <span className="font-mono text-xs font-bold text-red-500">Blocked: {tempBlockType}</span>
               </>
             )}
+          </div>
+
+          <div className="flex items-center gap-2 bg-red-950/20 border border-red-500/30 rounded-xl px-4 py-2">
+            <ShieldAlert className="w-4 h-4 text-red-400 shrink-0" />
+            <div>
+              <span className="font-mono font-bold text-red-400 text-sm">{todayThreats.length}</span>
+              <span className="text-gray-400 text-[10px] ml-1.5">serangan diblokir hari ini</span>
+              {yesterdayThreats.length > 0 && (
+                <span className={`ml-2 text-[10px] font-semibold ${
+                  todayThreats.length > yesterdayThreats.length ? 'text-red-400' : 'text-emerald-400'
+                }`}>
+                  {todayThreats.length > yesterdayThreats.length ? '▲' : '▼'} vs kemarin ({yesterdayThreats.length})
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -331,10 +430,10 @@ function ItSecPortal({ threats, globalApiKey, onRefresh }) {
               AI WAF Engine berhasil mendeteksi dan menangkis muatan berbahaya tersebut!
             </p>
             <div className="flex gap-2">
-              <span className="font-mono text-[9px] bg-red-500/20 border border-red-500/50 text-red-400 px-2.5 py-1 rounded">
+              <span className="font-mono text-[10px] bg-red-500/20 border border-red-500/50 text-red-400 px-2.5 py-1 rounded">
                 TYPE: {tempBlockType}
               </span>
-              <span className="font-mono text-[9px] bg-red-500/20 border border-red-500/50 text-red-400 px-2.5 py-1 rounded">
+              <span className="font-mono text-[10px] bg-red-500/20 border border-red-500/50 text-red-400 px-2.5 py-1 rounded">
                 ACTION: BLOCK & LOG
               </span>
             </div>
@@ -355,6 +454,25 @@ function ItSecPortal({ threats, globalApiKey, onRefresh }) {
               placeholder="Contoh XSS: <script>alert(1)</script>&#10;Contoh SQLi: ' OR 1=1 --&#10;Contoh Bullying: warung anjing pelayanan babi..."
               className="w-full min-h-[90px] bg-black/50 border border-[#1f2a36] rounded-xl font-mono text-xs text-emerald-400 p-4 focus:ring-1 focus:ring-emerald-400 focus:border-emerald-400 outline-none resize-none"
             ></textarea>
+
+              {recentPayloads.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  <span className="text-[10px] text-gray-500 font-semibold">Recent tests:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {recentPayloads.map((payload, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setPayloadText(payload)}
+                        className="text-[10px] font-mono bg-[#0a0f14] border border-[#1f2a36] text-gray-400 hover:text-sky-400 hover:border-sky-500/50 px-2 py-1 rounded-lg transition-all truncate max-w-[200px]"
+                        title={payload}
+                      >
+                        {payload.substring(0, 30)}{payload.length > 30 ? '...' : ''}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             
             <div className="flex flex-wrap gap-2">
               <button 
@@ -374,12 +492,38 @@ function ItSecPortal({ threats, globalApiKey, onRefresh }) {
 
           <div className="flex flex-col gap-1.5">
             <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">WAF Response Console:</span>
-            <pre className={`flex-grow bg-[#050709] border border-[#1f2a36] rounded-xl font-mono text-[10px] p-4 overflow-y-auto max-h-[160px] white-space-pre-wrap ${consoleColor}`}>
-              {renderHighlightedJSON(consoleOutput)}
-            </pre>
+              <div className="bg-[#0d1117] border border-[#1f2a36] rounded-xl p-4 min-h-[120px] flex-grow overflow-y-auto max-h-[160px]">
+                {renderConsoleOutput(consoleOutput)}
+              </div>
           </div>
         </div>
       </div>
+
+          <div className="bg-[#0a0f14] border border-[#1f2a36] rounded-2xl p-5 mb-5">
+            <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">
+              Aktivitas Serangan 24 Jam Terakhir
+            </h4>
+            <div className="flex items-end gap-0.5 h-[52px]">
+              {hourlyData.map((count, hour) => (
+                <div key={hour} className="flex-1 flex flex-col items-center justify-end gap-0.5 group relative">
+                  <div
+                    className={`w-full rounded-t transition-all duration-300 ${
+                      count === 0 ? 'bg-[#1f2a36]' : 'bg-red-500/60 group-hover:bg-red-400'
+                    }`}
+                    style={{ height: `${(count / maxHour) * 44 + (count > 0 ? 4 : 2)}px` }}
+                  ></div>
+                  {count > 0 && (
+                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity z-10">
+                      {hour}:00 — {count}x
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-between text-[10px] text-gray-600 mt-1 font-mono">
+              <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:59</span>
+            </div>
+          </div>
 
       {/* Cyber threat logging table */}
       <div className="bg-[#12181f] border border-[#1f2a36] rounded-2xl p-6">
@@ -400,7 +544,7 @@ function ItSecPortal({ threats, globalApiKey, onRefresh }) {
               <button
                 key={chip.id}
                 onClick={() => setActiveFilter(chip.id)}
-                className={`px-3 py-1 rounded-full font-mono text-[9px] font-bold border transition-all active:scale-95 ${
+                className={`px-3 py-1 rounded-full font-mono text-[10px] font-bold border transition-all active:scale-95 ${
                   activeFilter === chip.id
                     ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400'
                     : 'bg-[#1a232d] border-[#1f2a36] text-gray-400 hover:text-gray-200'
@@ -450,14 +594,30 @@ function ItSecPortal({ threats, globalApiKey, onRefresh }) {
                       })}
                     </td>
                     <td className="py-2.5 px-3">{log.ip}</td>
-                    <td className="py-2.5 px-3 text-red-400 font-bold">{log.type}</td>
                     <td className="py-2.5 px-3">
-                      <span className="bg-red-500/10 border border-red-900/40 text-red-400 rounded px-1.5 py-0.5 inline-block word-break-all max-w-[280px]">
-                        {escapeHTML(log.payload)}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-red-400 font-bold">{log.type}</span>
+                        {getSeverityBadge(log.type)}
+                      </div>
                     </td>
                     <td className="py-2.5 px-3">
-                      <span className="bg-red-600 text-white rounded font-bold px-1.5 py-0.5 text-[9px]">
+                    <div className="flex items-center gap-2">
+                      <code className="text-[10px] text-red-300 font-mono truncate max-w-[200px]" title={log.payload}>
+                        {log.payload}
+                      </code>
+                      <button
+                        onClick={() => handleCopyPayload(log.payload, log.id)}
+                        className="shrink-0 text-gray-500 hover:text-sky-400 transition-colors p-1 rounded"
+                        title="Copy payload ke clipboard"
+                      >
+                        {copiedId === log.id
+                          ? <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                          : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                    </td>
+                    <td className="py-2.5 px-3">
+                      <span className="bg-red-600 text-white rounded font-bold px-1.5 py-0.5 text-[10px]">
                         {log.action}
                       </span>
                     </td>

@@ -34,6 +34,11 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
   const [editStatus, setEditStatus] = useState('aktif')
   const [editMapOpen, setEditMapOpen] = useState(false)
 
+  const [deactivateModal, setDeactivateModal] = useState(null);
+  const [deactivateReason, setDeactivateReason] = useState('');
+  const [locationName, setLocationName] = useState('');
+  const [editLocationName, setEditLocationName] = useState('');
+
   // Leaflet map references
   const pickerMapRef = useRef(null)
   const editPickerMapRef = useRef(null)
@@ -82,6 +87,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
           setLat(clickLat.toFixed(6))
           setLng(clickLng.toFixed(6))
           marker.setLatLng([clickLat, clickLng])
+          fetchLocationName(clickLat, clickLng);
         })
       }, 250)
 
@@ -117,6 +123,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
           setEditLat(clickLat.toFixed(6))
           setEditLng(clickLng.toFixed(6))
           marker.setLatLng([clickLat, clickLng])
+          fetchLocationName(clickLat, clickLng, true);
         })
       }, 250)
 
@@ -245,6 +252,89 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
     }
   }
 
+  const handleToggleRequest = (merchant) => {
+    if (merchant.status !== 'nonaktif') {
+      setDeactivateModal(merchant);
+      setDeactivateReason('');
+    } else {
+      handleToggleActiveStatus(merchant);
+    }
+  };
+
+  const fetchLocationName = async (latitude, longitude, isEdit = false) => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=id`,
+        { headers: { 'User-Agent': 'Grestrip/1.0' } }
+      );
+      const data = await res.json();
+      const parts = [
+        data.address?.village || data.address?.suburb,
+        data.address?.city_district || data.address?.county,
+        data.address?.city || data.address?.town
+      ].filter(Boolean);
+      const name = parts.join(', ') || 'Lokasi ditemukan';
+      if (isEdit) {
+        setEditLocationName(name);
+      } else {
+        setLocationName(name);
+      }
+    } catch {
+      if (isEdit) setEditLocationName('');
+      else setLocationName('');
+    }
+  };
+
+  const DonutChart = ({ data }) => {
+    const total = Object.values(data).reduce((s, v) => s + v, 0);
+    if (total === 0) return null;
+    const colors = { kuliner: '#e05624', wisata: '#006666', lainnya: '#f59e0b' };
+    let offset = 0;
+    const radius = 40;
+    const circumference = 2 * Math.PI * radius;
+    const segments = Object.entries(data).map(([key, value]) => {
+      const pct = value / total;
+      const dash = pct * circumference;
+      const seg = { key, value, color: colors[key] || '#64748b', pct, dash, offset };
+      offset += dash;
+      return seg;
+    });
+    return (
+      <div className="flex items-center gap-5">
+        <svg viewBox="0 0 100 100" className="w-[90px] h-[90px] -rotate-90">
+          <circle cx="50" cy="50" r={radius} fill="none" stroke="#1f2a36" strokeWidth="12" />
+          {segments.map(s => (
+            <circle
+              key={s.key}
+              cx="50" cy="50" r={radius}
+              fill="none"
+              stroke={s.color}
+              strokeWidth="12"
+              strokeDasharray={`${s.dash} ${circumference - s.dash}`}
+              strokeDashoffset={-s.offset}
+              strokeLinecap="round"
+            />
+          ))}
+        </svg>
+        <div className="space-y-2">
+          {segments.map(s => (
+            <div key={s.key} className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }}></span>
+              <span className="text-[11px] text-gray-600 capitalize font-semibold">{s.key}</span>
+              <span className="text-[11px] text-gray-400 font-mono">{s.value} ({Math.round(s.pct * 100)}%)</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const merchantsByType = merchants.reduce((acc, m) => {
+    const t = m.type || 'lainnya';
+    acc[t] = (acc[t] || 0) + 1;
+    return acc;
+  }, {});
+
   return (
     <div className="space-y-8 animate-fade-in text-gray-800">
       
@@ -338,6 +428,13 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
               </button>
             </div>
 
+                {locationName && (
+                  <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5">
+                    <MapPin className="w-3 h-3 shrink-0" />
+                    <span className="font-semibold">{locationName}</span>
+                  </div>
+                )}
+
             <div className="flex flex-col gap-1">
               <label className="text-xs font-semibold">Deskripsi Layanan & Keunikan Wisata</label>
               <textarea 
@@ -386,6 +483,13 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
             </div>
           </div>
 
+            {Object.keys(merchantsByType).length > 0 && (
+              <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-5 mt-5">
+                <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Distribusi Tipe UMKM</h4>
+                <DonutChart data={merchantsByType} />
+              </div>
+            )}
+
           {/* List registries with edit actions */}
           <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6 flex flex-col">
             <h3 className="font-display font-semibold text-sm text-gray-700 mb-4 border-b border-gray-150 pb-3">Daftar UMKM Kreatif Terbina</h3>
@@ -397,18 +501,28 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
                   return (
                     <div 
                       key={m.id} 
-                      className={`border rounded-xl p-3.5 flex justify-between items-center hover:shadow-soft transition-all ${
-                        isInactive ? 'bg-red-50/40 border-red-150 opacity-70' : 'bg-gray-50 border-gray-200'
+                      className={`bg-white border rounded-2xl p-4 flex items-center justify-between gap-3 transition-all ${
+                        m.status === 'nonaktif'
+                          ? 'border-gray-200 bg-gray-50/70 opacity-70'
+                          : 'border-gray-200 hover:shadow-soft hover:border-primary/30'
                       }`}
                     >
                       <div className="flex flex-col gap-0.5">
                         <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full shrink-0 ${
+                            m.status === 'nonaktif' ? 'bg-gray-400' : 'bg-emerald-500 shadow-[0_0_6px_#10b981]'
+                          }`}></div>
                           <strong className="text-xs text-gray-800 font-bold">{m.name}</strong>
-                          <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
+                          <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
                             isInactive ? 'bg-red-200 text-red-800' : 'bg-emerald-100 text-emerald-800'
                           }`}>
                             {isInactive ? 'Nonaktif' : 'Aktif'}
                           </span>
+                    {m.status === 'nonaktif' && (
+                      <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-gray-100 text-gray-500 border border-gray-200">
+                        ⏸ Nonaktif
+                      </span>
+                    )}
                         </div>
                         <span className="text-[10px] text-gray-400 leading-snug">Pemilik: {m.owner}</span>
                         <span className="text-[10px] text-gray-400 font-mono">Loc: {m.coords[0].toFixed(4)}, {m.coords[1].toFixed(4)}</span>
@@ -430,7 +544,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
                         </button>
                         
                         <button
-                          onClick={() => handleToggleActiveStatus(m)}
+                          onClick={() => handleToggleRequest(m)}
                           className={`p-1 rounded transition-all active:scale-90 ${
                             isInactive 
                               ? 'text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50' 
@@ -641,6 +755,13 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
                 </button>
               </div>
 
+                {editLocationName && (
+                  <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5">
+                    <MapPin className="w-3 h-3 shrink-0" />
+                    <span className="font-semibold">{editLocationName}</span>
+                  </div>
+                )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-semibold">Status Keanggotaan</label>
@@ -724,6 +845,38 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
           </div>
         </div>
       )}
+
+        {deactivateModal && (
+          <div className="fixed inset-0 bg-black/50 z-[400] flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl max-w-[400px] w-full p-6 shadow-xl">
+              <h3 className="font-bold text-base text-gray-800 mb-1">Nonaktifkan UMKM</h3>
+              <p className="text-xs text-gray-500 mb-4">Pilih alasan penonaktifan untuk keperluan audit trail.</p>
+              <select
+                value={deactivateReason}
+                onChange={(e) => setDeactivateReason(e.target.value)}
+                className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary mb-4"
+              >
+                <option value="">-- Pilih alasan --</option>
+                <option value="renovasi">Sedang renovasi / tutup sementara</option>
+                <option value="pelanggaran">Pelanggaran SOP platform</option>
+                <option value="permintaan">Permintaan pemilik sendiri</option>
+                <option value="tidak_aktif">Tidak aktif lebih dari 30 hari</option>
+              </select>
+              <div className="flex gap-3">
+                <button onClick={() => setDeactivateModal(null)} className="flex-1 border border-gray-300 rounded-xl py-2.5 text-xs font-semibold hover:bg-gray-50">
+                  Batalkan
+                </button>
+                <button
+                  disabled={!deactivateReason}
+                  onClick={() => { handleToggleActiveStatus(deactivateModal); setDeactivateModal(null); }}
+                  className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-xl py-2.5 text-xs font-semibold transition-all active:scale-95"
+                >
+                  Ya, Nonaktifkan
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
     </div>
   )

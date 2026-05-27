@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { SlidersHorizontal, Sparkles, MapPin, ListTodo, ShieldAlert, Lock, Send, ShieldX, Utensils, Compass, Loader2, TreePine, Church, Landmark, Star, Download, MessageSquare } from 'lucide-react'
+import { SlidersHorizontal, Sparkles, MapPin, ListTodo, ShieldAlert, Lock, Send, ShieldX, Utensils, Compass, Loader2, TreePine, Church, Landmark, Star, Download, MessageSquare, RefreshCw } from 'lucide-react'
 
 const EmptyState = ({ icon: Icon, title, subtitle }) => (
   <div className="flex flex-col items-center justify-center py-10 text-gray-400 gap-3 border border-dashed border-gray-200 rounded-2xl p-6 bg-gray-50/50">
@@ -35,6 +35,10 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
   // Review pagination
   const [reviewPage, setReviewPage] = useState(5)
 
+  const [focusCoords, setFocusCoords] = useState(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [confettiPieces, setConfettiPieces] = useState([]);
+
   // Smooth scroll ref
   const timelineRef = useRef(null)
 
@@ -42,6 +46,43 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
   const mapContainerRef = useRef(null)
   const mapInstance = useRef(null)
   const routeLayerGroup = useRef(null)
+
+  const handleFocusOnMap = (lat, lng) => {
+    setActiveTab('map-view');
+    setFocusCoords({ lat, lng });
+    setTimeout(() => {
+      if (mapInstance.current) {
+        mapInstance.current.setView([lat, lng], 16, { animate: true });
+      }
+    }, 150);
+  };
+
+  const triggerConfetti = () => {
+    const colors = ['#006666', '#e05624', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'];
+    const pieces = Array.from({ length: 30 }, (_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      delay: `${Math.random() * 0.8}s`,
+      size: `${6 + Math.random() * 8}px`
+    }));
+    setConfettiPieces(pieces);
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 2500);
+  };
+
+  const handleResetForm = () => {
+    setBudget(200000);
+    setDuration('2');
+    setPreferences(['kuliner', 'sejarah']);
+    setAllergies('');
+    setItinerary(null);
+    setActiveTab('map-view');
+    if (routeLayerGroup.current) {
+      routeLayerGroup.current.clearLayers();
+      plotMarkers();
+    }
+  };
 
   // Auto-fill from user session
   useEffect(() => {
@@ -91,7 +132,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
       
       // Simulating custom icons inside div element
       const iconHtml = `<div class="${bgClass} w-[28px] h-[28px] rounded-full flex items-center justify-center border-2 border-white text-white shadow-md transition-transform duration-200 hover:scale-115 hover:rotate-6">
-        <span class="text-[9px] font-bold">${m.type === 'kuliner' ? 'K' : 'W'}</span>
+        <span class="text-[10px] font-bold">${m.type === 'kuliner' ? 'K' : 'W'}</span>
       </div>`
       
       const customIcon = L.divIcon({
@@ -127,7 +168,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
       points.push([item.lat, item.lng])
 
       const seqIcon = L.divIcon({
-        html: `<div class="bg-slate-900 text-white font-mono text-[9px] font-extrabold w-[42px] h-[20px] rounded-lg border-2 border-white shadow-md flex items-center justify-center">Day ${item.day}</div>`,
+        html: `<div class="bg-slate-900 text-white font-mono text-[10px] font-extrabold w-[42px] h-[20px] rounded-lg border-2 border-white shadow-md flex items-center justify-center">Day ${item.day}</div>`,
         className: '',
         iconSize: [42, 20],
         iconAnchor: [21, 10]
@@ -173,6 +214,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
 
       const data = await response.json()
       setItinerary(data)
+        triggerConfetti();
       
       // Auto-switch to Timeline View Tab
       setActiveTab('timeline-view')
@@ -287,6 +329,8 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
     return items;
   };
 
+  const selectedReviewMerchant = merchants.find(m => m.id === revMerchantId);
+
   return (
     <div className="space-y-8 animate-fade-in text-gray-800">
       
@@ -301,9 +345,22 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
         
         {/* Left Side: Setup parameters */}
         <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6 h-fit">
-          <div className="flex items-center gap-2 border-b-2 border-primary-light pb-3 mb-5">
-            <SlidersHorizontal className="w-5 h-5 text-primary" />
-            <h3 className="font-display font-bold text-lg text-primary">Rancang Perjalanan Anda</h3>
+          <div className="flex items-center justify-between border-b-2 border-primary-light pb-3 mb-5">
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal className="w-5 h-5 text-primary" />
+              <h3 className="font-display font-bold text-lg text-primary">Rancang Perjalanan Anda</h3>
+            </div>
+            {(itinerary || allergies || preferences.length !== 2) && (
+              <button
+                type="button"
+                onClick={handleResetForm}
+                className="text-[10px] text-gray-400 hover:text-red-500 flex items-center gap-1 transition-colors"
+                title="Reset semua preferensi"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Reset</span>
+              </button>
+            )}
           </div>
 
           <form onSubmit={handleItinerarySubmit} className="space-y-5">
@@ -390,7 +447,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
                 placeholder="Contoh: Alergi seafood / kacang tanah..." 
                 className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-secondary"
               />
-              <span className="text-[9px] text-gray-400 flex items-center gap-1 mt-1">
+              <span className="text-[10px] text-gray-400 flex items-center gap-1 mt-1">
                 <Lock className="w-3 h-3 text-gray-400" />
                 Data terenkripsi simetris AES-256 pada database.
               </span>
@@ -413,6 +470,36 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
                 </>
               )}
             </button>
+            {itinerary && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-2">
+                <div className="flex justify-between text-xs font-semibold text-gray-600">
+                  <span>Anggaran Terpakai</span>
+                  <span className={itinerary.totalCost > budget ? 'text-red-500 font-bold' : 'text-primary font-bold'}>
+                    Rp {itinerary.totalCost?.toLocaleString('id-ID')} / Rp {budget.toLocaleString('id-ID')}
+                  </span>
+                </div>
+                <div className="w-full h-2.5 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-700 ${
+                      (itinerary.totalCost / budget) > 1
+                        ? 'bg-red-500'
+                        : (itinerary.totalCost / budget) > 0.8
+                          ? 'bg-amber-500'
+                          : 'bg-primary'
+                    }`}
+                    style={{ width: `${Math.min((itinerary.totalCost / budget) * 100, 100)}%` }}
+                  ></div>
+                </div>
+                <div className="flex justify-between text-[10px] text-gray-400 font-medium">
+                  <span>{Math.round((itinerary.totalCost / budget) * 100)}% terpakai</span>
+                  <span className={itinerary.totalCost > budget ? 'text-red-500' : 'text-emerald-600'}>
+                    {itinerary.totalCost > budget
+                      ? `⚠️ Melebihi Rp ${(itinerary.totalCost - budget).toLocaleString('id-ID')}`
+                      : `✅ Sisa Rp ${(budget - itinerary.totalCost).toLocaleString('id-ID')}`}
+                  </span>
+                </div>
+              </div>
+            )}
           </form>
         </div>
 
@@ -524,6 +611,14 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
                             <span className="text-primary flex items-center gap-1"><MapPin className="w-3 h-3" /> {item.location}</span>
                             <span className="text-secondary">Estimasi: Rp {item.cost.toLocaleString('id-ID')}</span>
                           </div>
+                          <button
+                            type="button"
+                            onClick={() => handleFocusOnMap(item.lat, item.lng)}
+                            className="flex items-center gap-1 text-[10px] text-primary font-semibold hover:underline mt-1 transition-all"
+                          >
+                            <MapPin className="w-3 h-3" />
+                            <span>Lihat di Peta</span>
+                          </button>
                         </div>
                       </div>
                     )
@@ -578,6 +673,23 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
                     <option key={m.id} value={m.id}>{m.name} ({m.type === 'kuliner' ? 'Kuliner' : 'Wisata'})</option>
                   ))}
                 </select>
+                {selectedReviewMerchant && (
+                  <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-start gap-3 mt-1.5">
+                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-white shrink-0 text-xs font-bold ${
+                      selectedReviewMerchant.type === 'kuliner' ? 'bg-secondary' : 'bg-primary'
+                    }`}>
+                      {selectedReviewMerchant.type === 'kuliner' ? '🍽️' : '🏛️'}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-gray-800 truncate">{selectedReviewMerchant.name}</p>
+                      <p className="text-[10px] text-gray-500 mt-0.5">
+                        ⭐ {selectedReviewMerchant.rating} ({selectedReviewMerchant.reviewsCount} ulasan) •{' '}
+                        {selectedReviewMerchant.type === 'kuliner' ? 'Kuliner UMKM' : 'Wisata Sejarah'}
+                      </p>
+                      <p className="text-[10px] text-gray-400 mt-0.5 truncate">{selectedReviewMerchant.description?.substring(0, 60)}...</p>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-semibold">Nama Anda</label>
@@ -615,13 +727,21 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold">Tulis Ulasan Anda</label>
+              <div className="flex justify-between items-center">
+                  <label className="text-xs font-semibold">Tulis Ulasan Anda</label>
+                  <span className={`text-[10px] font-semibold tabular-nums ${
+                    revText.length > 900 ? 'text-red-500' : 'text-gray-400'
+                  }`}>
+                    {revText.length}/1000
+                  </span>
+                </div>
               <textarea 
                 value={revText}
                 onChange={(e) => setRevText(e.target.value)}
                 placeholder="Bagikan ulasan objektif mengenai rasa, kenyamanan, atau nilai sejarah objek wisata..." 
                 required
                 rows="4"
+                maxLength={1000}
                 className="bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-primary resize-y"
               ></textarea>
               <span className="text-[10px] text-gray-400 flex items-center gap-1 mt-1">
@@ -656,13 +776,13 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
                             </div>
                             <div>
                               <span className="text-xs font-semibold block leading-tight">{r.userName}</span>
-                              <span className="text-[9px] text-gray-400">di {mName}</span>
+                              <span className="text-[10px] text-gray-400">di {mName}</span>
                             </div>
                           </div>
                           <span className="text-xs text-[#f59e0b]">{"★".repeat(r.rating) + "☆".repeat(5-r.rating)}</span>
                         </div>
                         <p className="text-xs text-gray-600 mt-1 italic">"{r.text}"</p>
-                        <span className="text-[9px] text-gray-400 block text-right mt-2">{new Date(r.timestamp).toLocaleDateString('id-ID')}</span>
+                        <span className="text-[10px] text-gray-400 block text-right mt-2">{new Date(r.timestamp).toLocaleDateString('id-ID')}</span>
                       </div>
                     )
                   })}
@@ -715,6 +835,20 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
         </div>
       )}
 
+        {showConfetti && confettiPieces.map(p => (
+          <div
+            key={p.id}
+            className="confetti-piece"
+            style={{
+              left: p.left,
+              top: '-10px',
+              backgroundColor: p.color,
+              width: p.size,
+              height: p.size,
+              animationDelay: p.delay
+            }}
+          />
+        ))}
     </div>
   )
 }
