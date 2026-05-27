@@ -4,6 +4,7 @@ const path = require('path');
 const db = require('./db');
 const waf = require('./waf');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const bcrypt = require('bcrypt');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,6 +36,17 @@ async function generateMockItinerary(budget, durationDays, preferences, allergie
     let isAllergicToPeanuts = /kacang|peanut/i.test(allergies);
     let isAllergicToSeafood = /seafood|ikan|bandeng|udang|crustacean/i.test(allergies);
     
+    const containsSeafood = (merchant) => {
+        const text = (merchant.name + ' ' + merchant.description + ' ' + 
+            merchant.catalog.map(c => c.name + ' ' + c.description).join(' ')).toLowerCase();
+        return /bandeng|seafood|udang|cumi|ikan|kepiting|kerang/.test(text);
+    };
+    const containsPeanut = (merchant) => {
+        const text = (merchant.name + ' ' + merchant.description + ' ' + 
+            merchant.catalog.map(c => c.name + ' ' + c.description).join(' ')).toLowerCase();
+        return /kacang|peanut|serundeng/.test(text);
+    };
+
     let allergyAlertNote = "";
     if (allergies) {
         allergyAlertNote = `Rute ini telah disaring secara aman oleh Data Privacy Guard untuk mendeteksi alergen: "${allergies}". `;
@@ -42,7 +54,7 @@ async function generateMockItinerary(budget, durationDays, preferences, allergie
             allergyAlertNote += "Penyajian saus kacang telah dieliminasi dari daftar menu rekomendasi kuliner.";
         }
         if (isAllergicToSeafood) {
-            allergyAlertNote += "Semua olahan bandeng/seafood dihindari dan diganti dengan kuliner daging sapi/herbal.";
+            allergyAlertNote += "Semua olahan bandeng/seafood dihindari dan diganti dengan kuliner alternatif.";
         }
     }
 
@@ -79,17 +91,17 @@ async function generateMockItinerary(budget, durationDays, preferences, allergie
         let lunchMenuCost = lunchSpot.catalog[0]?.price || 20000;
         let menuDesc = lunchSpot.catalog[0]?.description || "";
 
-        if (isAllergicToSeafood && lunchSpot.id === 'm2') { // Otak-otak bandeng
-            // Replace with Nasi Krawu Bu Azza
-            const safeSpot = merchants.find(m => m.id === 'm1');
+        if (isAllergicToSeafood && containsSeafood(lunchSpot)) {
+            // Find a safe spot that does not contain seafood
+            const safeSpot = merchants.find(m => m.type === 'kuliner' && !containsSeafood(m)) || merchants.find(m => m.id === 'm1') || merchants[0];
             lunchSpot = safeSpot;
-            lunchMenuName = "Nasi Krawu Daging (Alternatif Alergi Seafood)";
-            lunchMenuCost = safeSpot.catalog[0].price;
-            menuDesc = safeSpot.catalog[0].description + " (Dipilih secara otomatis karena Anda memiliki batasan medis terhadap seafood).";
-        } else if (isAllergicToPeanuts && lunchSpot.id === 'm1') {
-            // Nasi Krawu has peanuts in serundeng sometimes or custom alert
-            lunchMenuName = "Nasi Krawu Suwir Daging (Bebas Serundeng Kacang)";
-            menuDesc = lunchSpot.catalog[0].description + " (Koki diinstruksikan menyajikan serundeng kelapa murni bebas kacang tanah).";
+            lunchMenuName = (safeSpot.catalog[0]?.name || "Kuliner Alternatif") + " (Alternatif Alergi Seafood)";
+            lunchMenuCost = safeSpot.catalog[0]?.price || 20000;
+            menuDesc = (safeSpot.catalog[0]?.description || "") + " (Dipilih secara otomatis karena Anda memiliki batasan medis terhadap seafood).";
+        } else if (isAllergicToPeanuts && containsPeanut(lunchSpot)) {
+            // Remove peanut products / adjust
+            lunchMenuName = (lunchSpot.catalog[0]?.name || "Kuliner Pilihan") + " (Bebas Kacang)";
+            menuDesc = (lunchSpot.catalog[0]?.description || "") + " (Koki diinstruksikan menyajikan kelapa murni tanpa kacang tanah).";
         }
 
         totalEstimatedCost += lunchMenuCost;
@@ -152,6 +164,17 @@ app.get('/api/merchants', async (req, res) => {
 // 2. Submit itinerary request (AI Itinerary Planner)
 app.post('/api/itinerary', async (req, res) => {
     const { budget, duration, preferences, allergies, userKey } = req.body;
+    
+    // 1.3 Validation
+    const budgetNum = parseInt(budget);
+    const durationNum = parseInt(duration);
+    if (isNaN(budgetNum) || budgetNum < 10000 || budgetNum > 1000000) {
+        return res.status(400).json({ error: "Anggaran perjalanan harus berkisar antara Rp 10.000 dan Rp 1.000.000" });
+    }
+    if (isNaN(durationNum) || durationNum < 1 || durationNum > 7) {
+        return res.status(400).json({ error: "Durasi kunjungan harus berkisar antara 1 sampai 7 hari" });
+    }
+
     const ipAddress = getClientIp(req);
 
     // Encrypt the sensitive allergies field using db AES-256 before caching or passing
@@ -225,7 +248,7 @@ Hasilkan keluaran JSON terstruktur yang KAKU dan valid sesuai dengan skema JSON 
 }`;
 
         // Track quota check before calling Gemini
-        const rateLimit = waf.checkRateLimit();
+        const rateLimit = waf.checkRateLimit(ipAddress);
         if (rateLimit.remaining === 0) {
             throw new Error("Rate Limit Triggered on API call");
         }
@@ -266,6 +289,18 @@ app.post('/api/reviews', async (req, res) => {
 
     if (!merchantId || !userName || !text) {
         return res.status(400).json({ error: "Missing required review fields" });
+    }
+
+    // 1.3 Validation
+    const ratingNum = parseInt(rating);
+    if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+        return res.status(400).json({ error: "Rating harus bernilai antara 1 sampai 5" });
+    }
+    if (userName.trim().length > 50) {
+        return res.status(400).json({ error: "Nama pengirim ulasan maksimal 50 karakter" });
+    }
+    if (text.trim().length > 1000) {
+        return res.status(400).json({ error: "Teks ulasan maksimal 1000 karakter" });
     }
 
     // Run AI WAF
@@ -322,6 +357,7 @@ app.get('/api/reviews/:merchantId', async (req, res) => {
 app.get('/api/sentiment/:merchantId', async (req, res) => {
     const { merchantId } = req.params;
     const userKey = req.query.userKey;
+    const ipAddress = getClientIp(req);
     const merchant = await db.getMerchantById(merchantId);
     
     if (!merchant) {
@@ -385,7 +421,7 @@ Keluaran wajib berformat JSON kaku dengan skema berikut tanpa tanda markdown:
   "keyTakeaways": "Ringkasan ringkas (2-3 kalimat) mengenai kelebihan, kekurangan, dan saran praktis bagi pemilik usaha."
 }`;
 
-        const rateLimit = waf.checkRateLimit();
+        const rateLimit = waf.checkRateLimit(ipAddress);
         if (rateLimit.remaining === 0) {
             throw new Error("Rate limit triggered");
         }
@@ -430,7 +466,7 @@ app.get('/api/threats', async (req, res) => {
 
 // 7. Get API Rate Limit Quota Status
 app.get('/api/quota', (req, res) => {
-    res.json(waf.checkRateLimit());
+    res.json(waf.checkRateLimit(getClientIp(req)));
 });
 
 // 8. Test WAF Playground API
@@ -467,15 +503,27 @@ app.post('/api/auth/register', async (req, res) => {
 
     const trimmedUsername = username.trim().toLowerCase();
 
+    // 1.3 Validation: alphanumeric, underscore, 3-20 chars
+    if (!/^[a-z0-9_]{3,20}$/.test(trimmedUsername)) {
+        return res.status(400).json({ error: "Username hanya boleh berupa huruf kecil, angka, dan underscore (_), dengan panjang 3-20 karakter" });
+    }
+
+    if (password.length < 6) {
+        return res.status(400).json({ error: "Password minimal harus terdiri dari 6 karakter" });
+    }
+
     try {
         const existingUser = await db.getUser(trimmedUsername);
         if (existingUser) {
             return res.status(400).json({ error: "Username sudah terdaftar" });
         }
 
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const newUser = {
             username: trimmedUsername,
-            password: password,
+            password: hashedPassword,
             role: role,
             fullname: fullname.trim()
         };
@@ -500,7 +548,25 @@ app.post('/api/auth/login', async (req, res) => {
 
     try {
         const user = await db.getUser(trimmedUsername);
-        if (!user || user.password !== password) {
+        if (!user) {
+            return res.status(401).json({ error: "Username atau password salah" });
+        }
+
+        // Compare password with bcrypt and fallback migration
+        let isMatch = false;
+        if (user.password.startsWith('$2')) {
+            isMatch = await bcrypt.compare(password, user.password);
+        } else {
+            // Backwards compatibility migration
+            isMatch = (user.password === password);
+            if (isMatch) {
+                console.log(`[Auth Migration] Auto-migrating user '${trimmedUsername}' to bcrypt password hash.`);
+                const hashedPassword = await bcrypt.hash(password, 10);
+                await db.updateUserPassword(trimmedUsername, hashedPassword);
+            }
+        }
+
+        if (!isMatch) {
             return res.status(401).json({ error: "Username atau password salah" });
         }
 
@@ -535,12 +601,72 @@ app.post('/api/merchants/:merchantId/catalog', async (req, res) => {
     }
 });
 
+// 9.3 Export itinerary as JSON attachment download
+app.post('/api/itinerary/export', (req, res) => {
+    const { itinerary } = req.body;
+    if (!itinerary) {
+        return res.status(400).json({ error: "Data itinerary wajib disertakan" });
+    }
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename="itinerary-gresik.json"');
+    res.send(JSON.stringify(itinerary, null, 2));
+});
+
+// 9.5 Get real stats for Super Admin
+app.get('/api/admin/stats', async (req, res) => {
+    try {
+        const merchants = await db.getMerchants();
+        const reviews = await db.getReviews();
+        const threats = await db.getThreats();
+
+        const totalMerchants = merchants.length;
+        const totalReviews = reviews.length;
+
+        let avgRating = 0;
+        if (totalReviews > 0) {
+            const sumRating = reviews.reduce((acc, r) => acc + r.rating, 0);
+            avgRating = parseFloat((sumRating / totalReviews).toFixed(2));
+        }
+
+        const totalThreatsBlocked = threats.length;
+
+        const merchantsByType = {};
+        merchants.forEach(m => {
+            merchantsByType[m.type] = (merchantsByType[m.type] || 0) + 1;
+        });
+
+        res.json({
+            totalMerchants,
+            totalReviews,
+            avgRating,
+            totalThreatsBlocked,
+            merchantsByType
+        });
+    } catch (e) {
+        console.error("Failed to fetch admin stats:", e);
+        res.status(500).json({ error: "Gagal mengambil data statistik" });
+    }
+});
+
 // 10. Add new merchant (Super Admin portal)
 app.post('/api/admin/merchants', async (req, res) => {
     const { name, owner, type, description, coords } = req.body;
     
-    if (!name || !owner || !type || !description || !coords) {
+    if (!name || !owner || !type || !description || !coords || !Array.isArray(coords) || coords.length < 2) {
         return res.status(400).json({ error: "All merchant registration fields are required" });
+    }
+
+    // 1.3 Validation
+    const lat = parseFloat(coords[0]);
+    const lng = parseFloat(coords[1]);
+    if (isNaN(lat) || lat < -90 || lat > 90) {
+        return res.status(400).json({ error: "Latitude harus berkisar antara -90 dan 90 derajat" });
+    }
+    if (isNaN(lng) || lng < -180 || lng > 180) {
+        return res.status(400).json({ error: "Longitude harus berkisar antara -180 dan 180 derajat" });
+    }
+    if (name.length > 200 || owner.length > 200 || type.length > 200 || description.length > 200) {
+        return res.status(400).json({ error: "Seluruh kolom isian teks pendaftaran maksimal 200 karakter" });
     }
 
     const newMerchant = await db.addMerchant({
@@ -552,6 +678,48 @@ app.post('/api/admin/merchants', async (req, res) => {
     });
 
     res.json({ success: true, merchant: newMerchant });
+});
+
+// 10.5 Edit or toggle active status of merchant (Super Admin portal)
+app.put('/api/admin/merchants/:merchantId', async (req, res) => {
+    const { merchantId } = req.params;
+    const { name, owner, type, description, coords, status } = req.body;
+    
+    if (!name || !owner || !type || !description || !coords || !Array.isArray(coords) || coords.length < 2) {
+        return res.status(400).json({ error: "Seluruh kolom data UMKM wajib diisi" });
+    }
+
+    const lat = parseFloat(coords[0]);
+    const lng = parseFloat(coords[1]);
+    if (isNaN(lat) || lat < -90 || lat > 90) {
+        return res.status(400).json({ error: "Latitude harus berkisar antara -90 dan 90 derajat" });
+    }
+    if (isNaN(lng) || lng < -180 || lng > 180) {
+        return res.status(400).json({ error: "Longitude harus berkisar antara -180 dan 180 derajat" });
+    }
+    if (name.length > 200 || owner.length > 200 || type.length > 200 || description.length > 200) {
+        return res.status(400).json({ error: "Seluruh kolom isian teks pendaftaran maksimal 200 karakter" });
+    }
+
+    try {
+        const updated = await db.updateMerchant(merchantId, {
+            name,
+            owner,
+            type,
+            description,
+            coords: [lat, lng],
+            status: status || 'aktif'
+        });
+
+        if (updated) {
+            res.json({ success: true, merchant: updated });
+        } else {
+            res.status(404).json({ error: "Mitra pariwisata tidak ditemukan" });
+        }
+    } catch (e) {
+        console.error("Failed to edit merchant details:", e);
+        res.status(500).json({ error: "Gagal menyimpan detail perubahan" });
+    }
 });
 
 // 11. Wildcard SPA fallback route

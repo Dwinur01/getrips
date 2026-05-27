@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Compass, Map, Store, ShieldCheck, Sliders, Key, LogIn, LogOut, User, Lock, Shield, ArrowRight, Loader2, Sparkles } from 'lucide-react'
+import { Compass, Map, Store, ShieldCheck, Sliders, Key, LogIn, LogOut, User, Lock, Shield, ArrowRight, Loader2, Sparkles, CheckCircle, XCircle, AlertTriangle, Info, Settings } from 'lucide-react'
 import WisatawanPortal from './components/WisatawanPortal'
 import UmkmPortal from './components/UmkmPortal'
 import ItSecPortal from './components/ItSecPortal'
@@ -12,14 +12,29 @@ function App() {
   });
 
   const [activePortal, setActivePortal] = useState('wisatawan')
-  const [globalApiKey, setGlobalApiKey] = useState('')
+  const [globalApiKey, setGlobalApiKey] = useState(() => {
+    return localStorage.getItem('grestrip_gemini_key') || '';
+  })
   const [merchants, setMerchants] = useState([])
   const [reviews, setReviews] = useState([])
   const [threats, setThreats] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
+  // Toast Notification System State & Helper
+  const [toasts, setToasts] = useState([])
+  const showToast = (message, type = 'success') => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, message, type }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500);
+  };
+
+  useEffect(() => {
+    localStorage.setItem('grestrip_gemini_key', globalApiKey);
+  }, [globalApiKey]);
+
   // Auth Overlay States
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
   const [usernameInput, setUsernameInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
@@ -63,7 +78,7 @@ function App() {
     } else {
       if (user.role === 'wisatawan' && activePortal !== 'wisatawan') {
         setActivePortal('wisatawan');
-      } else if (user.role === 'umkm' && activePortal !== 'umkm') {
+      } else if (user.role === 'umkm' && activePortal !== 'umkm' && activePortal !== 'wisatawan') {
         setActivePortal('umkm');
       } else if (user.role === 'superadmin' && activePortal === 'itsec') {
         setActivePortal('superadmin');
@@ -113,7 +128,7 @@ function App() {
         else if (data.user.role === 'itsec') setActivePortal('itsec');
         else if (data.user.role === 'superadmin') setActivePortal('superadmin');
       } else {
-        alert('Pendaftaran akun berhasil! Silakan masuk dengan menggunakan username baru Anda.');
+        showToast('Pendaftaran akun berhasil! Silakan masuk dengan menggunakan username baru Anda.', 'success');
         setAuthMode('login');
         setFullnameInput('');
         setPasswordInput('');
@@ -153,7 +168,7 @@ function App() {
   };
 
   // Helper filters for sidebar permissions
-  const showWisatawanBtn = !user || user.role === 'wisatawan' || user.role === 'itsec' || user.role === 'superadmin';
+  const showWisatawanBtn = true;
   const showUmkmBtn = user && (user.role === 'umkm' || user.role === 'itsec' || user.role === 'superadmin');
   const showItSecBtn = user && user.role === 'itsec';
   const showAdminBtn = user && (user.role === 'superadmin' || user.role === 'itsec');
@@ -189,14 +204,15 @@ function App() {
             </div>
             <div className="flex flex-col leading-none overflow-hidden">
               <span className="font-semibold text-xs truncate max-w-[130px]">{user.fullname}</span>
-              <span className="text-[8px] text-[#006666] font-bold uppercase tracking-wider mt-1">{user.role}</span>
+              <span className="text-[10px] text-[#006666] font-bold uppercase tracking-wider mt-1">{user.role}</span>
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl mb-5 text-amber-800">
-            <div className="flex flex-col leading-none">
-              <span className="font-semibold text-xs">Guest Mode (Unregistered)</span>
-              <span className="text-[8px] font-bold uppercase tracking-wider mt-1 text-amber-700">Akses Terbatas</span>
+          <div className="flex items-center gap-2.5 p-3 bg-amber-50 border border-amber-200 rounded-xl mb-5 text-amber-800">
+            <span className="text-base">👋</span>
+            <div className="flex flex-col leading-tight">
+              <span className="font-semibold text-xs">Halo, Penjelajah!</span>
+              <span className="text-[10px] text-amber-700 font-medium">Login untuk akses penuh</span>
             </div>
           </div>
         )}
@@ -265,34 +281,11 @@ function App() {
           )}
         </nav>
 
-        {/* Global API Key management */}
-        <div className={`rounded-xl p-3 mb-4 border border-dashed transition-colors ${
-          activePortal === 'itsec' 
-            ? 'bg-[#0c1015] border-[#1f2a36]' 
-            : 'bg-gray-50 border-gray-300'
-        }`}>
-          <div className="flex items-center gap-2 text-[10px] font-semibold mb-1.5">
-            <Key className="w-3.5 h-3.5 text-[#006666]" />
-            <span>Gemini API Key</span>
-          </div>
-          <input 
-            type="password" 
-            value={globalApiKey}
-            onChange={(e) => setGlobalApiKey(e.target.value)}
-            placeholder="Masukkan Key untuk AI Asli..." 
-            className={`w-full border rounded-lg px-2 py-1 text-[10px] outline-none transition-colors ${
-              activePortal === 'itsec'
-                ? 'bg-[#12181f] border-[#1f2a36] text-[#e2e8f0] focus:border-[#38bdf8]'
-                : 'bg-white border-gray-300 text-[#1b262c] focus:border-[#006666]'
-            }`}
-          />
-        </div>
-
         {/* Login / Logout Button in Sidebar Footer */}
         {user ? (
           <button 
             onClick={handleLogout}
-            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-xs border border-red-200 transition-colors mb-4"
+            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-xs border border-red-200 transition-colors mb-4 mt-auto"
           >
             <LogOut className="w-4 h-4" />
             <span>Keluar (Logout)</span>
@@ -303,29 +296,46 @@ function App() {
               setAuthMode('login');
               setShowLoginModal(true);
             }}
-            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-[#006666] hover:bg-[#004d4d] text-white font-semibold text-xs transition-colors mb-4 shadow-md shadow-[#006666]/10"
+            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-[#006666] hover:bg-[#004d4d] text-white font-semibold text-xs transition-colors mb-4 mt-auto shadow-md shadow-[#006666]/10"
           >
             <LogIn className="w-4 h-4" />
             <span>Daftar / Masuk</span>
           </button>
         )}
 
-        <div className="border-t border-gray-200 pt-3 text-[9px] text-gray-400">
-          <p className="font-semibold">#JuaraVibeCoding 2026</p>
-          <span className="mt-0.5 block">v1.0.0 • Google Cloud</span>
+        {/* Footer with settings gear */}
+        <div className={`flex items-center justify-between border-t pt-3 text-[10px] ${
+          activePortal === 'itsec' ? 'border-[#1f2a36] text-gray-400' : 'border-gray-200 text-gray-400'
+        }`}>
+          <div>
+            <p className="font-semibold">#JuaraVibeCoding 2026</p>
+            <span className="mt-0.5 block">v1.0.0 • Google Cloud</span>
+          </div>
+          <button 
+            onClick={() => setShowSettingsModal(true)}
+            className={`p-2 rounded-lg border transition-all shrink-0 hover:scale-105 active:scale-95 ${
+              activePortal === 'itsec' 
+                ? 'bg-[#12181f] border-[#1f2a36] text-sky-400 hover:bg-[#1a232d] hover:border-sky-400' 
+                : 'bg-gray-50 border-gray-200 text-primary hover:bg-gray-100 hover:border-primary'
+            }`}
+            title="Pengaturan API Key"
+          >
+            <Settings className="w-4 h-4 animate-spin-hover" />
+          </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
       <main className="ml-[260px] flex-grow p-8 min-h-screen transition-colors duration-300">
         {isLoading ? (
-          <div className="flex items-center justify-center h-full min-h-[500px]">
-            <span className="text-gray-400">Menyinkronkan data...</span>
+          <div className="flex flex-col items-center justify-center h-full min-h-[500px] gap-4">
+            <div className="w-12 h-12 border-4 border-[#006666] border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-sm text-gray-400 font-semibold">Memuat data Grestrip...</p>
           </div>
         ) : (
           <div className="flex flex-col gap-6">
             
-            {/* Elegant Welcome Hero Banner Card for Guest/游客 */}
+            {/* Elegant Welcome Hero Banner Card for Guest */}
             {!user && activePortal === 'wisatawan' && (
               <div className="bg-gradient-to-r from-[#006666] to-[#008080] rounded-2xl p-6 text-white shadow-lg shadow-teal-900/10 flex flex-col md:flex-row items-center justify-between gap-6 animate-fade-in">
                 <div className="space-y-2 flex-grow max-w-[580px]">
@@ -358,6 +368,8 @@ function App() {
                 reviews={reviews} 
                 globalApiKey={globalApiKey}
                 onRefresh={fetchData} 
+                user={user}
+                showToast={showToast}
               />
             )}
             {activePortal === 'umkm' && (
@@ -366,6 +378,8 @@ function App() {
                 reviews={reviews} 
                 globalApiKey={globalApiKey}
                 onRefresh={fetchData} 
+                user={user}
+                showToast={showToast}
               />
             )}
             {activePortal === 'itsec' && (
@@ -373,12 +387,16 @@ function App() {
                 threats={threats} 
                 globalApiKey={globalApiKey}
                 onRefresh={fetchData} 
+                user={user}
+                showToast={showToast}
               />
             )}
             {activePortal === 'superadmin' && (
               <SuperAdminPortal 
                 merchants={merchants} 
                 onRefresh={fetchData} 
+                user={user}
+                showToast={showToast}
               />
             )}
           </div>
@@ -504,31 +522,31 @@ function App() {
                 <div className="grid grid-cols-2 gap-2">
                   <button 
                     onClick={() => loginWithPreset('wisatawan', 'password')}
-                    className="py-1.5 px-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-[9px] font-semibold text-left flex flex-col transition-colors"
+                    className="py-1.5 px-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-[10px] font-semibold text-left flex flex-col transition-colors"
                   >
-                    <span className="text-[#006666]">Budi (Wisatawan)</span>
-                    <span className="text-[7px] text-gray-400 mt-0.5">wisatawan / password</span>
+                    <span className="text-[#006666] font-bold">Budi (Wisatawan)</span>
+                    <span className="text-[10px] text-gray-400 mt-0.5">wisatawan / password</span>
                   </button>
                   <button 
                     onClick={() => loginWithPreset('umkm', 'password')}
-                    className="py-1.5 px-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-[9px] font-semibold text-left flex flex-col transition-colors"
+                    className="py-1.5 px-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-[10px] font-semibold text-left flex flex-col transition-colors"
                   >
-                    <span className="text-[#006666]">Haji Azza (UMKM)</span>
-                    <span className="text-[7px] text-gray-400 mt-0.5">umkm / password</span>
+                    <span className="text-[#006666] font-bold">Haji Azza (UMKM)</span>
+                    <span className="text-[10px] text-gray-400 mt-0.5">umkm / password</span>
                   </button>
                   <button 
                     onClick={() => loginWithPreset('itsec', 'password')}
-                    className="py-1.5 px-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-[9px] font-semibold text-left flex flex-col transition-colors"
+                    className="py-1.5 px-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-[10px] font-semibold text-left flex flex-col transition-colors"
                   >
-                    <span className="text-sky-700">Satria (IT Cybersec)</span>
-                    <span className="text-[7px] text-gray-400 mt-0.5">itsec / password</span>
+                    <span className="text-sky-700 font-bold">Satria (IT Cybersec)</span>
+                    <span className="text-[10px] text-gray-400 mt-0.5">itsec / password</span>
                   </button>
                   <button 
                     onClick={() => loginWithPreset('admin', 'password')}
-                    className="py-1.5 px-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-[9px] font-semibold text-left flex flex-col transition-colors"
+                    className="py-1.5 px-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-[10px] font-semibold text-left flex flex-col transition-colors"
                   >
-                    <span className="text-[#006666]">Dinas Pariwisata (Admin)</span>
-                    <span className="text-[7px] text-gray-400 mt-0.5">admin / password</span>
+                    <span className="text-[#006666] font-bold">Dinas Pariwisata (Admin)</span>
+                    <span className="text-[10px] text-gray-400 mt-0.5">admin / password</span>
                   </button>
                 </div>
               </div>
@@ -546,6 +564,81 @@ function App() {
                 className="text-[#006666] font-bold hover:underline"
               >
                 {authMode === 'login' ? 'Daftar Sekarang' : 'Masuk di sini'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification Container */}
+      <div className="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none">
+        {toasts.map(t => {
+          let bgClass = "bg-[#006666]"
+          let Icon = CheckCircle
+          if (t.type === 'error') {
+            bgClass = "bg-red-600"
+            Icon = XCircle
+          } else if (t.type === 'warning') {
+            bgClass = "bg-amber-500"
+            Icon = AlertTriangle
+          } else if (t.type === 'info') {
+            bgClass = "bg-blue-650"
+            Icon = Info
+          }
+          return (
+            <div 
+              key={t.id} 
+              className={`${bgClass} text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 animate-slide-in pointer-events-auto min-w-[280px] max-w-[400px]`}
+            >
+              <Icon className="w-5 h-5 shrink-0 text-white" />
+              <span className="text-xs font-semibold">{t.message}</span>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Settings Modal */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 bg-black/60 z-[999] flex items-center justify-center backdrop-blur-xs p-4 animate-fade-in">
+          <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-[420px] p-6 shadow-2xl relative text-gray-800">
+            <button 
+              onClick={() => setShowSettingsModal(false)}
+              className="absolute top-4 right-4 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 font-bold flex items-center justify-center text-sm outline-none transition-colors"
+            >
+              &times;
+            </button>
+
+            <div className="mb-5">
+              <h2 className="font-display font-extrabold text-lg text-[#006666] flex items-center gap-2">
+                <Settings className="w-5 h-5 text-[#006666]" />
+                <span>Pengaturan Sistem</span>
+              </h2>
+              <p className="text-xs text-gray-400 mt-1">Konfigurasi parameter global platform</p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-gray-600">Gemini API Key</label>
+                <input 
+                  type="password"
+                  value={globalApiKey}
+                  onChange={(e) => setGlobalApiKey(e.target.value)}
+                  placeholder="Masukkan Kunci API Gemini..."
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-xs outline-none focus:border-[#006666] focus:ring-1 focus:ring-[#006666]"
+                />
+                <span className="text-[10px] text-gray-400 leading-normal">
+                  Kunci API disimpan secara lokal di dalam browser Anda. Jika kosong, sistem akan menggunakan <strong>Mode Simulasi</strong> lokal.
+                </span>
+              </div>
+
+              <button 
+                onClick={() => {
+                  setShowSettingsModal(false);
+                  showToast("Pengaturan disimpan!", "success");
+                }}
+                className="w-full bg-[#006666] hover:bg-[#004d4d] text-white font-semibold text-xs py-3 rounded-xl transition-all shadow-md active:scale-95"
+              >
+                Simpan & Tutup
               </button>
             </div>
           </div>

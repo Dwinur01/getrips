@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
 const DB_PATH = path.join(__dirname, 'data', 'database.json');
 const ALGORITHM = 'aes-256-cbc';
@@ -131,10 +132,10 @@ const initialData = {
         { id: "t3", ip: "114.79.2.45", timestamp: "2026-05-26T02:11:05Z", type: "Cyberbullying / Profanity", payload: "Warung bangsat pelayanan kayak tahi babi!", severity: "MEDIUM", action: "BLOCKED" }
     ],
     users: [
-        { username: "wisatawan", password: "password", role: "wisatawan", fullname: "Budi Wisatawan" },
-        { username: "umkm", password: "password", role: "umkm", fullname: "Haji Azza (Pemilik UMKM)" },
-        { username: "itsec", password: "password", role: "itsec", fullname: "Satria IT Cybersec" },
-        { username: "admin", password: "password", role: "superadmin", fullname: "Dinas Pariwisata Gresik" }
+        { username: "wisatawan", password: bcrypt.hashSync("password", 10), role: "wisatawan", fullname: "Budi Wisatawan" },
+        { username: "umkm", password: bcrypt.hashSync("password", 10), role: "umkm", fullname: "Haji Azza (Pemilik UMKM)" },
+        { username: "itsec", password: bcrypt.hashSync("password", 10), role: "itsec", fullname: "Satria IT Cybersec" },
+        { username: "admin", password: bcrypt.hashSync("password", 10), role: "superadmin", fullname: "Dinas Pariwisata Gresik" }
     ],
     cache: {}
 };
@@ -456,6 +457,43 @@ const db = {
         return null;
     },
 
+    // 4.5 Update Merchant Details (Super Admin edit/toggle)
+    updateMerchant: async (merchantId, updated) => {
+        if (useMySQL && mysqlPool) {
+            try {
+                await mysqlPool.query(
+                    "UPDATE merchants SET name = ?, owner = ?, type = ?, description = ?, coords_lat = ?, coords_lng = ?, status = ? WHERE id = ?",
+                    [updated.name, updated.owner, updated.type, updated.description, parseFloat(updated.coords[0]), parseFloat(updated.coords[1]), updated.status || 'aktif', merchantId]
+                );
+                return await db.getMerchantById(merchantId);
+            } catch (e) {
+                console.warn("MySQL update merchant failed (potentially missing status column), falling back without status column:", e);
+                try {
+                    await mysqlPool.query(
+                        "UPDATE merchants SET name = ?, owner = ?, type = ?, description = ?, coords_lat = ?, coords_lng = ? WHERE id = ?",
+                        [updated.name, updated.owner, updated.type, updated.description, parseFloat(updated.coords[0]), parseFloat(updated.coords[1]), merchantId]
+                    );
+                    return await db.getMerchantById(merchantId);
+                } catch (err2) {
+                    console.error("MySQL backup merchant update failed:", err2);
+                }
+            }
+        }
+
+        const data = loadJsonDb();
+        const index = data.merchants.findIndex(m => m.id === merchantId);
+        if (index !== -1) {
+            data.merchants[index] = {
+                ...data.merchants[index],
+                ...updated,
+                coords: [parseFloat(updated.coords[0]), parseFloat(updated.coords[1])]
+            };
+            saveJsonDb(data);
+            return data.merchants[index];
+        }
+        return null;
+    },
+
     // 5. Get Reviews
     getReviews: async (merchantId = null) => {
         if (useMySQL && mysqlPool) {
@@ -669,6 +707,27 @@ const db = {
         data.users.push(user);
         saveJsonDb(data);
         return user;
+    },
+
+    updateUserPassword: async (username, hashedPassword) => {
+        if (useMySQL && mysqlPool) {
+            try {
+                await mysqlPool.query("UPDATE users SET password = ? WHERE username = ?", [hashedPassword, username]);
+                return true;
+            } catch (e) {
+                console.error("MySQL updateUserPassword failed:", e);
+            }
+        }
+
+        const data = loadJsonDb();
+        if (!data.users) data.users = [];
+        const index = data.users.findIndex(u => u.username === username);
+        if (index !== -1) {
+            data.users[index].password = hashedPassword;
+            saveJsonDb(data);
+            return true;
+        }
+        return false;
     },
 
     // Encryption Helpers

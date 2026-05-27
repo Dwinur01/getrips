@@ -1,7 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { SlidersHorizontal, Sparkles, MapPin, ListTodo, ShieldAlert, Lock, Send, ShieldX, Utensils, Compass, Loader2 } from 'lucide-react'
+import { SlidersHorizontal, Sparkles, MapPin, ListTodo, ShieldAlert, Lock, Send, ShieldX, Utensils, Compass, Loader2, TreePine, Church, Landmark, Star, Download, MessageSquare } from 'lucide-react'
 
-function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
+const EmptyState = ({ icon: Icon, title, subtitle }) => (
+  <div className="flex flex-col items-center justify-center py-10 text-gray-400 gap-3 border border-dashed border-gray-200 rounded-2xl p-6 bg-gray-50/50">
+    <Icon className="w-12 h-12 text-gray-300" />
+    <div className="text-center">
+      <p className="text-xs font-semibold text-gray-500">{title}</p>
+      <p className="text-[10px] text-gray-450 mt-1">{subtitle}</p>
+    </div>
+  </div>
+);
+
+function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToast }) {
   const [budget, setBudget] = useState(200000)
   const [duration, setDuration] = useState('2')
   const [preferences, setPreferences] = useState(['kuliner', 'sejarah'])
@@ -12,7 +22,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
   const [isGenerating, setIsGenerating] = useState(false)
   // UGC Review states
   const [revMerchantId, setRevMerchantId] = useState('')
-  const [revUserName, setRevUserName] = useState('')
+  const [revUserName, setRevUserName] = useState(user?.fullname || '')
   const [revRating, setRevRating] = useState('5')
   const [revText, setRevText] = useState('')
 
@@ -22,10 +32,25 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
   // Filter for Timeline
   const [timelineFilter, setTimelineFilter] = useState('default')
 
+  // Review pagination
+  const [reviewPage, setReviewPage] = useState(5)
+
+  // Smooth scroll ref
+  const timelineRef = useRef(null)
+
   // Leaflet refs
   const mapContainerRef = useRef(null)
   const mapInstance = useRef(null)
   const routeLayerGroup = useRef(null)
+
+  // Auto-fill from user session
+  useEffect(() => {
+    if (user?.fullname) {
+      setRevUserName(user.fullname);
+    } else {
+      setRevUserName('');
+    }
+  }, [user]);
 
   // Set default merchant ID once merchants load
   useEffect(() => {
@@ -141,7 +166,10 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
         })
       })
 
-      if (!response.ok) throw new Error("Gagal memuat rencana perjalanan.")
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Gagal memuat rencana perjalanan.");
+      }
 
       const data = await response.json()
       setItinerary(data)
@@ -154,12 +182,30 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
         drawRoute(data.timeline)
       }, 50)
 
+      // Smooth scroll to timeline
+      setTimeout(() => {
+        timelineRef.current?.scrollIntoView({ behavior: 'smooth' })
+      }, 150)
+
+      showToast(`Itinerary ${data.timeline?.length || 0} aktivitas berhasil dibuat oleh AI! 🗺️`, 'success')
+
     } catch (err) {
-      alert("Error: " + err.message)
+      showToast(err.message, 'error')
     } finally {
       setIsGenerating(false)
     }
   }
+
+  const handleSaveItinerary = () => {
+    const blob = new Blob([JSON.stringify(itinerary, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `itinerary-gresik-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Itinerary berhasil disimpan!', 'success');
+  };
 
   // Handle Checked Preference Tags
   const handlePrefChange = (prefVal) => {
@@ -200,11 +246,11 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
 
       // Clean
       setRevText('')
-      alert("Ulasan bersih dan disetujui AI Firewall! Masuk ke database.")
+      showToast("Ulasan berhasil dikirim dan lolos AI WAF! ✅", "success")
       onRefresh()
 
     } catch (err) {
-      alert("Error WAF / Server: " + err.message)
+      showToast(err.message, "error")
     }
   }
 
@@ -320,9 +366,9 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
                       />
                       <span className="text-[11px] capitalize flex items-center gap-1">
                         {pref === 'kuliner' && <Utensils className="w-3.5 h-3.5" />}
-                        {pref === 'sejarah' && <Compass className="w-3.5 h-3.5" />}
-                        {pref === 'alam' && <Compass className="w-3.5 h-3.5" />}
-                        {pref === 'religi' && <Compass className="w-3.5 h-3.5" />}
+                        {pref === 'sejarah' && <Landmark className="w-3.5 h-3.5" />}
+                        {pref === 'alam' && <TreePine className="w-3.5 h-3.5" />}
+                        {pref === 'religi' && <Church className="w-3.5 h-3.5" />}
                         {pref}
                       </span>
                     </label>
@@ -397,6 +443,11 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
             >
               <ListTodo className="w-4 h-4" />
               <span>Timeline Detail</span>
+              {itinerary && (
+                <span className="ml-1.5 bg-[#e05624] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
+                  {itinerary.timeline?.length} aktivitas
+                </span>
+              )}
             </button>
           </div>
 
@@ -425,25 +476,34 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
                   )}
                 </div>
 
-                {/* Dropdown Filter for Timeline */}
-                <div className="flex justify-between items-center bg-gray-50 rounded-xl p-3 border border-gray-200">
+                {/* Visual Chips Filter for Timeline */}
+                <div className="flex flex-col gap-2 bg-gray-50 rounded-xl p-3 border border-gray-200">
                   <span className="text-xs font-semibold text-gray-600">Urutkan / Filter Rute:</span>
-                  <select
-                    value={timelineFilter}
-                    onChange={(e) => setTimelineFilter(e.target.value)}
-                    className="bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-700 outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                  >
-                    <option value="default">Default (Urutan Rute Asli)</option>
-                    <option value="terdekat">📍 Terdekat (dari Pusat Kota)</option>
-                    <option value="terjauh">📍 Terjauh (dari Pusat Kota)</option>
-                    <option value="termurah">💵 Termurah</option>
-                    <option value="termahal">💵 Termahal</option>
-                    <option value="terbagus">⭐ Ulasan Terbagus</option>
-                    <option value="terjelek">⭐ Ulasan Terjelek</option>
-                  </select>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { value: 'default', label: 'Default', icon: '🗓️' },
+                      { value: 'terdekat', label: 'Terdekat', icon: '📍' },
+                      { value: 'termurah', label: 'Termurah', icon: '💰' },
+                      { value: 'terbagus', label: 'Terbagus', icon: '⭐' }
+                    ].map(opt => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setTimelineFilter(opt.value)}
+                        className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-all ${
+                          timelineFilter === opt.value 
+                            ? 'bg-primary text-white border-primary shadow-sm' 
+                            : 'bg-white text-gray-650 border-gray-200 hover:border-primary hover:text-primary'
+                        }`}
+                      >
+                        <span className="mr-1">{opt.icon}</span>
+                        <span>{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="relative pl-5 border-l-2 border-gray-200 ml-2 space-y-5 flex-grow max-h-[400px] overflow-y-auto pr-2">
+                <div ref={timelineRef} className="relative pl-5 border-l-2 border-gray-200 ml-2 space-y-5 flex-grow max-h-[400px] overflow-y-auto pr-2">
                   {getSortedTimeline().map((item, idx) => {
                     const isFood = item.type === "kuliner"
                     return (
@@ -470,7 +530,15 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
                   })}
                 </div>
 
-                <div className="border-t border-gray-200 pt-3 flex justify-end">
+                <div className="border-t border-gray-200 pt-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+                  <button 
+                    type="button"
+                    onClick={handleSaveItinerary} 
+                    className="flex items-center gap-2 px-4 py-2 border border-primary text-primary rounded-xl text-xs font-semibold hover:bg-primary-light transition-all active:scale-95"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Simpan Itinerary (JSON)</span>
+                  </button>
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <span>Estimasi Anggaran Terpakai:</span>
                     <strong className="font-display font-bold text-xl text-secondary">Rp {itinerary.totalCost.toLocaleString('id-ID')}</strong>
@@ -519,7 +587,10 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
                   onChange={(e) => setRevUserName(e.target.value)}
                   placeholder="Nama Ulasan (cth: Roni_Gresik)" 
                   required
-                  className="bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-primary"
+                  readOnly={!!user}
+                  className={`border rounded-xl px-3 py-2 text-xs outline-none focus:border-primary ${
+                    user ? 'bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200' : 'bg-white border-gray-300'
+                  }`}
                 />
               </div>
             </div>
@@ -571,31 +642,47 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh }) {
           {/* List Review Feed */}
           <div className="space-y-3">
             <h4 className="font-display font-semibold text-sm text-gray-700">Ulasan Terbaru Masuk</h4>
-            <div className="space-y-3 max-h-[340px] overflow-y-auto pr-2">
+            <div className="space-y-3 max-h-[380px] overflow-y-auto pr-2">
               {reviews.length > 0 ? (
-                reviews.slice(0, 5).map(r => {
-                  const mName = merchants.find(m => m.id === r.merchantId)?.name || 'UMKM'
-                  return (
-                    <div key={r.id} className="bg-gray-50 border border-gray-200 rounded-xl p-3.5">
-                      <div className="flex justify-between items-start mb-1">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full bg-primary-light text-primary font-bold text-[10px] flex items-center justify-center">
-                            {r.userName.substring(0, 2).toUpperCase()}
+                <>
+                  {reviews.slice(0, reviewPage).map(r => {
+                    const mName = merchants.find(m => m.id === r.merchantId)?.name || 'UMKM'
+                    return (
+                      <div key={r.id} className="bg-gray-50 border border-gray-200 rounded-xl p-3.5 transition-all hover:bg-gray-100">
+                        <div className="flex justify-between items-start mb-1">
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-full bg-primary-light text-primary font-bold text-[10px] flex items-center justify-center">
+                              {r.userName.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                              <span className="text-xs font-semibold block leading-tight">{r.userName}</span>
+                              <span className="text-[9px] text-gray-400">di {mName}</span>
+                            </div>
                           </div>
-                          <div>
-                            <span className="text-xs font-semibold block leading-tight">{r.userName}</span>
-                            <span className="text-[9px] text-gray-400">di {mName}</span>
-                          </div>
+                          <span className="text-xs text-[#f59e0b]">{"★".repeat(r.rating) + "☆".repeat(5-r.rating)}</span>
                         </div>
-                        <span className="text-xs text-[#f59e0b]">{"★".repeat(r.rating) + "☆".repeat(5-r.rating)}</span>
+                        <p className="text-xs text-gray-600 mt-1 italic">"{r.text}"</p>
+                        <span className="text-[9px] text-gray-400 block text-right mt-2">{new Date(r.timestamp).toLocaleDateString('id-ID')}</span>
                       </div>
-                      <p className="text-xs text-gray-600 mt-1 italic">"{r.text}"</p>
-                      <span className="text-[9px] text-gray-400 block text-right mt-2">{new Date(r.timestamp).toLocaleDateString('id-ID')}</span>
-                    </div>
-                  )
-                })
+                    )
+                  })}
+
+                  {reviews.length > reviewPage && (
+                    <button 
+                      type="button"
+                      onClick={() => setReviewPage(p => p + 5)}
+                      className="w-full text-center py-2.5 text-xs text-primary font-bold hover:underline transition-all"
+                    >
+                      Lihat {Math.min(5, reviews.length - reviewPage)} ulasan lagi →
+                    </button>
+                  )}
+                </>
               ) : (
-                <p className="text-center text-gray-400 text-xs py-10">Belum ada ulasan.</p>
+                <EmptyState 
+                  icon={MessageSquare}
+                  title="Belum ada ulasan"
+                  subtitle="Jadilah yang pertama memberikan ulasan untuk tempat ini!"
+                />
               )}
             </div>
           </div>

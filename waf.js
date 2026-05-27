@@ -4,13 +4,15 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 // Roll-based Rate Limiter (Simulating Google AI Studio 15 RPM Free Tier quota)
 const RATE_LIMIT_WINDOW = 60000; // 1 minute
 const MAX_REQUESTS = 15;
-let requestTimestamps = [];
+const requestMap = new Map(); // key: ipAddress, value: array of timestamps
 
-function checkRateLimit() {
+function checkRateLimit(ipAddress = '127.0.0.1') {
     const now = Date.now();
-    requestTimestamps = requestTimestamps.filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW);
+    let timestamps = requestMap.get(ipAddress) || [];
+    timestamps = timestamps.filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW);
+    requestMap.set(ipAddress, timestamps);
     
-    const count = requestTimestamps.length;
+    const count = timestamps.length;
     const remaining = Math.max(0, MAX_REQUESTS - count);
     const limitPercentage = (remaining / MAX_REQUESTS) * 100;
     
@@ -27,8 +29,10 @@ function checkRateLimit() {
     };
 }
 
-function recordRequest() {
-    requestTimestamps.push(Date.now());
+function recordRequest(ipAddress = '127.0.0.1') {
+    const timestamps = requestMap.get(ipAddress) || [];
+    timestamps.push(Date.now());
+    requestMap.set(ipAddress, timestamps);
 }
 
 // Advanced Rule-based Heuristic Engine for WAF Fallback & Double-check
@@ -107,7 +111,7 @@ async function scanWAF(text, ipAddress, userKey = null) {
         }
     }
 
-    const rateLimit = checkRateLimit();
+    const rateLimit = checkRateLimit(ipAddress);
     if (rateLimit.remaining === 0) {
         // Automatically block due to Rate Limiting
         return {
@@ -118,7 +122,7 @@ async function scanWAF(text, ipAddress, userKey = null) {
         };
     }
 
-    recordRequest();
+    recordRequest(ipAddress);
 
     const apiKey = userKey || process.env.GEMINI_API_KEY;
 

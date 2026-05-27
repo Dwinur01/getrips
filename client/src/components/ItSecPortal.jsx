@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { ShieldAlert, AlertTriangle, Shield, Terminal, Skull, ShieldX, Info } from 'lucide-react'
+import { ShieldAlert, AlertTriangle, Shield, Terminal, Skull, ShieldX, Info, Play, Pause, RefreshCw } from 'lucide-react'
+import EmptyState from './EmptyState'
 
 function ItSecPortal({ threats, globalApiKey, onRefresh }) {
   const [payloadText, setPayloadText] = useState('')
   const [consoleOutput, setConsoleOutput] = useState('Terminal siap untuk pengujian muatan siber...')
   const [consoleColor, setConsoleColor] = useState('text-slate-300')
+  
+  const [autoRefresh, setAutoRefresh] = useState(true)
+  const [activeFilter, setActiveFilter] = useState('semua')
   
   // Rate limits states
   const [quota, setQuota] = useState({
@@ -22,6 +26,51 @@ function ItSecPortal({ threats, globalApiKey, onRefresh }) {
   useEffect(() => {
     fetchQuota()
   }, [threats])
+
+  useEffect(() => {
+    if (!autoRefresh) return
+    const interval = setInterval(() => {
+      onRefresh()
+      fetchQuota()
+    }, 10000)
+    return () => clearInterval(interval)
+  }, [autoRefresh])
+
+  const renderHighlightedJSON = (text) => {
+    if (!text) return null
+    if (!text.trim().startsWith('{') && !text.trim().startsWith('[')) {
+      return <span>{text}</span>
+    }
+    
+    try {
+      const obj = JSON.parse(text)
+      const highlighted = JSON.stringify(obj, null, 2)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g, function (match) {
+          let cls = 'text-sky-300' // blue for values
+          if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+              cls = 'text-emerald-400 font-semibold' // emerald for keys
+            } else {
+              cls = 'text-amber-300 font-medium' // yellow for strings
+            }
+          } else if (/true|false/.test(match)) {
+            cls = 'text-purple-400' // purple for booleans
+          } else if (/null/.test(match)) {
+            cls = 'text-gray-400' // gray for null
+          } else {
+            cls = 'text-pink-400' // pink for numbers
+          }
+          return `<span class="${cls}">${match}</span>`
+        })
+      
+      return <div dangerouslySetInnerHTML={{ __html: highlighted }} />
+    } catch (e) {
+      return <span>{text}</span>
+    }
+  }
 
   const fetchQuota = async () => {
     try {
@@ -121,25 +170,50 @@ function ItSecPortal({ threats, globalApiKey, onRefresh }) {
           <h2 className="font-display font-bold text-2xl text-emerald-400 glow-text-green">IT Cyber Security & AI WAF</h2>
           <p className="text-sm text-gray-500">Forensik siber real-time, perlindungan Stored XSS & SQL Injection tingkat aplikasi.</p>
         </div>
-        <div className="flex items-center gap-3 bg-[#12181f] border border-[#1f2a36] rounded-full px-5 py-2">
-          {sysStatus === 'secure' && (
-            <>
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981] led-green-pulse"></span>
-              <span className="font-mono text-xs font-bold text-emerald-400">Clean Traffic</span>
-            </>
-          )}
-          {sysStatus === 'warning' && (
-            <>
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_10px_#f59e0b] led-yellow-pulse"></span>
-              <span className="font-mono text-xs font-bold text-amber-400">Rate Limit Warning</span>
-            </>
-          )}
-          {sysStatus === 'blocked' && (
-            <>
-              <span className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_#ef4444] led-red-pulse"></span>
-              <span className="font-mono text-xs font-bold text-red-500">Blocked: {tempBlockType}</span>
-            </>
-          )}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Auto Refresh Toggle */}
+          <button
+            onClick={() => setAutoRefresh(!autoRefresh)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border font-mono text-[10px] font-bold transition-all active:scale-95 ${
+              autoRefresh 
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
+                : 'bg-[#1a232d] border-[#1f2a36] text-gray-400'
+            }`}
+            title="Klik untuk menyalakan/mematikan pembaruan otomatis log siber (10 detik)"
+          >
+            {autoRefresh ? (
+              <>
+                <RefreshCw className="w-3 h-3 animate-spin text-emerald-400" />
+                <span>AUTO: ON</span>
+              </>
+            ) : (
+              <>
+                <Pause className="w-3 h-3 text-red-400" />
+                <span>AUTO: OFF</span>
+              </>
+            )}
+          </button>
+
+          <div className="flex items-center gap-3 bg-[#12181f] border border-[#1f2a36] rounded-full px-5 py-2">
+            {sysStatus === 'secure' && (
+              <>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981] led-green-pulse"></span>
+                <span className="font-mono text-xs font-bold text-emerald-400">Clean Traffic</span>
+              </>
+            )}
+            {sysStatus === 'warning' && (
+              <>
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_10px_#f59e0b] led-yellow-pulse"></span>
+                <span className="font-mono text-xs font-bold text-amber-400">Rate Limit Warning</span>
+              </>
+            )}
+            {sysStatus === 'blocked' && (
+              <>
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_#ef4444] led-red-pulse"></span>
+                <span className="font-mono text-xs font-bold text-red-500">Blocked: {tempBlockType}</span>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
@@ -243,7 +317,30 @@ function ItSecPortal({ threats, globalApiKey, onRefresh }) {
       </div>
 
       {/* Penetration simulator console */}
-      <div className="bg-[#12181f] border border-[#1f2a36] rounded-2xl p-6">
+      <div className="bg-[#12181f] border border-[#1f2a36] rounded-2xl p-6 relative overflow-hidden">
+        {/* Shield Activated Red Glow Overlay FX on WAF Block */}
+        {sysStatus === 'blocked' && (
+          <div className="absolute inset-0 bg-red-950/85 backdrop-blur-sm z-30 flex flex-col items-center justify-center text-center animate-fade-in p-4 border border-red-500 rounded-2xl shadow-[inset_0_0_50px_rgba(239,68,68,0.4)]">
+            <div className="bg-red-600 text-white p-6 rounded-full mb-4 animate-bounce shadow-[0_0_30px_#ef4444]">
+              <ShieldAlert className="w-12 h-12" />
+            </div>
+            <h3 className="font-display font-extrabold text-2xl text-red-500 tracking-wider uppercase mb-1 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]">
+              SHIELD ACTIVATED
+            </h3>
+            <p className="font-mono text-xs text-red-300 max-w-sm leading-relaxed mb-4">
+              AI WAF Engine berhasil mendeteksi dan menangkis muatan berbahaya tersebut!
+            </p>
+            <div className="flex gap-2">
+              <span className="font-mono text-[9px] bg-red-500/20 border border-red-500/50 text-red-400 px-2.5 py-1 rounded">
+                TYPE: {tempBlockType}
+              </span>
+              <span className="font-mono text-[9px] bg-red-500/20 border border-red-500/50 text-red-400 px-2.5 py-1 rounded">
+                ACTION: BLOCK & LOG
+              </span>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center gap-2 border-b border-[#1f2a36] pb-3 mb-5">
           <Terminal className="w-5 h-5 text-emerald-400 glow-text-green" />
           <h3 className="font-display font-bold text-sm text-emerald-400">AI WAF Payload Playground (Penetration Tester)</h3>
@@ -263,21 +360,22 @@ function ItSecPortal({ threats, globalApiKey, onRefresh }) {
               <button 
                 onClick={handleWafTestSubmit}
                 className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-2 font-display font-semibold text-[11px] flex items-center gap-1 glow-btn-red transition-all active:scale-95"
+                title="Kirim muatan serangan ke mesin WAF"
               >
                 <Skull className="w-3.5 h-3.5" />
                 <span>Simulasikan Serangan</span>
               </button>
               
-              <button onClick={() => injectPayload('xss')} className="bg-[#1a232d] hover:bg-[#1f2a36] border border-[#1f2a36] rounded-lg px-3 py-1.5 text-[10px] text-gray-300 hover:text-emerald-400">Inject XSS</button>
-              <button onClick={() => injectPayload('sqli')} className="bg-[#1a232d] hover:bg-[#1f2a36] border border-[#1f2a36] rounded-lg px-3 py-1.5 text-[10px] text-gray-300 hover:text-emerald-400">Inject SQLi</button>
-              <button onClick={() => injectPayload('bullying')} className="bg-[#1a232d] hover:bg-[#1f2a36] border border-[#1f2a36] rounded-lg px-3 py-1.5 text-[10px] text-gray-300 hover:text-emerald-400">Inject Bullying</button>
+              <button onClick={() => injectPayload('xss')} className="bg-[#1a232d] hover:bg-[#1f2a36] border border-[#1f2a36] rounded-lg px-3 py-1.5 text-[10px] text-gray-300 hover:text-emerald-400" title="Masukkan template payload Cross-Site Scripting">Inject XSS</button>
+              <button onClick={() => injectPayload('sqli')} className="bg-[#1a232d] hover:bg-[#1f2a36] border border-[#1f2a36] rounded-lg px-3 py-1.5 text-[10px] text-gray-300 hover:text-emerald-400" title="Masukkan template payload SQL Injection">Inject SQLi</button>
+              <button onClick={() => injectPayload('bullying')} className="bg-[#1a232d] hover:bg-[#1f2a36] border border-[#1f2a36] rounded-lg px-3 py-1.5 text-[10px] text-gray-300 hover:text-emerald-400" title="Masukkan template kalimat Cyberbullying">Inject Bullying</button>
             </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
             <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">WAF Response Console:</span>
             <pre className={`flex-grow bg-[#050709] border border-[#1f2a36] rounded-xl font-mono text-[10px] p-4 overflow-y-auto max-h-[160px] white-space-pre-wrap ${consoleColor}`}>
-              {consoleOutput}
+              {renderHighlightedJSON(consoleOutput)}
             </pre>
           </div>
         </div>
@@ -285,9 +383,34 @@ function ItSecPortal({ threats, globalApiKey, onRefresh }) {
 
       {/* Cyber threat logging table */}
       <div className="bg-[#12181f] border border-[#1f2a36] rounded-2xl p-6">
-        <div className="flex items-center gap-2 border-b border-[#1f2a36] pb-3 mb-4">
-          <ShieldX className="w-5 h-5 text-emerald-400" />
-          <h3 className="font-display font-bold text-sm text-emerald-400">Riwayat Log Deteksi & Blokir AI Firewall</h3>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#1f2a36] pb-3 mb-4">
+          <div className="flex items-center gap-2">
+            <ShieldX className="w-5 h-5 text-emerald-400" />
+            <h3 className="font-display font-bold text-sm text-emerald-400">Riwayat Log Deteksi & Blokir AI Firewall</h3>
+          </div>
+          
+          {/* Threat Category Filter Chips */}
+          <div className="flex flex-wrap gap-1.5">
+            {[
+              { id: 'semua', label: 'Semua' },
+              { id: 'xss', label: 'XSS' },
+              { id: 'sqli', label: 'SQLi' },
+              { id: 'profanity', label: 'Profanity' }
+            ].map(chip => (
+              <button
+                key={chip.id}
+                onClick={() => setActiveFilter(chip.id)}
+                className={`px-3 py-1 rounded-full font-mono text-[9px] font-bold border transition-all active:scale-95 ${
+                  activeFilter === chip.id
+                    ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400'
+                    : 'bg-[#1a232d] border-[#1f2a36] text-gray-400 hover:text-gray-200'
+                }`}
+                title={`Filter berdasarkan ancaman ${chip.label}`}
+              >
+                {chip.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="overflow-x-auto max-h-[260px]">
@@ -302,10 +425,30 @@ function ItSecPortal({ threats, globalApiKey, onRefresh }) {
               </tr>
             </thead>
             <tbody>
-              {threats.length > 0 ? (
-                threats.map(log => (
+              {threats.filter(t => {
+                if (activeFilter === 'semua') return true
+                if (activeFilter === 'xss') return t.type === 'Stored XSS'
+                if (activeFilter === 'sqli') return t.type === 'SQL Injection'
+                if (activeFilter === 'profanity') return t.type === 'Cyberbullying / Profanity'
+                return true
+              }).length > 0 ? (
+                threats.filter(t => {
+                  if (activeFilter === 'semua') return true
+                  if (activeFilter === 'xss') return t.type === 'Stored XSS'
+                  if (activeFilter === 'sqli') return t.type === 'SQL Injection'
+                  if (activeFilter === 'profanity') return t.type === 'Cyberbullying / Profanity'
+                  return true
+                }).map(log => (
                   <tr key={log.id} className="border-b border-[#1f2a36] hover:bg-[#0f151c]/50 transition-colors">
-                    <td className="py-2.5 px-3 text-gray-500">{new Date(log.timestamp).toLocaleTimeString('id-ID')}</td>
+                    <td className="py-2.5 px-3 text-gray-500">
+                      {new Date(log.timestamp).toLocaleString('id-ID', {
+                        day: 'numeric',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                      })}
+                    </td>
                     <td className="py-2.5 px-3">{log.ip}</td>
                     <td className="py-2.5 px-3 text-red-400 font-bold">{log.type}</td>
                     <td className="py-2.5 px-3">
@@ -322,7 +465,13 @@ function ItSecPortal({ threats, globalApiKey, onRefresh }) {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="text-center py-10 text-gray-500">Tidak ada log aktivitas mencurigakan.</td>
+                  <td colSpan="5" className="py-4">
+                    <EmptyState 
+                      icon={Shield}
+                      title="Riwayat Log Bersih"
+                      subtitle="Tidak ada aktivitas ancaman siber yang terdeteksi untuk kategori filter ini."
+                    />
+                  </td>
                 </tr>
               )}
             </tbody>

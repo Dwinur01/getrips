@@ -16,7 +16,7 @@ Platform ini mengusung arsitektur tangguh dengan **Dual-Mode Database Engine** (
 
 ## 🎯 Fitur Utama & Pembagian Portal
 
-Platform ini dibagi menjadi **4 Portal Utama** yang melayani peran berbeda secara mulus:
+Platform ini dibagi menjadi **4 Portal Utama** yang melayani peran berbeda secara mulus dengan UI premium berbasis *Bento Grid*, micro-animations, dan bebas dari dialog native browser (`alert` & `confirm` digantikan 100% oleh sistem Toast & Modal kustom):
 
 ### 1. 🚶 Portal Wisatawan (Smart Traveler Portal)
 * **Peta Interaktif Leaflet.js**: Navigasi visual lokasi UMKM Kuliner dan Destinasi Wisata riil di Gresik secara presisi.
@@ -24,18 +24,32 @@ Platform ini dibagi menjadi **4 Portal Utama** yang melayani peran berbeda secar
 * **Data Privacy Guard (Alergen Auto-Filter)**: 
   > [!IMPORTANT]
   > Ketika wisatawan menginput riwayat medis atau alergi makanan (seperti alergi *seafood* atau kacang), sistem otomatis mengenkripsi data tersebut dengan **AES-256** dan menginstruksikan Gemini untuk mengganti rekomendasi hidangan/destinasi yang memicu alergi dengan menu alternatif yang 100% aman bagi wisatawan.
+* **Timeline Filter Chips & Urutan Rute**: Mengurutkan rute itinerary secara interaktif berdasarkan parameter terdekat, terjauh, termurah, termahal, terbagus, dan default melalui row chip estetis.
+* **Activity Count Badge**: Badge dinamis dengan efek detak (*pulse*) yang menampilkan jumlah aktivitas aktif di tab navigasi.
+* **Export & Simpan Itinerary (JSON)**: Menyimpan rute rencana pariwisata ke komputer lokal dalam format file JSON dengan satu klik.
+* **Reviews Load-More Pagination**: Menampilkan tumpukan ulasan terbaru secara berkala (kelipatan 5) agar navigasi tetap bersih dan cepat.
 
 ### 2. 🏪 Portal Pemilik UMKM (Merchant & Dashboard Analytics)
 * **Manajemen Katalog Mandiri**: Memungkinkan UMKM memperbarui daftar produk, harga, dan deskripsi produk secara berkala.
 * **AI Sentiment Analytics**: Menggunakan Gemini untuk menganalisis tumpukan ulasan konsumen, menghasilkan skor sentimen (0-100), visualisasi persentase rating positif/negatif, serta memberikan *Key Takeaways* (saran taktis bisnis).
+* **Total Menu & Average Price Stats**: Dua kartu metrik visual baru yang menampilkan total menu dan rata-rata harga hidangan untuk pengambilan keputusan bisnis yang presisi.
+* **Sentiment Refresh & Load Spinner**: Memperbarui sentimen AI secara langsung dengan tombol manual disertai indikator pemuatan spinner yang tersemat rapi di pusat speedometer SVG.
+* **Edit Menu & Konfirmasi Hapus Modal**: Pengeditan menu digital dengan dialog modal kustom, serta penggantian semua konfirmasi konvensional browser ke modal persetujuan premium.
+* **Konsumen Ulasan Khusus**: Akses langsung ke tumpukan ulasan konsumen spesifik untuk toko/UMKM terpilih di tab ulasan terpisah.
 
 ### 3. 🛡️ Portal IT Security (Cyber Threat Monitoring Console)
 * **Visualisasi Log Serangan Siber**: Memantau percobaan peretasan secara *real-time* yang dihentikan oleh AI WAF.
-* **WAF Playground**: Sandbox bagi tim keamanan untuk menguji payload string (seperti skrip XSS atau injeksi database SQL) dan melihat bagaimana AI merespons.
-* **Rate Limiter Monitor**: Melacak sisa kuota API Google AI Studio (15 Requests Per Minute - RPM) untuk mencegah serangan DoS/DDoS.
+* **WAF Cyberpunk Glow Overlay**: Efek red glow overlay bertuliskan **SHIELD ACTIVATED** disertai bounce ShieldAlert pada sandbox penetration testing saat ancaman terdeteksi.
+* **Console Syntax Highlighter**: Konsol preview JSON interaktif dengan warna-warna token (emerald untuk keys, amber untuk strings, purple untuk booleans, pink untuk numbers, sky untuk values).
+* **Polled Log Updates (10s Auto-Refresh)**: Saklar toggle otomatis yang memperbarui riwayat log ancaman siber dan sisa kuota rate-limiter setiap 10 detik.
+* **Datetime Timestamping**: Formulasi timestamp deteksi siber ke format tanggal dan waktu yang manusiawi (contoh: `27 May, 10:04 AM`).
+* **Filter Ancaman Chips**: Filter log logistik berdasarkan kategori serangan (`Stored XSS`, `SQL Injection`, `Cyberbullying / Profanity`, `Semua`).
 
 ### 4. ⚙️ Portal Super Admin (Platform Configurator)
-* **Onboarding UMKM**: Pendaftaran cepat UMKM baru lengkap dengan koordinat spasial (Latitude & Longitude) dan pengisian deskripsi dasar untuk dimasukkan ke ekosistem peta pariwisata.
+* **Leaflet Coordinate Map Picker**: Modal peta Leaflet interaktif tempat Dinas Pariwisata dapat mengklik lokasi di peta untuk menangkap koordinat Latitude & Longitude presisi secara visual.
+* **Registration Preview Modal**: Panel tinjauan dossier sebelum menyetujui kemitraan baru guna mencegah kesalahan ketik data legalitas.
+* **Daftar Mitra & Toggles Keanggotaan**: Pengelolaan daftar mitra aktif/nonaktif lengkap dengan tombol status kemitraan instan (badge hijau aktif / merah nonaktif) serta edit data profil mitra.
+* **Statistik Pariwisata Terintegrasi (Stats Endpoint)**: Pengambilan statistik pariwisata riil dari endpoint `/api/admin/stats` (Total Mitra, Total Ulasan, Rating Rata-rata, Ancaman Diblokir).
 
 ---
 
@@ -50,6 +64,7 @@ Platform ini dibagi menjadi **4 Portal Utama** yang melayani peran berbeda secar
 ### **Backend (Server)**
 * **Node.js** & **Express.js** - Restful API yang ringan dan asinkron.
 * **Google Gen AI SDK (`@google/generative-ai`)** - Integrasi resmi dengan model **Gemini 2.5 Flash** (Itinerary & Sentiment) dan **Gemini 2.5 Flash-Lite** (WAF Engine).
+* **bcrypt** - Hashing satu arah untuk mengamankan data sandi password pengguna dengan migrasi kompatibilitas data plaintext lama otomatis.
 
 ### **Database & Security**
 * **MySQL 2 (Dual Mode)** - Penyimpanan relasional terstruktur untuk tingkat produksi.
@@ -81,6 +96,7 @@ Grestrip dilengkapi dengan WAF berlapis ganda yang menyaring setiap ulasan/input
 
 1. **Rule-based Heuristics**: Penyaringan kilat menggunakan Regex untuk skrip XSS mentah, pola SQL standar, dan *blacklist* kosakata kasar bahasa Indonesia & Inggris.
 2. **AI Semantic Guard**: Menggunakan **Gemini 2.5 Flash-Lite** untuk memindai pesan yang mencoba menyiasati filter reguler (misal: *prompt injection*, caci maki tersembunyi, atau manipulasi logika query terenkripsi).
+3. **Per-IP Rate Limiting**: Pelacak rate limit yang aman berbasis *IP Map* terisolasi untuk mengamankan platform dari eksploitasi API AI Studio.
 
 ---
 
@@ -155,30 +171,6 @@ cd ..
 npm start
 ```
 Buka **[http://localhost:3000](http://localhost:3000)** di browser Anda!
-
----
-
-## 📁 Struktur Direktori Proyek
-
-```text
-getrips/
-├── client/                 # Frontend React + Vite
-│   ├── src/
-│   │   ├── components/     # Portal: Wisatawan, UMKM, IT Security, SuperAdmin
-│   │   ├── App.jsx         # Router & Pusat Data Utama Frontend
-│   │   ├── main.jsx
-│   │   └── index.css       # Custom styling & Tailwind konfigurasi
-│   ├── tailwind.config.js
-│   └── vite.config.js
-├── data/
-│   └── database.json       # Fallback persistent DB file
-├── db.js                   # Unified Database Interface & Skema MySQL Bootstrap
-├── waf.js                  # Engine AI & Heuristic WAF + Rate Limiter
-├── server.js               # Express API endpoints & Routing
-├── package.json            # Daftar dependensi & script backend
-├── .gitignore              # Pengecualian node_modules, .env, & file build
-└── README.md               # Dokumentasi utama proyek
-```
 
 ---
 
