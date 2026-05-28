@@ -11,10 +11,6 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'client', 'dist')));
-// Serve static dashboard (public/) at /dashboard route
-app.use('/dashboard', express.static(path.join(__dirname, 'public')));
-// Also serve public/ files at root (for direct /index.html, /app.js, /styles.css access)
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Helper to get client IP
 function getClientIp(req) {

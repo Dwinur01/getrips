@@ -1,15 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { SlidersHorizontal, Sparkles, MapPin, ListTodo, ShieldAlert, Lock, Send, ShieldX, Utensils, Compass, Loader2, TreePine, Church, Landmark, Star, Download, MessageSquare, RefreshCw } from 'lucide-react'
-
-const EmptyState = ({ icon: Icon, title, subtitle }) => (
-  <div className="flex flex-col items-center justify-center py-10 text-gray-400 gap-3 border border-dashed border-gray-200 rounded-2xl p-6 bg-gray-50/50">
-    <Icon className="w-12 h-12 text-gray-300" />
-    <div className="text-center">
-      <p className="text-xs font-semibold text-gray-500">{title}</p>
-      <p className="text-[10px] text-gray-450 mt-1">{subtitle}</p>
-    </div>
-  </div>
-);
+import EmptyState from './EmptyState'
 
 function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToast }) {
   const [budget, setBudget] = useState(200000)

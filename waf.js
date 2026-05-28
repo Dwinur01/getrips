@@ -206,5 +206,6 @@ module.exports = {
     scanWAF,
     checkRateLimit,
     scanHeuristics,
-    addToWhitelist
+    addToWhitelist,
+    recordRequest
 };
