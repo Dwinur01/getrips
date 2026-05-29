@@ -124,17 +124,52 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
 
   // Initialize Map
   useEffect(() => {
-    if (!mapInstance.current && mapContainerRef.current) {
-      mapInstance.current = L.map(mapContainerRef.current).setView([-7.1610, 112.6565], 13)
-      
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap'
-      }).addTo(mapInstance.current)
+    if (typeof L === 'undefined') return
 
-      routeLayerGroup.current = L.layerGroup().addTo(mapInstance.current)
+    let isMounted = true
+
+    if (activePage === 'rencanakan' && activeTab === 'map-view') {
+      if (!mapInstance.current && mapContainerRef.current) {
+        const map = L.map(mapContainerRef.current).setView([-7.1610, 112.6565], 13)
+        mapInstance.current = map
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap'
+        }).addTo(map)
+
+        routeLayerGroup.current = L.layerGroup().addTo(map)
+
+        setTimeout(() => {
+          if (isMounted && mapInstance.current) {
+            mapInstance.current.invalidateSize()
+            plotMarkers()
+            if (itinerary && itinerary.timeline) {
+              drawRoute(itinerary.timeline)
+            }
+          }
+        }, 150)
+      } else if (mapInstance.current) {
+        setTimeout(() => {
+          if (isMounted && mapInstance.current) {
+            mapInstance.current.invalidateSize()
+            plotMarkers()
+            if (itinerary && itinerary.timeline) {
+              drawRoute(itinerary.timeline)
+            }
+          }
+        }, 100)
+      }
     }
-    plotMarkers()
-  }, [merchants])
+
+    return () => {
+      isMounted = false
+      if (activePage !== 'rencanakan' && mapInstance.current) {
+        mapInstance.current.remove()
+        mapInstance.current = null
+        routeLayerGroup.current = null
+      }
+    }
+  }, [activePage, activeTab, merchants, itinerary])
 
   // Refresh size on tab changes
   useEffect(() => {
@@ -150,19 +185,21 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
     routeLayerGroup.current.clearLayers()
 
     merchants.forEach(m => {
-      const bgClass = m.type === "kuliner" ? "bg-[#e05624]" : "bg-[#006666]"
-      
-      // Simulating custom icons inside div element
-      const iconHtml = `<div class="${bgClass} w-[28px] h-[28px] rounded-full flex items-center justify-center border-2 border-white text-white shadow-md transition-transform duration-200 hover:scale-115 hover:rotate-6">
-        <span class="text-[10px] font-bold">${m.type === 'kuliner' ? 'K' : 'W'}</span>
+      const bgClass = m.type === "kuliner" ? "bg-gradient-to-br from-orange-500 to-amber-500" : "bg-gradient-to-br from-[#006666] to-[#008080]"
+      const svgIcon = m.type === "kuliner" 
+        ? `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v8c0 1.1.9 2 2 2h1a2 2 0 0 0 2-2zM18 22v-3"/></svg>`
+        : `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22h18M5 22V10M9 22V10M15 22V10M19 22V10M12 2L2 7h20L12 2z"/></svg>`
+
+      const iconHtml = `<div class="${bgClass} w-[30px] h-[30px] rounded-full flex items-center justify-center border-2 border-white text-white shadow-lg transition-all duration-300 hover:scale-120 hover:rotate-12 cursor-pointer">
+        ${svgIcon}
       </div>`
       
       const customIcon = L.divIcon({
         html: iconHtml,
         className: '',
-        iconSize: [28, 28],
-        iconAnchor: [14, 14],
-        popupAnchor: [0, -10]
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [0, -12]
       })
 
       const popupContent = `
@@ -362,22 +399,30 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
         <p className="text-sm text-gray-500">Rencanakan perjalanan impian Anda dengan AI Itinerary Planner pintar dan terlindung.</p>
       </header>
 
-      {/* Horizontal Sub-Navigation */}
-      <nav className="flex gap-1 bg-gray-100 p-1 rounded-2xl mb-6">
+      {/* Horizontal Sub-Navigation (Responsive Scrollable on Mobile, Wrap on Desktop) */}
+      <nav className="flex overflow-x-auto md:overflow-x-visible md:flex-wrap gap-1 bg-gray-100 p-1.5 rounded-2xl mb-6 scrollbar-none flex-nowrap md:flex-row">
         {wisatawanTabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActivePage(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex-shrink-0 md:flex-1 flex items-center justify-center gap-2 py-2.5 px-4 md:px-2 rounded-xl text-xs font-semibold transition-all duration-300 transform active:scale-95 ${
               activePage === tab.id
-                ? 'bg-white text-primary shadow-sm'
-                : 'text-gray-500 hover:text-primary'
+                ? 'bg-white text-primary shadow-sm scale-102 font-bold'
+                : 'text-gray-550 hover:text-primary hover:bg-white/50'
             }`}
           >
-            <tab.Icon className="w-3.5 h-3.5" />
+            <tab.Icon className={`w-3.5 h-3.5 shrink-0 ${
+              activePage === tab.id
+                ? tab.id === 'beranda' ? 'text-[#006666]' :
+                  tab.id === 'rencanakan' ? 'text-indigo-600 font-bold' :
+                  tab.id === 'destinasi' ? 'text-[#e05624] font-bold' :
+                  tab.id === 'ulasan' ? 'text-amber-500 font-bold' :
+                  'text-blue-600 font-bold'
+                : 'text-gray-400'
+            }`} />
             <span>{tab.label}</span>
             {tab.badge && (
-              <span className="bg-secondary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+              <span className="bg-secondary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">
                 {tab.badge}
               </span>
             )}
@@ -444,19 +489,34 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
                 Lihat Semua <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {[...merchants].sort((a, b) => b.rating - a.rating).slice(0, 3).map(m => (
                 <div key={m.id}
-                  className="bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-md hover:border-primary/30 transition-all cursor-pointer group"
+                  className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group flex flex-col justify-between"
                   onClick={() => setActivePage('destinasi')}>
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4 ${m.type === 'kuliner' ? 'bg-orange-50' : 'bg-teal-50'}`}>
-                    {m.type === 'kuliner' ? '🍽️' : '🏛️'}
+                  <div className="relative h-32 w-full overflow-hidden bg-gray-100">
+                    {m.image ? (
+                      <img src={m.image} alt={m.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <div className={`w-full h-full flex items-center justify-center text-3xl bg-gradient-to-br ${m.type === 'kuliner' ? 'from-orange-400 to-amber-400' : 'from-[#006666] to-[#008080]'} text-white`}>
+                        {m.type === 'kuliner' ? '🍽️' : '🏛️'}
+                      </div>
+                    )}
+                    <span className={`absolute top-3 right-3 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm text-white ${
+                      m.type === 'kuliner' ? 'bg-orange-600/90' : 'bg-teal-700/90'
+                    }`}>
+                      {m.type === 'kuliner' ? 'Kuliner' : 'Wisata'}
+                    </span>
                   </div>
-                  <h4 className="font-bold text-sm text-gray-800 group-hover:text-primary transition-colors">{m.name}</h4>
-                  <p className="text-[10px] text-gray-400 mt-1">{m.type === 'kuliner' ? 'Kuliner UMKM' : 'Wisata Sejarah'}</p>
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                    <span className="text-xs text-amber-500 font-bold">⭐ {m.rating}</span>
-                    <span className="text-[10px] text-gray-400">{m.reviewsCount} ulasan</span>
+                  <div className="p-4 flex-grow flex flex-col justify-between">
+                    <div>
+                      <h4 className="font-bold text-sm text-gray-800 group-hover:text-primary transition-colors line-clamp-1">{m.name}</h4>
+                      <p className="text-[10px] text-gray-400 mt-1 line-clamp-1">{m.type === 'kuliner' ? 'Kuliner UMKM Khas Gresik' : 'Wisata Sejarah & Budaya'}</p>
+                    </div>
+                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                      <span className="text-xs text-amber-500 font-bold flex items-center gap-0.5">★ {m.rating}</span>
+                      <span className="text-[10px] text-gray-400">{m.reviewsCount} ulasan</span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -501,7 +561,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
         <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 animate-fade-in">
           
           {/* Left Side: Setup parameters */}
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6 h-fit">
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-4 sm:p-6 h-fit">
             <div className="flex items-center justify-between border-b-2 border-primary-light pb-3 mb-5">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="w-5 h-5 text-primary" />
@@ -661,7 +721,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
           </div>
 
           {/* Right Side: Map & Timeline tabs */}
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6 flex flex-col min-h-[480px]">
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-4 sm:p-6 flex flex-col min-h-[480px]">
             
             {/* Tabs */}
             <div className="flex gap-3 border-b border-gray-200 pb-3 mb-5">
@@ -847,38 +907,48 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
                 return matchFilter && matchSearch
               })
               .map(m => (
-                <div key={m.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-lg transition-all group">
-                  <div className={`h-28 flex items-center justify-center text-5xl ${m.type === 'kuliner' ? 'bg-orange-50' : 'bg-teal-50'}`}>
-                    {m.type === 'kuliner' ? '🍽️' : '🏛️'}
-                  </div>
-                  <div className="p-5">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <h4 className="font-bold text-sm text-gray-800 group-hover:text-primary transition-colors">{m.name}</h4>
-                      <span className={`shrink-0 text-[9px] font-bold px-2 py-1 rounded-full ${
-                        m.type === 'kuliner' ? 'bg-orange-100 text-orange-600' : 'bg-teal-100 text-teal-600'
-                      }`}>
-                        {m.type === 'kuliner' ? 'Kuliner' : 'Wisata'}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-gray-500 leading-relaxed line-clamp-2 mb-3">{m.description}</p>
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="flex-grow h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-amber-400 rounded-full" style={{ width: `${(m.rating / 5) * 100}%` }}></div>
+                <div key={m.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-lg transition-all group flex flex-col justify-between">
+                  <div className="relative h-36 w-full overflow-hidden bg-gray-100">
+                    {m.image ? (
+                      <img src={m.image} alt={m.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <div className={`w-full h-full flex items-center justify-center text-4xl bg-gradient-to-br ${m.type === 'kuliner' ? 'from-orange-400 to-amber-400' : 'from-[#006666] to-[#008080]'} text-white`}>
+                        {m.type === 'kuliner' ? '🍽️' : '🏛️'}
                       </div>
-                      <span className="text-xs font-bold text-amber-500">⭐ {m.rating}</span>
-                      <span className="text-[10px] text-gray-400">({m.reviewsCount})</span>
+                    )}
+                    <span className={`absolute top-3 right-3 text-[9px] font-bold px-2.5 py-1 rounded-full shadow-sm text-white ${
+                      m.type === 'kuliner' ? 'bg-orange-600/90' : 'bg-teal-700/90'
+                    }`}>
+                      {m.type === 'kuliner' ? 'Kuliner' : 'Wisata'}
+                    </span>
+                  </div>
+                  <div className="p-5 flex-grow flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h4 className="font-bold text-sm text-gray-800 group-hover:text-primary transition-colors line-clamp-1">{m.name}</h4>
+                      </div>
+                      <p className="text-[11px] text-gray-500 leading-relaxed line-clamp-2 mb-3">{m.description}</p>
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => { setActivePage('rencanakan'); setPreferences(p => p.includes(m.type) ? p : [...p, m.type]) }}
-                        className="flex-1 bg-primary-light text-primary text-[10px] font-bold py-2 rounded-xl hover:bg-primary hover:text-white transition-all">
-                        + Tambah ke Rute
-                      </button>
-                      <button
-                        onClick={() => { setActivePage('ulasan'); setRevMerchantId(m.id) }}
-                        className="flex-grow flex-1 border border-gray-200 text-gray-600 text-[10px] font-bold py-2 rounded-xl hover:border-primary hover:text-primary transition-all">
-                        ⭐ Tulis Ulasan
-                      </button>
+                    <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="flex-grow h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-amber-400 rounded-full" style={{ width: `${(m.rating / 5) * 100}%` }}></div>
+                        </div>
+                        <span className="text-xs font-bold text-amber-500 flex items-center gap-0.5">★ {m.rating}</span>
+                        <span className="text-[10px] text-gray-400">({m.reviewsCount})</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => { setActivePage('rencanakan'); setPreferences(p => p.includes(m.type) ? p : [...p, m.type]) }}
+                          className="flex-1 bg-primary-light text-primary text-[10px] font-bold py-2 rounded-xl hover:bg-primary hover:text-white transition-all">
+                          + Tambah ke Rute
+                        </button>
+                        <button
+                          onClick={() => { setActivePage('ulasan'); setRevMerchantId(m.id) }}
+                          className="flex-grow flex-1 border border-gray-200 text-gray-600 text-[10px] font-bold py-2 rounded-xl hover:border-primary hover:text-primary transition-all">
+                          ⭐ Tulis Ulasan
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -891,7 +961,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
       {activePage === 'ulasan' && (
         <div className="space-y-6 animate-fade-in">
           {/* Form CREATE Review */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-6">
+          <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6">
             <h3 className="font-display font-bold text-xl text-primary mb-1">Berikan Ulasan</h3>
             <p className="text-xs text-gray-500 mb-4">Ulasan Anda disaring otomatis dan dicatat secara preventif di bawah perlindungan AI WAF.</p>
             
@@ -988,7 +1058,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
           </div>
 
           {/* READ + Filter + Sort */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-6">
+          <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <h4 className="font-display font-bold text-lg text-gray-800">
                 Semua Ulasan ({reviews.length})
@@ -1141,7 +1211,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
           </div>
 
           {!user ? (
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center">
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-6 text-center">
               <p className="text-sm font-semibold text-amber-700 mb-3">Anda belum login</p>
               <button onClick={() => { setShowLoginModal(true); setAuthMode('login'); }}
                 className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-dark transition-all">
@@ -1151,7 +1221,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
           ) : (
             <>
               {/* READ — Info Akun */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6">
+              <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-16 h-16 rounded-2xl bg-primary text-white flex items-center justify-center font-display font-extrabold text-2xl shadow-md shrink-0">
                     {user.fullname.substring(0,2).toUpperCase()}
@@ -1182,7 +1252,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
               </div>
 
               {/* UPDATE — Edit Profil */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
+              <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="font-display font-bold text-sm text-gray-700">Edit Informasi Akun</h4>
                   <button onClick={() => { setProfileEdit(!profileEdit); setNewFullname(user.fullname); setNewPassword(''); setConfirmPassword(''); }}

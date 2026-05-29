@@ -13,6 +13,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
   const [jamBuka, setJamBuka] = useState('07:00')
   const [jamTutup, setJamTutup] = useState('17:00')
   const [noWa, setNoWa] = useState('')
+  const [imgUrl, setImgUrl] = useState('')
   const [isEditingProfil, setIsEditingProfil] = useState(false)
 
   // Ulasan sort state
@@ -68,6 +69,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
       setJamBuka(activeM.jamBuka || '07:00');
       setJamTutup(activeM.jamTutup || '17:00');
       setNoWa(activeM.noWa || '08123456789');
+      setImgUrl(activeM.image || '');
     }
   }, [selectedMerchantId, merchants]);
 
@@ -246,8 +248,8 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
         </div>
       </header>
 
-      {/* Horizontal Sub-Navigation */}
-      <nav className="flex gap-1 bg-gray-100 p-1 rounded-2xl mb-6">
+      {/* Horizontal Sub-Navigation (Responsive Scrollable on Mobile, Wrap on Desktop) */}
+      <nav className="flex overflow-x-auto md:overflow-x-visible md:flex-wrap gap-1 bg-gray-100 p-1.5 rounded-2xl mb-6 scrollbar-none flex-nowrap md:flex-row">
         {umkmTabs.map(tab => (
           <button
             key={tab.id}
@@ -255,16 +257,16 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
               setActivePage(tab.id)
               if (tab.id === 'ulasan') setLastSeenCount(merchantReviews.length)
             }}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex-shrink-0 md:flex-1 flex items-center justify-center gap-2 py-2.5 px-4 md:px-2 rounded-xl text-xs font-semibold transition-all duration-300 transform active:scale-95 ${
               activePage === tab.id
-                ? 'bg-white text-primary shadow-sm'
-                : 'text-gray-500 hover:text-primary'
+                ? 'bg-white text-primary shadow-sm scale-102 font-bold'
+                : 'text-gray-550 hover:text-primary'
             }`}
           >
-            <tab.Icon className="w-3.5 h-3.5" />
+            <tab.Icon className="w-3.5 h-3.5 shrink-0" />
             <span>{tab.label}</span>
             {tab.badge && (
-              <span className="bg-secondary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+              <span className="bg-secondary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">
                 {tab.badge}
               </span>
             )}
@@ -279,7 +281,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
             <div className="space-y-6 animate-fade-in">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Stat Card 1: Review Count */}
-                <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6 flex items-center gap-5">
+                <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-4 sm:p-6 flex items-center gap-5">
                   <div className="bg-[#e05624] text-white w-12 h-12 rounded-xl flex items-center justify-center">
                     <MessageSquare className="w-6 h-6" />
                   </div>
@@ -290,7 +292,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
                 </div>
 
                 {/* Stat Card 2: Rating Score */}
-                <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6 flex items-center gap-5">
+                <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-4 sm:p-6 flex items-center gap-5">
                   <div className="bg-primary text-white w-12 h-12 rounded-xl flex items-center justify-center">
                     <Star className="w-6 h-6" />
                   </div>
@@ -301,7 +303,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
                 </div>
 
                 {/* Stat Card 3: Total Menu */}
-                <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6 flex items-center gap-5">
+                <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-4 sm:p-6 flex items-center gap-5">
                   <div className="bg-blue-50 text-blue-600 w-12 h-12 rounded-xl flex items-center justify-center">
                     <ShoppingBag className="w-6 h-6" />
                   </div>
@@ -312,7 +314,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
                 </div>
 
                 {/* Stat Card 4: Avg Harga Menu */}
-                <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6 flex items-center gap-5">
+                <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-4 sm:p-6 flex items-center gap-5">
                   <div className="bg-amber-50 text-amber-600 w-12 h-12 rounded-xl flex items-center justify-center">
                     <TrendingUp className="w-6 h-6" />
                   </div>
@@ -329,7 +331,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
 
               {/* Bento Grid layout containing sentiment gauge */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6 flex flex-col justify-between">
+                <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-4 sm:p-6 flex flex-col justify-between">
                   <div className="flex items-center justify-between border-b border-gray-150 pb-3 mb-5">
                     <div className="flex items-center gap-2">
                       <BrainCircuit className="w-5 h-5 text-secondary" />
@@ -399,7 +401,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
                   </div>
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6 flex flex-col justify-between">
+                <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-4 sm:p-6 flex flex-col justify-between">
                   <div>
                     <h3 className="font-display font-bold text-sm text-gray-700 mb-2">Informasi Cepat Toko</h3>
                     <p className="text-xs text-gray-500 leading-relaxed mb-4">
@@ -487,7 +489,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
           {/* 2.3 — Sub-Halaman Ulasan (READ + SORT) */}
           {activePage === 'ulasan' && (
             <div className="animate-fade-in space-y-4">
-              <div className="bg-white border border-gray-200 rounded-2xl p-6">
+              <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6">
                 <h3 className="font-display font-semibold text-lg text-primary mb-4 pb-3 border-b border-gray-150">Ulasan Konsumen untuk {activeMerchant.name}</h3>
                 {merchantReviews.length > 0 && (
                   <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 mb-5">
@@ -588,7 +590,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
               </div>
 
               {/* Distribusi Bintang */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6">
+              <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6">
                 <h4 className="font-bold text-sm text-gray-700 mb-4">Distribusi Rating Bintang</h4>
                 {[5,4,3,2,1].map(star => {
                   const count = merchantReviews.filter(r => r.rating === star).length
@@ -607,7 +609,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
               </div>
 
               {/* Word Cloud dari ulasan */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6">
+              <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6">
                 <h4 className="font-bold text-sm text-gray-700 mb-4">💬 Kata Populer dari Ulasan</h4>
                 {(() => {
                   const stopwords = ['yang','dan','di','ke','dari','ini','itu','untuk','dengan','ada','saya','sangat','banget','tidak','sudah','bisa','juga','lebih','sekali','enak','tempat','rasa','porsi','gresik','adalah']
@@ -649,10 +651,14 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
               </div>
 
               {/* READ — Avatar & Info */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6 flex items-center gap-5">
-                <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shrink-0 ${activeMerchant?.type === 'kuliner' ? 'bg-orange-50' : 'bg-teal-50'}`}>
-                  {activeMerchant?.type === 'kuliner' ? '🍽️' : '🏛️'}
-                </div>
+              <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 flex items-center gap-5">
+                {activeMerchant?.image ? (
+                  <img src={activeMerchant.image} alt={activeMerchant.name} className="w-20 h-20 rounded-2xl object-cover shrink-0 border border-gray-200 shadow-sm" />
+                ) : (
+                  <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shrink-0 ${activeMerchant?.type === 'kuliner' ? 'bg-orange-50' : 'bg-teal-50'}`}>
+                    {activeMerchant?.type === 'kuliner' ? '🍽' : '🏛'}
+                  </div>
+                )}
                 <div className="min-w-0">
                   <h4 className="font-display font-extrabold text-xl text-gray-800 truncate">{activeMerchant?.name}</h4>
                   <p className="text-sm text-gray-500">Pemilik: {activeMerchant?.owner}</p>
@@ -666,7 +672,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
               </div>
 
               {/* UPDATE — Form Operasional */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
+              <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="font-bold text-sm text-gray-700 flex items-center gap-2">
                     <Edit3 className="w-4 h-4 text-primary" /> Informasi Operasional
@@ -697,6 +703,12 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
                         placeholder="Contoh: 08123456789"
                         className="border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-white" />
                     </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-semibold flex items-center gap-1.5">🖼️ URL Gambar Cover Merchant</label>
+                      <input type="text" value={imgUrl} onChange={e => setImgUrl(e.target.value)}
+                        placeholder="Contoh: https://images.unsplash.com/..."
+                        className="border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary bg-white" />
+                    </div>
                     <button
                       onClick={async () => {
                         // Persist to database
@@ -707,6 +719,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
                             body: JSON.stringify({
                               ...activeMerchant,
                               coords: activeMerchant.coords,
+                              image: imgUrl,
                               jamBuka,
                               jamTutup,
                               noWa
@@ -739,7 +752,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
               </div>
 
               {/* Ringkasan */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6">
+              <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6">
                 <h4 className="font-bold text-sm text-gray-700 mb-4 flex items-center gap-2">
                   <BarChart2 className="w-4 h-4 text-primary" /> Ringkasan Performa
                 </h4>

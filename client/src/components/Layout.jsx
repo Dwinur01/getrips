@@ -1,6 +1,6 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate, Outlet } from 'react-router-dom'
-import { Compass, Map, Store, ShieldCheck, Sliders, LogIn, LogOut, Settings, CheckCircle, XCircle, AlertTriangle, Info, Sparkles, ArrowRight, MapPin } from 'lucide-react'
+import { Compass, Map, Store, ShieldCheck, Sliders, LogIn, LogOut, Settings, CheckCircle, XCircle, AlertTriangle, Info, Sparkles, ArrowRight, MapPin, Menu, X } from 'lucide-react'
 import { AppContext } from '../context/AppContext'
 import AuthModal from './AuthModal'
 import SettingsModal from './SettingsModal'
@@ -9,6 +9,8 @@ function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const path = location.pathname;
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const {
     user,
@@ -53,23 +55,32 @@ function Layout() {
     return () => window.removeEventListener('keydown', handleKeydown);
   }, [showUmkmBtn, showItSecBtn, showAdminBtn, navigate]);
 
-  return (
-    <div className={`flex min-h-screen w-screen transition-colors duration-300 ${activePortal === 'itsec' ? 'bg-[#090d10]' : 'bg-[#f3f6f6]'}`}>
-      
-      {/* Sidebar Navigation */}
-      <aside className={`w-[260px] border-r flex flex-col p-6 fixed h-screen z-50 transition-colors duration-300 ${
-        activePortal === 'itsec' 
-          ? 'bg-[#12181f] border-[#1f2a36] text-[#e2e8f0]' 
-          : 'bg-white border-[#e9ecef] text-[#1b262c]'
-      }`}>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="bg-[#e0f2f1] w-[42px] h-[42px] rounded-xl flex items-center justify-center">
-            <Compass className="w-6 h-6 text-[#006666]" />
+  const renderSidebarContent = (isDrawer = false) => {
+    return (
+      <div className="flex flex-col h-full">
+        {/* Logo Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="bg-[#e0f2f1] w-[42px] h-[42px] rounded-xl flex items-center justify-center shrink-0">
+              <Compass className="w-6 h-6 text-[#006666]" />
+            </div>
+            <div className="flex flex-col leading-none">
+              <h1 className="font-display font-extrabold text-xl text-[#006666]">Grestrip</h1>
+              <span className="text-[10px] text-gray-400 font-semibold tracking-wider uppercase mt-0.5">Secure Navigator</span>
+            </div>
           </div>
-          <div className="flex flex-col leading-none">
-            <h1 className="font-display font-extrabold text-xl text-[#006666]">Grestrip</h1>
-            <span className="text-[10px] text-gray-400 font-semibold tracking-wider uppercase mt-0.5">Secure Navigator</span>
-          </div>
+          {isDrawer && (
+            <button 
+              onClick={() => setMobileMenuOpen(false)}
+              className={`p-2 rounded-lg border transition-all md:hidden ${
+                activePortal === 'itsec' 
+                  ? 'bg-[#1e293b] border-[#2d3d50] text-[#e2e8f0] hover:bg-[#2d3d50]' 
+                  : 'bg-gray-50 border-gray-200 text-gray-550 hover:bg-gray-100'
+              }`}
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         {/* User Session Profile Header */}
@@ -79,7 +90,7 @@ function Layout() {
               ? 'bg-[#0a0d11] border-[#223141] text-[#e2e8f0]' 
               : 'bg-gray-50 border-gray-250 text-[#1b262c]'
           }`}>
-            <div className="w-8 h-8 rounded-full bg-[#006666] text-white flex items-center justify-center font-bold text-xs shadow-md">
+            <div className="w-8 h-8 rounded-full bg-[#006666] text-white flex items-center justify-center font-bold text-xs shadow-md shrink-0">
               {user.fullname.substring(0,2).toUpperCase()}
             </div>
             <div className="flex flex-col leading-none overflow-hidden">
@@ -89,7 +100,7 @@ function Layout() {
           </div>
         ) : (
           <div className="flex items-center gap-2.5 p-3 bg-amber-50 border border-amber-200 rounded-xl mb-5 text-amber-800">
-            <span className="text-base">👋</span>
+            <span className="text-base shrink-0">👋</span>
             <div className="flex flex-col leading-tight">
               <span className="font-semibold text-xs">Halo, Penjelajah!</span>
               <span className="text-[10px] text-amber-700 font-medium">Login untuk akses penuh</span>
@@ -97,79 +108,95 @@ function Layout() {
           </div>
         )}
 
+        {/* Navigation Menu Links */}
         <nav className="flex flex-col gap-2 flex-grow">
           {showWisatawanBtn && (
             <button 
-              onClick={() => navigate('/wisatawan')}
+              onClick={() => {
+                navigate('/wisatawan');
+                if (isDrawer) setMobileMenuOpen(false);
+              }}
               title="Portal Wisatawan (Alt+1)"
-              className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-sans text-sm font-medium text-left transition-all ${
+              className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-sans text-sm font-medium text-left transition-all duration-300 transform active:scale-95 hover:scale-[1.02] hover:shadow-sm ${
                 activePortal === 'wisatawan'
-                  ? 'bg-[#006666] text-white'
+                  ? 'bg-[#006666] text-white shadow-md shadow-[#006666]/15'
                   : activePortal === 'itsec'
                     ? 'hover:bg-[#1f2a36] hover:text-[#38bdf8] text-gray-300'
                     : 'hover:bg-[#f8f9fa] hover:text-[#006666] text-[#1b262c]'
               }`}
             >
-              <Map className="w-5 h-5" />
+              <Map className={`w-5 h-5 transition-transform group-hover:scale-110 ${activePortal === 'wisatawan' ? 'text-teal-200' : 'text-[#006666]'}`} />
               <span>Wisatawan</span>
             </button>
           )}
 
           {showUmkmBtn && (
             <button 
-              onClick={() => navigate('/umkm')}
+              onClick={() => {
+                navigate('/umkm');
+                if (isDrawer) setMobileMenuOpen(false);
+              }}
               title="Pemilik UMKM (Alt+2)"
-              className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-sans text-sm font-medium text-left transition-all ${
+              className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-sans text-sm font-medium text-left transition-all duration-300 transform active:scale-95 hover:scale-[1.02] hover:shadow-sm ${
                 activePortal === 'umkm'
-                  ? 'bg-[#006666] text-white'
+                  ? 'bg-gradient-to-r from-orange-600 to-amber-500 text-white font-semibold shadow-md shadow-orange-500/10'
                   : activePortal === 'itsec'
                     ? 'hover:bg-[#1f2a36] hover:text-[#38bdf8] text-gray-300'
-                    : 'hover:bg-[#f8f9fa] hover:text-[#006666] text-[#1b262c]'
+                    : 'hover:bg-[#f8f9fa] hover:text-[#e05624] text-[#1b262c]'
               }`}
             >
-              <Store className="w-5 h-5" />
+              <Store className={`w-5 h-5 transition-transform ${activePortal === 'umkm' ? 'text-amber-100 animate-pulse' : 'text-[#e05624]'}`} />
               <span>Pemilik UMKM</span>
             </button>
           )}
 
           {showItSecBtn && (
             <button 
-              onClick={() => navigate('/itsec')}
+              onClick={() => {
+                navigate('/itsec');
+                if (isDrawer) setMobileMenuOpen(false);
+              }}
               title="IT Security (Alt+3)"
-              className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-sans text-sm font-medium text-left transition-all ${
+              className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-sans text-sm font-medium text-left transition-all duration-300 transform active:scale-95 hover:scale-[1.02] hover:shadow-sm ${
                 activePortal === 'itsec'
-                  ? 'bg-[#38bdf8] text-black font-semibold shadow-lg shadow-sky-500/10'
+                  ? 'bg-gradient-to-r from-sky-600 to-cyan-500 text-slate-900 font-extrabold shadow-md shadow-sky-500/15'
                   : 'hover:bg-[#1e293b] hover:text-[#38bdf8] text-[#1b262c]'
               }`}
             >
-              <ShieldCheck className="w-5 h-5" />
+              <ShieldCheck className={`w-5 h-5 transition-transform ${activePortal === 'itsec' ? 'text-slate-900 animate-bounce-slow' : 'text-[#38bdf8]'}`} />
               <span>IT Security</span>
             </button>
           )}
 
           {showAdminBtn && (
             <button 
-              onClick={() => navigate('/admin')}
+              onClick={() => {
+                navigate('/admin');
+                if (isDrawer) setMobileMenuOpen(false);
+              }}
               title="Super Admin (Alt+4)"
-              className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-sans text-sm font-medium text-left transition-all ${
+              className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-sans text-sm font-medium text-left transition-all duration-300 transform active:scale-95 hover:scale-[1.02] hover:shadow-sm ${
                 activePortal === 'superadmin'
-                  ? 'bg-[#006666] text-white'
+                  ? 'bg-gradient-to-r from-purple-700 to-indigo-650 text-white font-semibold shadow-md shadow-purple-600/15'
                   : activePortal === 'itsec'
                     ? 'hover:bg-[#1f2a36] hover:text-[#38bdf8] text-gray-300'
-                    : 'hover:bg-[#f8f9fa] hover:text-[#006666] text-[#1b262c]'
+                    : 'hover:bg-[#f8f9fa] hover:text-purple-650 text-[#1b262c]'
               }`}
             >
-              <Sliders className="w-5 h-5" />
+              <Sliders className={`w-5 h-5 transition-transform ${activePortal === 'superadmin' ? 'text-purple-200' : 'text-purple-600'}`} />
               <span>Super Admin</span>
             </button>
           )}
         </nav>
 
-        {/* Login / Logout Button in Sidebar Footer */}
+        {/* Login / Logout Button */}
         {user ? (
           <button 
-            onClick={handleLogout}
-            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-xs border border-red-200 transition-colors mb-4 mt-auto"
+            onClick={() => {
+              handleLogout();
+              if (isDrawer) setMobileMenuOpen(false);
+            }}
+            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-xs border border-red-200 transition-colors duration-300 mb-4 mt-auto active:scale-95"
           >
             <LogOut className="w-4 h-4" />
             <span>Keluar (Logout)</span>
@@ -179,8 +206,9 @@ function Layout() {
             onClick={() => {
               setAuthMode('login');
               setShowLoginModal(true);
+              if (isDrawer) setMobileMenuOpen(false);
             }}
-            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-[#006666] hover:bg-[#004d4d] text-white font-semibold text-xs transition-colors mb-4 mt-auto shadow-md shadow-[#006666]/10"
+            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-[#006666] hover:bg-[#004d4d] text-white font-semibold text-xs transition-colors duration-300 mb-4 mt-auto shadow-md shadow-[#006666]/10 active:scale-95"
           >
             <LogIn className="w-4 h-4" />
             <span>Daftar / Masuk</span>
@@ -196,21 +224,87 @@ function Layout() {
             <span className="mt-0.5 block">v2.0.0 • Google Cloud</span>
           </div>
           <button 
-            onClick={() => setShowSettingsModal(true)}
-            className={`p-2 rounded-lg border transition-all shrink-0 hover:scale-105 active:scale-95 ${
+            onClick={() => {
+              setShowSettingsModal(true);
+              if (isDrawer) setMobileMenuOpen(false);
+            }}
+            className={`p-2 rounded-lg border transition-all duration-300 shrink-0 hover:scale-105 active:scale-95 hover:rotate-45 ${
               activePortal === 'itsec' 
                 ? 'bg-[#12181f] border-[#1f2a36] text-sky-400 hover:bg-[#1a232d] hover:border-sky-400' 
                 : 'bg-gray-50 border-gray-200 text-primary hover:bg-gray-100 hover:border-primary'
             }`}
             title="Pengaturan API Key"
           >
-            <Settings className="w-4 h-4 animate-spin-hover" />
+            <Settings className="w-4 h-4" />
           </button>
         </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className={`flex min-h-screen w-screen transition-colors duration-300 overflow-x-hidden ${activePortal === 'itsec' ? 'bg-[#090d10]' : 'bg-[#f3f6f6]'}`}>
+      
+      {/* 1. Mobile Header (Glassmorphic Top Bar) */}
+      <header className={`md:hidden fixed top-0 left-0 right-0 h-16 z-40 border-b flex items-center justify-between px-5 backdrop-blur-md transition-colors duration-300 ${
+        activePortal === 'itsec' 
+          ? 'bg-[#12181f]/85 border-[#1f2a36] text-[#e2e8f0]' 
+          : 'bg-white/85 border-[#e9ecef] text-[#1b262c]'
+      }`}>
+        <div className="flex items-center gap-2.5">
+          <div className="bg-[#e0f2f1] w-[34px] h-[34px] rounded-lg flex items-center justify-center">
+            <Compass className="w-5 h-5 text-[#006666]" />
+          </div>
+          <span className="font-display font-extrabold text-base text-[#006666]">Grestrip</span>
+        </div>
+        <div className="flex items-center gap-3">
+          {user && (
+            <div className="w-7 h-7 rounded-full bg-[#006666] text-white flex items-center justify-center font-bold text-[10px] shadow-sm">
+              {user.fullname.substring(0,2).toUpperCase()}
+            </div>
+          )}
+          <button 
+            onClick={() => setMobileMenuOpen(true)}
+            className={`p-2 rounded-lg transition-all ${
+              activePortal === 'itsec' ? 'bg-[#1e293b] text-[#e2e8f0]' : 'bg-gray-150 text-gray-700'
+            }`}
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        </div>
+      </header>
+
+      {/* 2. Desktop Sidebar (Hidden on Mobile) */}
+      <aside className={`hidden md:flex w-[260px] border-r flex-col p-6 fixed h-screen z-50 transition-colors duration-300 ${
+        activePortal === 'itsec' 
+          ? 'bg-[#12181f] border-[#1f2a36] text-[#e2e8f0]' 
+          : 'bg-white border-[#e9ecef] text-[#1b262c]'
+      }`}>
+        {renderSidebarContent(false)}
       </aside>
 
-      {/* Main Content Area */}
-      <main className="ml-[260px] flex-grow p-8 min-h-screen transition-colors duration-300">
+      {/* 3. Mobile Navigation Drawer Slider & Backdrop Overlay */}
+      <div className={`md:hidden fixed inset-0 z-50 transition-opacity duration-350 ${mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        {/* Backdrop overlay */}
+        <div 
+          onClick={() => setMobileMenuOpen(false)}
+          className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
+        ></div>
+        
+        {/* Sliding Menu Container */}
+        <aside className={`absolute top-0 left-0 bottom-0 w-[280px] p-6 flex flex-col shadow-2xl transition-transform duration-350 ease-out transform ${
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        } ${
+          activePortal === 'itsec' 
+            ? 'bg-[#12181f] text-[#e2e8f0]' 
+            : 'bg-white text-[#1b262c]'
+        }`}>
+          {renderSidebarContent(true)}
+        </aside>
+      </div>
+
+      {/* 4. Main Content Area (Responsive margins and padding) */}
+      <main className={`flex-grow p-4 md:p-8 min-h-screen transition-colors duration-300 ml-0 md:ml-[260px] pt-20 md:pt-8 pb-24 md:pb-8`}>
         <div className="flex flex-col gap-6">
           
           {/* Elegant Welcome Hero Banner Card for Guest */}
@@ -245,8 +339,12 @@ function Layout() {
           }`}>
             <span>Grestrip</span>
             <span>/</span>
-            <span className={activePortal === 'itsec' ? 'text-sky-400' : 'text-primary'}>
-              {portalLabels[activePortal]?.icon} {portalLabels[activePortal]?.label}
+            <span className={`flex items-center gap-1.5 ${activePortal === 'itsec' ? 'text-sky-400' : 'text-primary'}`}>
+              {activePortal === 'wisatawan' && <Map className="w-3.5 h-3.5 text-[#006666] inline" />}
+              {activePortal === 'umkm' && <Store className="w-3.5 h-3.5 text-[#e05624] inline" />}
+              {activePortal === 'itsec' && <ShieldCheck className="w-3.5 h-3.5 text-sky-400 inline" />}
+              {activePortal === 'superadmin' && <Sliders className="w-3.5 h-3.5 text-purple-600 inline" />}
+              <span className="ml-0.5">{portalLabels[activePortal]?.label}</span>
             </span>
           </div>
 
@@ -255,6 +353,58 @@ function Layout() {
         </div>
       </main>
 
+      {/* 5. Mobile Bottom Quick Navigation Bar */}
+      <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-40 h-16 border-t flex items-center justify-around px-2 backdrop-blur-md transition-colors duration-300 ${
+        activePortal === 'itsec' 
+          ? 'bg-[#12181f]/90 border-[#1f2a36] text-[#e2e8f0]' 
+          : 'bg-white/90 border-[#e9ecef] text-[#1b262c]'
+      }`}>
+        {showWisatawanBtn && (
+          <button 
+            onClick={() => navigate('/wisatawan')}
+            className={`flex flex-col items-center justify-center flex-grow py-1 transition-all ${
+              activePortal === 'wisatawan' ? 'text-[#006666] font-bold scale-110' : 'text-gray-400 hover:text-gray-650'
+            }`}
+          >
+            <Map className="w-5 h-5" />
+            <span className="text-[9px] mt-0.5">Wisatawan</span>
+          </button>
+        )}
+        {showUmkmBtn && (
+          <button 
+            onClick={() => navigate('/umkm')}
+            className={`flex flex-col items-center justify-center flex-grow py-1 transition-all ${
+              activePortal === 'umkm' ? 'text-[#e05624] font-bold scale-110' : 'text-gray-450 hover:text-gray-650'
+            }`}
+          >
+            <Store className="w-5 h-5" />
+            <span className="text-[9px] mt-0.5">UMKM</span>
+          </button>
+        )}
+        {showItSecBtn && (
+          <button 
+            onClick={() => navigate('/itsec')}
+            className={`flex flex-col items-center justify-center flex-grow py-1 transition-all ${
+              activePortal === 'itsec' ? 'text-sky-400 font-bold scale-110' : 'text-gray-450 hover:text-gray-650'
+            }`}
+          >
+            <ShieldCheck className="w-5 h-5" />
+            <span className="text-[9px] mt-0.5">IT Sec</span>
+          </button>
+        )}
+        {showAdminBtn && (
+          <button 
+            onClick={() => navigate('/admin')}
+            className={`flex flex-col items-center justify-center flex-grow py-1 transition-all ${
+              activePortal === 'superadmin' ? 'text-purple-650 font-bold scale-110' : 'text-gray-450 hover:text-gray-650'
+            }`}
+          >
+            <Sliders className="w-5 h-5" />
+            <span className="text-[9px] mt-0.5">Admin</span>
+          </button>
+        )}
+      </nav>
+
       {/* Auth Overlay Modal */}
       {showLoginModal && <AuthModal />}
 
@@ -262,7 +412,7 @@ function Layout() {
       {showSettingsModal && <SettingsModal />}
 
       {/* Toast Notification Container */}
-      <div className="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none">
+      <div className="fixed bottom-20 md:bottom-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none">
         {toasts.map(t => {
           let bgClass = "bg-[#006666]"
           let Icon = CheckCircle

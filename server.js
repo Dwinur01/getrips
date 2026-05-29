@@ -61,23 +61,16 @@ async function generateMockItinerary(budget, durationDays, preferences, allergie
 
     let totalEstimatedCost = 0;
 
+    const refLat = -7.1610;
+    const refLng = 112.6565;
+    const getDistance = (lat, lng) => {
+        return Math.sqrt(Math.pow(lat - refLat, 2) + Math.pow(lng - refLng, 2));
+    };
+
     for (let day = 1; day <= days; day++) {
         // Morning: Historical spot
         let morningSpot = availableSpots.wisata[day % availableSpots.wisata.length];
         let morningCost = morningSpot.catalog[0]?.price || 5000;
-        totalEstimatedCost += morningCost;
-
-        timeline.push({
-            day: day,
-            time: "08:30 - 11:30",
-            activity: `Eksplorasi Sejarah: Kunjungan ke ${morningSpot.name}`,
-            location: morningSpot.name,
-            cost: morningCost,
-            description: `Menikmati keindahan destinasi wisata ${morningSpot.description.substring(0, 80)}...`,
-            lat: morningSpot.coords[0],
-            lng: morningSpot.coords[1],
-            type: "wisata"
-        });
 
         // Lunch: Authentic Gresik culinary
         let lunchSpot = availableSpots.kuliner[(day - 1) % availableSpots.kuliner.length];
@@ -88,31 +81,15 @@ async function generateMockItinerary(budget, durationDays, preferences, allergie
         let menuDesc = lunchSpot.catalog[0]?.description || "";
 
         if (isAllergicToSeafood && containsSeafood(lunchSpot)) {
-            // Find a safe spot that does not contain seafood
             const safeSpot = merchants.find(m => m.type === 'kuliner' && !containsSeafood(m)) || merchants.find(m => m.id === 'm1') || merchants[0];
             lunchSpot = safeSpot;
             lunchMenuName = (safeSpot.catalog[0]?.name || "Kuliner Alternatif") + " (Alternatif Alergi Seafood)";
             lunchMenuCost = safeSpot.catalog[0]?.price || 20000;
             menuDesc = (safeSpot.catalog[0]?.description || "") + " (Dipilih secara otomatis karena Anda memiliki batasan medis terhadap seafood).";
         } else if (isAllergicToPeanuts && containsPeanut(lunchSpot)) {
-            // Remove peanut products / adjust
             lunchMenuName = (lunchSpot.catalog[0]?.name || "Kuliner Pilihan") + " (Bebas Kacang)";
             menuDesc = (lunchSpot.catalog[0]?.description || "") + " (Koki diinstruksikan menyajikan kelapa murni tanpa kacang tanah).";
         }
-
-        totalEstimatedCost += lunchMenuCost;
-
-        timeline.push({
-            day: day,
-            time: "12:00 - 13:30",
-            activity: `Makan Siang Autentik: Kuliner di ${lunchSpot.name}`,
-            location: lunchSpot.name,
-            cost: lunchMenuCost,
-            description: `Menikmati hidangan khas ${lunchMenuName}. ${menuDesc}`,
-            lat: lunchSpot.coords[0],
-            lng: lunchSpot.coords[1],
-            type: "kuliner"
-        });
 
         // Afternoon: Sightseeing / Beach or Cafe
         let afternoonSpot;
@@ -124,18 +101,75 @@ async function generateMockItinerary(budget, durationDays, preferences, allergie
 
         let afternoonMenuName = afternoonSpot.catalog[0]?.name || "Aktivitas Santai";
         let afternoonCost = afternoonSpot.catalog[0]?.price || 5000;
-        totalEstimatedCost += afternoonCost;
 
-        timeline.push({
-            day: day,
-            time: "15:00 - 18:00",
-            activity: `Rekreasi Sore Hari: Bersantai di ${afternoonSpot.name}`,
-            location: afternoonSpot.name,
-            cost: afternoonCost,
-            description: `Bersantai sore hari dengan memesan ${afternoonMenuName}. ${afternoonSpot.description.substring(0, 80)}...`,
-            lat: afternoonSpot.coords[0],
-            lng: afternoonSpot.coords[1],
-            type: afternoonSpot.type
+        // Put the 3 spots into an array and sort them by distance from center (closest first, farthest last)
+        const dayActivities = [
+            {
+                role: 'morning',
+                cost: morningCost,
+                location: morningSpot.name,
+                description: `Menikmati keindahan destinasi wisata ${morningSpot.description.substring(0, 80)}...`,
+                lat: morningSpot.coords[0],
+                lng: morningSpot.coords[1],
+                type: "wisata"
+            },
+            {
+                role: 'lunch',
+                cost: lunchMenuCost,
+                location: lunchSpot.name,
+                description: `Menikmati hidangan khas ${lunchMenuName}. ${menuDesc}`,
+                lat: lunchSpot.coords[0],
+                lng: lunchSpot.coords[1],
+                type: "kuliner"
+            },
+            {
+                role: 'afternoon',
+                cost: afternoonCost,
+                location: afternoonSpot.name,
+                description: `Bersantai dengan memesan ${afternoonMenuName}. ${afternoonSpot.description.substring(0, 80)}...`,
+                lat: afternoonSpot.coords[0],
+                lng: afternoonSpot.coords[1],
+                type: afternoonSpot.type
+            }
+        ];
+
+        // Geographically sort by distance ascending (closest first)
+        dayActivities.sort((a, b) => getDistance(a.lat, a.lng) - getDistance(b.lat, b.lng));
+
+        const timeslots = [
+            { time: "08:30 - 11:30", name: "Pagi" },
+            { time: "12:00 - 13:30", name: "Siang" },
+            { time: "15:00 - 18:00", name: "Sore" }
+        ];
+
+        dayActivities.forEach((act, index) => {
+            const slot = timeslots[index];
+            act.day = day;
+            act.time = slot.time;
+            
+            // Customize activity name based on timeslot and type
+            if (slot.name === "Pagi") {
+                if (act.type === "kuliner") {
+                    act.activity = `Kuliner Pagi Autentik: Sarapan di ${act.location}`;
+                } else {
+                    act.activity = `Eksplorasi Pagi Hari: Kunjungan ke ${act.location}`;
+                }
+            } else if (slot.name === "Siang") {
+                if (act.type === "kuliner") {
+                    act.activity = `Makan Siang Autentik: Kuliner di ${act.location}`;
+                } else {
+                    act.activity = `Kunjungan Siang: Menjelajahi Sejarah ${act.location}`;
+                }
+            } else if (slot.name === "Sore") {
+                if (act.type === "kuliner") {
+                    act.activity = `Kuliner Sore Autentik: Santai & Ngemil Khas di ${act.location}`;
+                } else {
+                    act.activity = `Rekreasi Sore Hari: Menikmati Sunset di ${act.location}`;
+                }
+            }
+            
+            totalEstimatedCost += act.cost;
+            timeline.push(act);
         });
     }
 
@@ -221,6 +255,10 @@ ${JSON.stringify(merchantsBrief)}
 
 Instruksi Keamanan Alergi & Medis (SANGAT KRITIS):
 Jika wisatawan menuliskan alergi makanan (misal: kacang, seafood, bandeng, dll.), Anda WAJIB mengganti merchant atau catalog menu makanan yang berpotensi memicu alergi tersebut dengan menu alternatif yang 100% aman (misalnya: jika alergi seafood, gantilah Otak-otak Bandeng dengan Nasi Krawu Daging), dan tuliskan catatan perubahan tersebut secara eksplisit di deskripsi aktivitas kuliner dengan nada menenangkan.
+
+Instruksi Pengurutan & Efisiensi Rute Geografis (SANGAT PENTING):
+Untuk setiap hari (day), urutkanlah aktivitas/destinasi pariwisata yang dikunjungi berdasarkan jaraknya dari titik pusat Gresik (koordinat pusat: [-7.1610, 112.6565]). 
+Destinasi yang jaraknya paling dekat dengan titik pusat harus dikunjungi terlebih dahulu (paling awal di pagi hari), disusul ke destinasi yang agak jauh, dan tempat yang paling jauh dari pusat kota wajib diletakkan di akhir rute perjalanan hari tersebut (sore/malam). Ini penting agar perjalanan berlangsung efisien secara geografis.
 
 Hasilkan keluaran JSON terstruktur yang KAKU dan valid sesuai dengan skema JSON berikut tanpa menyertakan markdown wrap atau teks pendahuluan:
 {
@@ -690,7 +728,7 @@ app.get('/api/admin/stats', async (req, res) => {
 
 // 10. Add new merchant (Super Admin portal)
 app.post('/api/admin/merchants', async (req, res) => {
-    const { name, owner, type, description, coords } = req.body;
+    const { name, owner, type, image, description, coords } = req.body;
     
     if (!name || !owner || !type || !description || !coords || !Array.isArray(coords) || coords.length < 2) {
         return res.status(400).json({ error: "All merchant registration fields are required" });
@@ -713,6 +751,7 @@ app.post('/api/admin/merchants', async (req, res) => {
         name,
         owner,
         type,
+        image: image || '',
         description,
         coords: coords.map(c => parseFloat(c))
     });
@@ -723,7 +762,7 @@ app.post('/api/admin/merchants', async (req, res) => {
 // 10.5 Edit or toggle active status of merchant (Super Admin portal)
 app.put('/api/admin/merchants/:merchantId', async (req, res) => {
     const { merchantId } = req.params;
-    const { name, owner, type, description, coords, status } = req.body;
+    const { name, owner, type, image, description, coords, status } = req.body;
     
     if (!name || !owner || !type || !description || !coords || !Array.isArray(coords) || coords.length < 2) {
         return res.status(400).json({ error: "Seluruh kolom data UMKM wajib diisi" });
@@ -746,6 +785,7 @@ app.put('/api/admin/merchants/:merchantId', async (req, res) => {
             name,
             owner,
             type,
+            image: image || '',
             description,
             coords: [lat, lng],
             status: status || 'aktif'

@@ -14,6 +14,28 @@ Platform ini mengusung arsitektur tangguh dengan **Dual-Mode Database Engine** (
 
 ---
 
+## 🎨 Pembaruan Estetika Visual Premium & Gambar Visual (Mei 2026)
+
+Grestrip telah mendapatkan peningkatan visual menyeluruh untuk menghadirkan antarmuka state-of-the-art yang memukau:
+
+> [!TIP]
+> **1. Integrasi Gambar Cover Pariwisata Beresolusi Tinggi**
+> - Mengganti penampung kotak kosong abu-abu/emoji statis pada kartu **"Destinasi Populer"** (Beranda) dan **"Semua Destinasi"** (Katalog Utama) dengan visual gambar cover dari Unsplash yang indah dan beresolusi tinggi.
+> - Menyediakan transisi zoom yang mulus saat kursor di-hover (`hover:scale-105 duration-500`) dan penanda rating bintang kuning solid (`★`).
+> - Fallback sistem cerdas dengan gradien warna modern (`from-orange-400 to-amber-400` / `from-[#006666] to-[#008080]`) jika terjadi kendala jaringan saat memuat gambar.
+>
+> **2. Sistem Icon Berwarna yang Dinamis (Color-coded Nav & Map)**
+> - **Sidebar Navigasi Utama:** Active state buttons bergradien warna brand masing-masing portal dengan bayangan glow lembut (`shadow-md shadow-color/15`) serta warna representatif dinamis (Teal, Orange, Sky Blue, dan Purple).
+> - **Horizontal Sub-Navigation:** Tab navigasi horizontal di Portal Wisatawan memiliki warna icon unik tersendiri saat aktif (e.g. Beranda = Hijau, Rencanakan = Ungu, Destinasi = Oranye, Ulasan = Amber, Profil = Biru).
+> - **Custom SVG Peta Interaktif:** Penanda peta (marker Leaflet.js) yang sebelumnya berupa teks huruf statis ('K' / 'W') kini digantikan oleh **pin bulat gradien 30px** dengan icon SVG kustom (cangkir/alat makan oranye untuk kuliner, dan gapura/sejarah hijau toska untuk pariwisata).
+> - **Crisp Breadcrumbs:** Emojis breadcrumb konvensional diganti dengan icon SVG dinamis Lucide React.
+>
+> **3. Fitur Pengelolaan Visual Mandiri**
+> - **Tab Profil Toko (Portal UMKM):** Input teks *"URL Gambar Cover"* agar pelaku usaha dapat memperbarui gambar utama tokonya secara mandiri.
+> - **Pendaftaran & Edit (Portal Super Admin):** Penambahan input URL gambar cover saat Dinas Pariwisata mendaftarkan/mengedit mitra, serta **preview gambar mini (thumbnail)** langsung di dalam tabel kepengawasan pariwisata.
+
+---
+
 ## 🎯 Fitur Utama & Pembagian Portal
 
 Platform ini dipecah dari sistem 1 halaman scroll menjadi **17 Sub-Halaman dengan Horizontal Navigation Tabs** yang melayani peran berbeda secara dinamis. Platform ini mendukung **28 Operasi CRUD Lengkap** dengan antarmuka modern yang bebas dari dialog native browser (`alert` & `confirm` digantikan 100% oleh sistem Toast & Modal kustom):

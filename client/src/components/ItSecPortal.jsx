@@ -328,16 +328,16 @@ function ItSecPortal({ threats, globalApiKey, onRefresh, user, showToast }) {
       </header>
 
       {/* IT Dark Navigation */}
-      <nav className="flex gap-1 bg-[#0a0f14] border border-[#1f2a36] p-1 rounded-2xl mb-6">
+      <nav className="flex gap-1 bg-[#0a0f14] border border-[#1f2a36] p-1 rounded-2xl mb-6 overflow-x-auto scrollbar-none flex-nowrap w-full md:overflow-x-visible md:flex-wrap">
         {itSecTabs.map(tab => (
           <button key={tab.id} onClick={() => setActivePage(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex-1 shrink-0 min-w-[100px] md:min-w-0 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-all ${
               activePage === tab.id
                 ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30'
                 : 'text-gray-500 hover:text-sky-400'
             }`}>
             <tab.Icon className="w-3.5 h-3.5" />
-            <span>{tab.label}</span>
+            <span className="whitespace-nowrap">{tab.label}</span>
             {tab.badge && <span className="bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">{tab.badge}</span>}
           </button>
         ))}
@@ -350,7 +350,7 @@ function ItSecPortal({ threats, globalApiKey, onRefresh, user, showToast }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             {/* Traffic alert bulb */}
-            <div className="bg-[#12181f] border border-[#1f2a36] rounded-2xl p-6 flex flex-col justify-between h-full">
+            <div className="bg-[#12181f] border border-[#1f2a36] rounded-2xl p-4 sm:p-6 flex flex-col justify-between h-full">
               <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider border-b border-[#1f2a36] pb-3 mb-4">Status Sistem AI WAF</h3>
               <div className="flex flex-col gap-3 font-mono text-[11px] font-bold">
                 <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${
@@ -383,7 +383,7 @@ function ItSecPortal({ threats, globalApiKey, onRefresh, user, showToast }) {
             </div>
 
             {/* Quota meters */}
-            <div className="bg-[#12181f] border border-[#1f2a36] rounded-2xl p-6 flex flex-col justify-between h-full">
+            <div className="bg-[#12181f] border border-[#1f2a36] rounded-2xl p-4 sm:p-6 flex flex-col justify-between h-full">
               <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider border-b border-[#1f2a36] pb-3 mb-4">API Rate-Limiting Monitor</h3>
               <div className="space-y-4">
                 <div className="flex justify-between text-xs text-[#e2e8f0] font-mono">
@@ -408,7 +408,7 @@ function ItSecPortal({ threats, globalApiKey, onRefresh, user, showToast }) {
             </div>
 
             {/* Threat Distribution */}
-            <div className="bg-[#12181f] border border-[#1f2a36] rounded-2xl p-6 flex flex-col justify-between h-full">
+            <div className="bg-[#12181f] border border-[#1f2a36] rounded-2xl p-4 sm:p-6 flex flex-col justify-between h-full">
               <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider border-b border-[#1f2a36] pb-3 mb-4">Metrik Distribusi Ancaman</h3>
               <div className="space-y-2.5 font-mono text-[10px]">
                 <div className="space-y-1">
@@ -473,7 +473,7 @@ function ItSecPortal({ threats, globalApiKey, onRefresh, user, showToast }) {
           </div>
 
           {/* Cyber threat logging table */}
-          <div className="bg-[#12181f] border border-[#1f2a36] rounded-2xl p-6">
+          <div className="bg-[#12181f] border border-[#1f2a36] rounded-2xl p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#1f2a36] pb-3 mb-4">
               <div className="flex items-center gap-2">
                 <ShieldX className="w-5 h-5 text-emerald-400" />
@@ -605,7 +605,7 @@ function ItSecPortal({ threats, globalApiKey, onRefresh, user, showToast }) {
       {activePage === 'playground' && (
         <div className="space-y-6 animate-fade-in">
           {/* Penetration simulator console */}
-          <div className="bg-[#12181f] border border-[#1f2a36] rounded-2xl p-6 relative overflow-hidden">
+          <div className="bg-[#12181f] border border-[#1f2a36] rounded-2xl p-4 sm:p-6 relative overflow-hidden">
             {/* Shield Activated Red Glow Overlay FX on WAF Block */}
             {sysStatus === 'blocked' && (
               <div className="absolute inset-0 bg-red-950/85 backdrop-blur-sm z-30 flex flex-col items-center justify-center text-center animate-fade-in p-4 border border-red-500 rounded-2xl shadow-[inset_0_0_50px_rgba(239,68,68,0.4)]">

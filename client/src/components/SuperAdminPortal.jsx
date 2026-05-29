@@ -18,6 +18,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
   const [name, setName] = useState('')
   const [owner, setOwner] = useState('')
   const [type, setType] = useState('kuliner')
+  const [image, setImage] = useState('')
   const [lat, setLat] = useState('')
   const [lng, setLng] = useState('')
   const [desc, setDesc] = useState('')
@@ -39,6 +40,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
   const [editName, setEditName] = useState('')
   const [editOwner, setEditOwner] = useState('')
   const [editType, setEditType] = useState('kuliner')
+  const [editImage, setEditImage] = useState('')
   const [editLat, setEditLat] = useState('')
   const [editLng, setEditLng] = useState('')
   const [editDesc, setEditDesc] = useState('')
@@ -162,6 +164,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
           name: name.trim(),
           owner: owner.trim(),
           type,
+          image: image.trim(),
           description: desc.trim(),
           coords: [parseFloat(lat), parseFloat(lng)]
         })
@@ -178,6 +181,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
       setName('')
       setOwner('')
       setType('kuliner')
+      setImage('')
       setLat('')
       setLng('')
       setDesc('')
@@ -195,6 +199,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
     setEditName(merchant.name)
     setEditOwner(merchant.owner)
     setEditType(merchant.type)
+    setEditImage(merchant.image || '')
     setEditLat(merchant.coords[0].toString())
     setEditLng(merchant.coords[1].toString())
     setEditDesc(merchant.description)
@@ -217,6 +222,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
           name: editName.trim(),
           owner: editOwner.trim(),
           type: editType,
+          image: editImage.trim(),
           description: editDesc.trim(),
           coords: [parseFloat(editLat), parseFloat(editLng)],
           status: editStatus
@@ -377,19 +383,19 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
       </header>
 
       {/* Horizontal sub-navigation */}
-      <nav className="flex gap-1 bg-gray-100 p-1 rounded-2xl mb-6">
+      <nav className="flex gap-1 bg-gray-100 p-1 rounded-2xl mb-6 overflow-x-auto scrollbar-none flex-nowrap w-full md:overflow-x-visible md:flex-wrap">
         {superAdminTabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActivePage(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex-1 shrink-0 min-w-[120px] md:min-w-0 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-all ${
               activePage === tab.id
-                ? 'bg-white text-[#006666] shadow-sm'
+                ? 'bg-white text-[#006666] shadow-sm font-bold'
                 : 'text-gray-500 hover:text-[#006666]'
             }`}
           >
             <tab.Icon className="w-3.5 h-3.5" />
-            <span>{tab.label}</span>
+            <span className="whitespace-nowrap">{tab.label}</span>
           </button>
         ))}
       </nav>
@@ -398,7 +404,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
       {activePage === 'overview' && (
         <div className="space-y-6 animate-fade-in">
           {/* Real stats integration cards */}
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6">
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-4 sm:p-6">
             <h3 className="font-display font-semibold text-sm text-gray-700 mb-4 border-b border-gray-150 pb-3">Statistik Pariwisata Gresik</h3>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
               <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex flex-col justify-between">
@@ -421,7 +427,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
           </div>
 
           {Object.keys(merchantsByType).length > 0 && (
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6">
+            <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-4 sm:p-6">
               <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">Distribusi Tipe UMKM</h4>
               <DonutChart data={merchantsByType} />
             </div>
@@ -432,7 +438,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
       {/* KELOLA UMKM TAB */}
       {activePage === 'kelola' && (
         <div className="space-y-6 animate-fade-in">
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6 flex flex-col">
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-4 sm:p-6 flex flex-col">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-150 pb-3 mb-4">
               <h3 className="font-display font-semibold text-sm text-gray-700">Daftar UMKM Kreatif Terbina</h3>
               
@@ -471,20 +477,30 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
                             : 'border-gray-200 hover:shadow-soft hover:border-primary/30'
                         }`}
                       >
-                        <div className="flex flex-col gap-0.5">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                              isInactive ? 'bg-gray-400' : 'bg-emerald-500 shadow-[0_0_6px_#10b981]'
-                            }`}></div>
-                            <strong className="text-xs text-gray-800 font-bold">{m.name}</strong>
-                            <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
-                              isInactive ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'
-                            }`}>
-                              {isInactive ? 'Nonaktif' : 'Aktif'}
-                            </span>
+                        <div className="flex items-center gap-3">
+                          {/* Thumbnail preview */}
+                          {m.image ? (
+                            <img src={m.image} alt={m.name} className="w-12 h-12 rounded-xl object-cover shrink-0 border border-gray-150" />
+                          ) : (
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg shrink-0 ${isFood ? 'bg-orange-50 text-orange-650' : 'bg-teal-50 text-[#006666]'}`}>
+                              {isFood ? '🍽' : '🏛'}
+                            </div>
+                          )}
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                                isInactive ? 'bg-gray-400' : 'bg-emerald-500 shadow-[0_0_6px_#10b981]'
+                              }`}></div>
+                              <strong className="text-xs text-gray-800 font-bold">{m.name}</strong>
+                              <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                                isInactive ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'
+                              }`}>
+                                {isInactive ? 'Nonaktif' : 'Aktif'}
+                              </span>
+                            </div>
+                            <span className="text-[10px] text-gray-400 leading-snug">Pemilik: {m.owner}</span>
+                            <span className="text-[10px] text-gray-400 font-mono">Loc: {m.coords[0].toFixed(4)}, {m.coords[1].toFixed(4)}</span>
                           </div>
-                          <span className="text-[10px] text-gray-400 leading-snug">Pemilik: {m.owner}</span>
-                          <span className="text-[10px] text-gray-400 font-mono">Loc: {m.coords[0].toFixed(4)}, {m.coords[1].toFixed(4)}</span>
                         </div>
                         
                         <div className="flex items-center gap-2.5 shrink-0">
@@ -539,7 +555,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
           {/* Confirmation Modal for Permanent Delete */}
           {confirmDeleteMerchantId && (
             <div className="fixed inset-0 bg-black/50 z-[400] flex items-center justify-center p-4">
-              <div className="bg-white rounded-2xl max-w-[400px] w-full p-6 shadow-xl text-gray-800">
+              <div className="bg-white rounded-2xl max-w-[400px] w-full p-4 sm:p-6 shadow-xl text-gray-800">
                 <h3 className="font-bold text-base text-gray-800 mb-2">Hapus Permanen Mitra</h3>
                 <p className="text-xs text-gray-500 mb-4">Apakah Anda yakin ingin menghapus mitra ini secara permanen dari database? Tindakan ini tidak dapat dibatalkan!</p>
                 <div className="flex gap-3">
@@ -570,7 +586,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
       {/* DAFTARKAN UMKM TAB */}
       {activePage === 'daftar' && (
         <div className="space-y-6 animate-fade-in max-w-xl">
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6">
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-4 sm:p-6">
             <div className="flex items-center gap-2 border-b border-gray-150 pb-3 mb-5">
               <FileCheck className="w-5 h-5 text-gray-700" />
               <h3 className="font-display font-bold text-sm text-gray-700">Validasi Pendaftaran UMKM Baru</h3>
@@ -659,6 +675,17 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
               )}
 
               <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold">URL Gambar Cover (Unsplash/Lainnya)</label>
+                <input 
+                  type="text" 
+                  value={image}
+                  onChange={(e) => setImage(e.target.value)}
+                  placeholder="Contoh: https://images.unsplash.com/photo-..." 
+                  className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
                 <label className="text-xs font-semibold">Deskripsi Layanan & Keunikan Wisata</label>
                 <textarea 
                   value={desc}
@@ -691,7 +718,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
           </div>
 
           {/* CREATE — Buat Akun UMKM */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-soft">
+          <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-soft">
             <h4 className="font-bold text-sm text-gray-700 mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
               <UserPlus className="w-4 h-4 text-primary" /> Buat Akun Pemilik UMKM
             </h4>
@@ -741,7 +768,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
           </div>
 
           {/* READ — Daftar Semua User */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-soft">
+          <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-soft">
             <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-2">
               <h4 className="font-bold text-sm text-gray-700">Semua Akun Terdaftar</h4>
               <button onClick={loadUsers}
@@ -808,7 +835,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
             {/* Modal UPDATE — Reset Password */}
             {resetPasswordUserId && (
               <div className="fixed inset-0 bg-black/50 z-[400] flex items-center justify-center p-4">
-                <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl text-gray-800 animate-scale-in">
+                <div className="bg-white rounded-2xl max-w-sm w-full p-4 sm:p-6 shadow-xl text-gray-800 animate-scale-in">
                   <h3 className="font-bold text-base text-gray-800 mb-4 border-b border-gray-100 pb-2">Reset Password</h3>
                   <input type="password" value={newResetPassword} onChange={e => setNewResetPassword(e.target.value)}
                     placeholder="Password baru (min. 6 karakter)"
@@ -846,7 +873,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
       {/* Coordinate Picker Modal (Leaflet.js Map Picker) */}
       {mapOpen && (
         <div className="fixed inset-0 bg-black/60 z-[250] flex items-center justify-center backdrop-blur-xs p-4 animate-scale-in">
-          <div className="bg-white border border-gray-200 rounded-2xl max-w-[500px] w-full p-6 shadow-2xl relative text-gray-800">
+          <div className="bg-white border border-gray-200 rounded-2xl max-w-[500px] w-full p-4 sm:p-6 shadow-2xl relative text-gray-800">
             <button 
               onClick={() => setMapOpen(false)}
               className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
@@ -885,7 +912,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
       {/* Submission Confirmation Preview Modal */}
       {previewOpen && (
         <div className="fixed inset-0 bg-black/60 z-[250] flex items-center justify-center backdrop-blur-xs p-4 animate-scale-in">
-          <div className="bg-white border border-gray-200 rounded-2xl max-w-[440px] w-full p-6 shadow-2xl relative text-gray-800">
+          <div className="bg-white border border-gray-200 rounded-2xl max-w-[440px] w-full p-4 sm:p-6 shadow-2xl relative text-gray-800">
             <button 
               onClick={() => setPreviewOpen(false)}
               className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
@@ -944,7 +971,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
       {/* Edit Details Merchant Form Dialog Modal */}
       {editingMerchant && (
         <div className="fixed inset-0 bg-black/60 z-[250] flex items-center justify-center backdrop-blur-xs p-4 animate-scale-in">
-          <div className="bg-white border border-gray-200 rounded-2xl max-w-[460px] w-full p-6 shadow-2xl relative text-gray-800">
+          <div className="bg-white border border-gray-200 rounded-2xl max-w-[460px] w-full p-4 sm:p-6 shadow-2xl relative text-gray-800">
             <button 
               onClick={() => setEditingMerchant(null)}
               className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
@@ -1046,6 +1073,16 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
                     <option value="nonaktif">Nonaktif (Sembunyikan)</option>
                   </select>
                 </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold">URL Gambar Cover</label>
+                  <input 
+                    type="text" 
+                    value={editImage}
+                    onChange={(e) => setEditImage(e.target.value)}
+                    placeholder="https://images.unsplash.com/..." 
+                    className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary"
+                  />
+                </div>
               </div>
 
               <div className="flex flex-col gap-1">
@@ -1082,7 +1119,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
       {/* Coordinate Picker Modal for Editing Merchant Details */}
       {editMapOpen && (
         <div className="fixed inset-0 bg-black/60 z-[300] flex items-center justify-center backdrop-blur-xs p-4 animate-scale-in">
-          <div className="bg-white border border-gray-200 rounded-2xl max-w-[500px] w-full p-6 shadow-2xl relative text-gray-800">
+          <div className="bg-white border border-gray-200 rounded-2xl max-w-[500px] w-full p-4 sm:p-6 shadow-2xl relative text-gray-800">
             <button 
               onClick={() => setEditMapOpen(false)}
               className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
@@ -1120,7 +1157,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
 
         {deactivateModal && (
           <div className="fixed inset-0 bg-black/50 z-[400] flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl max-w-[400px] w-full p-6 shadow-xl">
+            <div className="bg-white rounded-2xl max-w-[400px] w-full p-4 sm:p-6 shadow-xl">
               <h3 className="font-bold text-base text-gray-800 mb-1">Nonaktifkan UMKM</h3>
               <p className="text-xs text-gray-500 mb-4">Pilih alasan penonaktifan untuk keperluan audit trail.</p>
               <select
