@@ -327,6 +327,35 @@ app.post('/api/reviews', async (req, res) => {
     });
 });
 
+// UPDATE review
+app.put('/api/reviews/:id', async (req, res) => {
+  const { id } = req.params
+  const { text, rating } = req.body
+  if (!text?.trim() || !rating || rating < 1 || rating > 5)
+    return res.status(400).json({ error: 'Data tidak valid' })
+  try {
+    const reviews = await db.getReviews()
+    const idx = reviews.findIndex(r => r.id === id)
+    if (idx === -1) return res.status(404).json({ error: 'Ulasan tidak ditemukan' })
+    reviews[idx] = { ...reviews[idx], text: text.trim(), rating: parseInt(rating), edited: true }
+    await db.saveReviews(reviews)
+    res.json(reviews[idx])
+  } catch (err) { res.status(500).json({ error: err.message }) }
+})
+
+// DELETE review
+app.delete('/api/reviews/:id', async (req, res) => {
+  const { id } = req.params
+  try {
+    const reviews = await db.getReviews()
+    const filtered = reviews.filter(r => r.id !== id)
+    if (filtered.length === reviews.length)
+      return res.status(404).json({ error: 'Ulasan tidak ditemukan' })
+    await db.saveReviews(filtered)
+    res.json({ success: true })
+  } catch (err) { res.status(500).json({ error: err.message }) }
+})
+
 // Get all reviews across all merchants
 app.get('/api/reviews', async (req, res) => {
     try {
@@ -580,6 +609,21 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
+// UPDATE profil user
+app.put('/api/auth/update', async (req, res) => {
+  const { username, fullname, password } = req.body
+  try {
+    const users = await db.getUsers()
+    const idx = users.findIndex(u => u.username === username)
+    if (idx === -1) return res.status(404).json({ error: 'User tidak ditemukan' })
+    if (fullname) users[idx].fullname = fullname
+    if (password) users[idx].password = await bcrypt.hash(password, 10)
+    await db.saveUsers(users)
+    const { password: _, ...safeUser } = users[idx]
+    res.json({ user: safeUser })
+  } catch (err) { res.status(500).json({ error: err.message }) }
+})
+
 // 9. Update catalog (Merchant portal)
 app.post('/api/merchants/:merchantId/catalog', async (req, res) => {
     const { merchantId } = req.params;
@@ -717,6 +761,59 @@ app.put('/api/admin/merchants/:merchantId', async (req, res) => {
         res.status(500).json({ error: "Gagal menyimpan detail perubahan" });
     }
 });
+
+// DELETE semua threat log
+app.delete('/api/threats/clear', async (req, res) => {
+  try {
+    await db.saveThreats([])
+    res.json({ success: true })
+  } catch (err) { res.status(500).json({ error: err.message }) }
+})
+
+// GET semua users (tanpa password)
+app.get('/api/auth/users', async (req, res) => {
+  try {
+    const users = await db.getUsers()
+    res.json(users.map(({ password, ...u }) => ({ id: u.id || u.username, ...u })))
+  } catch (err) { res.status(500).json({ error: err.message }) }
+})
+
+// DELETE user by ID
+app.delete('/api/auth/users/:id', async (req, res) => {
+  try {
+    const users = await db.getUsers()
+    const userToDelete = users.find(u => u.id === req.params.id || u.username === req.params.id)
+    if (!userToDelete) return res.status(404).json({ error: 'User tidak ditemukan' })
+    if (userToDelete.role === 'superadmin') return res.status(400).json({ error: 'Tidak dapat menghapus superadmin' })
+    const filtered = users.filter(u => u.id !== req.params.id && u.username !== req.params.id)
+    await db.saveUsers(filtered)
+    res.json({ success: true })
+  } catch (err) { res.status(500).json({ error: err.message }) }
+})
+
+// PUT reset password
+app.put('/api/auth/users/:id/reset-password', async (req, res) => {
+  const { password } = req.body
+  if (!password || password.length < 6)
+    return res.status(400).json({ error: 'Password minimal 6 karakter' })
+  try {
+    const users = await db.getUsers()
+    const idx = users.findIndex(u => u.id === req.params.id || u.username === req.params.id)
+    if (idx === -1) return res.status(404).json({ error: 'User tidak ditemukan' })
+    users[idx].password = await bcrypt.hash(password, 10)
+    await db.saveUsers(users)
+    res.json({ success: true })
+  } catch (err) { res.status(500).json({ error: err.message }) }
+})
+
+// DELETE merchant
+app.delete('/api/admin/merchants/:merchantId', async (req, res) => {
+  const { merchantId } = req.params
+  try {
+    await db.deleteMerchant(merchantId)
+    res.json({ success: true })
+  } catch (err) { res.status(500).json({ error: err.message }) }
+})
 
 // 11. Wildcard SPA fallback route
 app.get('*', (req, res) => {

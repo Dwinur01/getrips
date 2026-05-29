@@ -730,6 +730,100 @@ const db = {
         return false;
     },
 
+    // New CRUD & Admin additions
+    getUsers: async () => {
+        if (useMySQL && mysqlPool) {
+            try {
+                const [rows] = await mysqlPool.query("SELECT * FROM users");
+                return rows;
+            } catch (e) {
+                console.error("MySQL getUsers failed:", e);
+            }
+        }
+        const data = loadJsonDb();
+        return data.users || [];
+    },
+
+    saveUsers: async (users) => {
+        if (useMySQL && mysqlPool) {
+            try {
+                await mysqlPool.query("DELETE FROM users");
+                for (const u of users) {
+                    await mysqlPool.query(
+                        "INSERT INTO users (username, password, role, fullname) VALUES (?, ?, ?, ?)",
+                        [u.username, u.password, u.role, u.fullname]
+                    );
+                }
+                return true;
+            } catch (e) {
+                console.error("MySQL saveUsers failed:", e);
+            }
+        }
+        const data = loadJsonDb();
+        data.users = users;
+        saveJsonDb(data);
+        return true;
+    },
+
+    saveReviews: async (reviews) => {
+        if (useMySQL && mysqlPool) {
+            try {
+                await mysqlPool.query("DELETE FROM reviews");
+                for (const r of reviews) {
+                    await mysqlPool.query(
+                        "INSERT INTO reviews (id, merchantId, userName, rating, text, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
+                        [r.id, r.merchantId, r.userName, r.rating, r.text, r.timestamp]
+                    );
+                }
+                return true;
+            } catch (e) {
+                console.error("MySQL saveReviews failed:", e);
+            }
+        }
+        const data = loadJsonDb();
+        data.reviews = reviews;
+        saveJsonDb(data);
+        return true;
+    },
+
+    saveThreats: async (threats) => {
+        if (useMySQL && mysqlPool) {
+            try {
+                await mysqlPool.query("DELETE FROM threats");
+                for (const t of threats) {
+                    await mysqlPool.query(
+                        "INSERT INTO threats (id, ip, timestamp, type, payload, severity, action) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                        [t.id, t.ip, t.timestamp, t.type, t.payload, t.severity, t.action || 'BLOCKED']
+                    );
+                }
+                return true;
+            } catch (e) {
+                console.error("MySQL saveThreats failed:", e);
+            }
+        }
+        const data = loadJsonDb();
+        data.threats = threats;
+        saveJsonDb(data);
+        return true;
+    },
+
+    deleteMerchant: async (merchantId) => {
+        if (useMySQL && mysqlPool) {
+            try {
+                await mysqlPool.query("DELETE FROM merchants WHERE id = ?", [merchantId]);
+                await mysqlPool.query("DELETE FROM reviews WHERE merchantId = ?", [merchantId]);
+                return true;
+            } catch (e) {
+                console.error("MySQL deleteMerchant failed:", e);
+            }
+        }
+        const data = loadJsonDb();
+        data.merchants = data.merchants.filter(m => m.id !== merchantId);
+        data.reviews = data.reviews.filter(r => r.merchantId !== merchantId);
+        saveJsonDb(data);
+        return true;
+    },
+
     // Encryption Helpers
     encryptField: (text) => encrypt(text),
     decryptField: (ciphertext) => decrypt(ciphertext)

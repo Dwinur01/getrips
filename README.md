@@ -16,7 +16,32 @@ Platform ini mengusung arsitektur tangguh dengan **Dual-Mode Database Engine** (
 
 ## 🎯 Fitur Utama & Pembagian Portal
 
-Platform ini dibagi menjadi **4 Portal Utama** yang melayani peran berbeda secara mulus dengan UI premium berbasis *Bento Grid*, micro-animations, dan bebas dari dialog native browser (`alert` & `confirm` digantikan 100% oleh sistem Toast & Modal kustom):
+Platform ini dipecah dari sistem 1 halaman scroll menjadi **17 Sub-Halaman dengan Horizontal Navigation Tabs** yang melayani peran berbeda secara dinamis. Platform ini mendukung **28 Operasi CRUD Lengkap** dengan antarmuka modern yang bebas dari dialog native browser (`alert` & `confirm` digantikan 100% oleh sistem Toast & Modal kustom):
+
+### 📊 Matriks Operasi CRUD & Struktur Portal
+
+| Portal | Sub-Halaman | Create (C) | Read (R) | Update (U) | Delete (D) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **🚶 Wisatawan** | 🏠 Beranda | — | Statistik & top destinasi | — | — |
+| | 🗺️ Rencanakan | Buat itinerary AI | Lihat timeline detail | Edit preferensi rute | Reset timeline |
+| | 📍 Destinasi | — | Cari & filter destinasi | — | — |
+| | ⭐ Ulasan | Kirim review | Lihat review list | Edit review inline | Hapus review |
+| | 👤 Profil Saya | — | Info akun & statistik | Edit nama & password | — |
+| **🏪 UMKM** | 📊 Dashboard | — | KPI & sentimen AI | Refresh sentimen AI | — |
+| | 🍽️ Katalog | Tambah menu | List catalog | Edit menu | Hapus menu (modal) |
+| | ⭐ Ulasan | — | Ulasan toko & rating | — | — |
+| | 📈 Analitik | — | Distribusi rating, wordcloud | — | — |
+| | 🏪 Profil Toko | — | Jam operasional & WA | Edit jam buka & WA | — |
+| **🛡️ IT Security** | 🖥️ Monitor | — | KPI, logs, chart | — | Clear threat logs |
+| | 🧪 Playground | Uji payload siber | Console output | — | Clear console |
+| | 📋 Laporan | — | Breakdown tipe ancaman | — | Ekspor CSV/JSON |
+| | ⚙️ Konfigurasi | Tambah WAF whitelist | Lihat whitelist | — | Hapus whitelist |
+| **⚙️ Super Admin**| 📊 Overview | — | KPI & charts | — | — |
+| | 🏪 Kelola UMKM | — | List merchant & search | Edit & toggle status | Hapus merchant |
+| | ➕ Daftarkan | Validasi registrasi | Preview data | — | — |
+| | 👥 Akun | Buat akun UMKM | List akun terdaftar | Reset password user | Hapus akun |
+
+---
 
 ### 1. 🚶 Portal Wisatawan (Smart Traveler Portal)
 * **Peta Interaktif Leaflet.js**: Navigasi visual lokasi UMKM Kuliner dan Destinasi Wisata riil di Gresik secara presisi.

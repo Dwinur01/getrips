@@ -1,8 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { FileCheck, CheckCircle2, MapPin, Map, Pencil, Eye, X, Power, TrendingUp, Star, MessageSquare, ShieldAlert } from 'lucide-react'
+import { FileCheck, CheckCircle2, MapPin, Map, Pencil, Eye, X, Power, TrendingUp, Star, MessageSquare, ShieldAlert, UserPlus, KeyRound, Trash2, RefreshCw, Search, LayoutDashboard, Plus, Users } from 'lucide-react'
 import EmptyState from './EmptyState'
 
 function SuperAdminPortal({ merchants, onRefresh, showToast }) {
+  const [activePage, setActivePage] = useState('overview')
+  const [userList, setUserList] = useState([])
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false)
+  const [newUmkmUsername, setNewUmkmUsername] = useState('')
+  const [newUmkmPassword, setNewUmkmPassword] = useState('')
+  const [newUmkmMerchantId, setNewUmkmMerchantId] = useState('')
+  const [resetPasswordUserId, setResetPasswordUserId] = useState(null)
+  const [newResetPassword, setNewResetPassword] = useState('')
+  const [merchantSearch, setMerchantSearch] = useState('')
+  const [confirmDeleteMerchantId, setConfirmDeleteMerchantId] = useState(null)
+
   // New merchant form states
   const [name, setName] = useState('')
   const [owner, setOwner] = useState('')
@@ -329,11 +340,32 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
     );
   };
 
+  const loadUsers = async () => {
+    setIsLoadingUsers(true)
+    try {
+      const res = await fetch('/api/auth/users')
+      const data = await res.json()
+      setUserList(data)
+    } catch (err) { showToast('Gagal memuat daftar user', 'error') }
+    finally { setIsLoadingUsers(false) }
+  }
+
+  useEffect(() => {
+    if (activePage === 'akun') loadUsers()
+  }, [activePage])
+
   const merchantsByType = merchants.reduce((acc, m) => {
     const t = m.type || 'lainnya';
     acc[t] = (acc[t] || 0) + 1;
     return acc;
   }, {});
+
+  const superAdminTabs = [
+    { id: 'overview', label: 'Overview', Icon: LayoutDashboard },
+    { id: 'kelola', label: 'Kelola UMKM', Icon: MapPin },
+    { id: 'daftar', label: 'Daftarkan UMKM', Icon: Plus },
+    { id: 'akun', label: 'Kelola Akun', Icon: Users }
+  ]
 
   return (
     <div className="space-y-8 animate-fade-in text-gray-800">
@@ -344,232 +376,472 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
         <p className="text-sm text-gray-500">Validasi legalitas pendaftaran UMKM baru, moderasi konten publik, serta tinjau performa statistik wilayah.</p>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6">
-        
-        {/* Form Registration */}
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6 h-fit">
-          <div className="flex items-center gap-2 border-b border-gray-150 pb-3 mb-5">
-            <FileCheck className="w-5 h-5 text-gray-700" />
-            <h3 className="font-display font-bold text-sm text-gray-700">Validasi Pendaftaran UMKM Baru</h3>
-          </div>
+      {/* Horizontal sub-navigation */}
+      <nav className="flex gap-1 bg-gray-100 p-1 rounded-2xl mb-6">
+        {superAdminTabs.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActivePage(tab.id)}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+              activePage === tab.id
+                ? 'bg-white text-[#006666] shadow-sm'
+                : 'text-gray-500 hover:text-[#006666]'
+            }`}
+          >
+            <tab.Icon className="w-3.5 h-3.5" />
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </nav>
 
-          <form onSubmit={handleOpenPreviewModal} className="space-y-4">
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold">Nama UMKM / Objek Wisata</label>
-              <input 
-                type="text" 
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Nama warung / objek wisata baru" 
-                required
-                className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold">Nama Pemilik Legal</label>
-                <input 
-                  type="text" 
-                  value={owner}
-                  onChange={(e) => setOwner(e.target.value)}
-                  placeholder="Nama pemilik asli" 
-                  required
-                  className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary"
-                />
-              </div>
-              
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold">Kategori Layanan</label>
-                <select 
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                  className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary cursor-pointer"
-                >
-                  <option value="kuliner">Kuliner Lokal</option>
-                  <option value="wisata">Objek Wisata / Sejarah</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-[1fr_1fr_auto] gap-4 items-end">
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold">Latitude</label>
-                <input 
-                  type="number" 
-                  value={lat}
-                  onChange={(e) => setLat(e.target.value)}
-                  step="0.000001" 
-                  placeholder="Contoh: -7.1610" 
-                  required
-                  className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold">Longitude</label>
-                <input 
-                  type="number" 
-                  value={lng}
-                  onChange={(e) => setLng(e.target.value)}
-                  step="0.000001" 
-                  placeholder="Contoh: 112.6565" 
-                  required
-                  className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={() => setMapOpen(true)}
-                className="bg-primary-light text-primary hover:bg-primary border border-primary hover:text-white rounded-xl px-4.5 py-2.5 text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5 h-10 shadow-soft"
-                title="Pilih koordinat lokasi langsung dari peta interaktif"
-              >
-                <MapPin className="w-4 h-4 shrink-0" />
-                <span className="hidden sm:inline">Peta</span>
-              </button>
-            </div>
-
-                {locationName && (
-                  <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5">
-                    <MapPin className="w-3 h-3 shrink-0" />
-                    <span className="font-semibold">{locationName}</span>
-                  </div>
-                )}
-
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold">Deskripsi Layanan & Keunikan Wisata</label>
-              <textarea 
-                value={desc}
-                onChange={(e) => setDesc(e.target.value)}
-                placeholder="Tuliskan deskripsi lengkap beserta kuliner unggulan khas daerah..." 
-                required
-                rows="3"
-                className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary resize-y"
-              ></textarea>
-            </div>
-
-            <button 
-              type="submit"
-              className="bg-slate-900 hover:bg-slate-800 text-white rounded-xl py-3 font-display font-semibold text-xs active:scale-95 transition-transform flex items-center justify-center gap-1.5 shadow-soft w-full mt-2"
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Daftarkan & Sahkan UMKM</span>
-            </button>
-          </form>
-        </div>
-
-        {/* Right Side: Live Stats and Listings */}
-        <div className="space-y-6">
-          
+      {/* OVERVIEW TAB */}
+      {activePage === 'overview' && (
+        <div className="space-y-6 animate-fade-in">
           {/* Real stats integration cards */}
           <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6">
             <h3 className="font-display font-semibold text-sm text-gray-700 mb-4 border-b border-gray-150 pb-3">Statistik Pariwisata Gresik</h3>
-            <div className="grid grid-cols-2 gap-4 text-center">
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex flex-col justify-between">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex flex-col justify-between">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Mitra Terbina</span>
-                <h4 className="font-display font-extrabold text-xl text-gray-800 mt-1">{stats.totalMerchants} UMKM</h4>
+                <h4 className="font-display font-extrabold text-2xl text-gray-800 mt-1">{stats.totalMerchants} UMKM</h4>
               </div>
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex flex-col justify-between">
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex flex-col justify-between">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Total Ulasan</span>
-                <h4 className="font-display font-extrabold text-xl text-primary mt-1">{stats.totalReviews} Ulasan</h4>
+                <h4 className="font-display font-extrabold text-2xl text-primary mt-1">{stats.totalReviews} Ulasan</h4>
               </div>
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex flex-col justify-between">
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex flex-col justify-between">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Rating Rata-rata</span>
-                <h4 className="font-display font-extrabold text-xl text-amber-500 mt-1">★ {stats.avgRating}</h4>
+                <h4 className="font-display font-extrabold text-2xl text-amber-500 mt-1">★ {stats.avgRating}</h4>
               </div>
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex flex-col justify-between">
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex flex-col justify-between">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Ancaman Diblokir</span>
-                <h4 className="font-display font-extrabold text-xl text-red-500 mt-1">{stats.totalThreatsBlocked} Threat</h4>
+                <h4 className="font-display font-extrabold text-2xl text-red-500 mt-1">{stats.totalThreatsBlocked} Threat</h4>
               </div>
             </div>
           </div>
 
-            {Object.keys(merchantsByType).length > 0 && (
-              <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-5 mt-5">
-                <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Distribusi Tipe UMKM</h4>
-                <DonutChart data={merchantsByType} />
-              </div>
-            )}
+          {Object.keys(merchantsByType).length > 0 && (
+            <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6">
+              <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">Distribusi Tipe UMKM</h4>
+              <DonutChart data={merchantsByType} />
+            </div>
+          )}
+        </div>
+      )}
 
-          {/* List registries with edit actions */}
+      {/* KELOLA UMKM TAB */}
+      {activePage === 'kelola' && (
+        <div className="space-y-6 animate-fade-in">
           <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6 flex flex-col">
-            <h3 className="font-display font-semibold text-sm text-gray-700 mb-4 border-b border-gray-150 pb-3">Daftar UMKM Kreatif Terbina</h3>
-            <div className="space-y-3 max-h-[260px] overflow-y-auto pr-2">
-              {merchants.length > 0 ? (
-                merchants.map(m => {
-                  const isFood = m.type === "kuliner"
-                  const isInactive = m.status === 'nonaktif'
-                  return (
-                    <div 
-                      key={m.id} 
-                      className={`bg-white border rounded-2xl p-4 flex items-center justify-between gap-3 transition-all ${
-                        m.status === 'nonaktif'
-                          ? 'border-gray-200 bg-gray-50/70 opacity-70'
-                          : 'border-gray-200 hover:shadow-soft hover:border-primary/30'
-                      }`}
-                    >
-                      <div className="flex flex-col gap-0.5">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full shrink-0 ${
-                            m.status === 'nonaktif' ? 'bg-gray-400' : 'bg-emerald-500 shadow-[0_0_6px_#10b981]'
-                          }`}></div>
-                          <strong className="text-xs text-gray-800 font-bold">{m.name}</strong>
-                          <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
-                            isInactive ? 'bg-red-200 text-red-800' : 'bg-emerald-100 text-emerald-800'
-                          }`}>
-                            {isInactive ? 'Nonaktif' : 'Aktif'}
-                          </span>
-                    {m.status === 'nonaktif' && (
-                      <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-gray-100 text-gray-500 border border-gray-200">
-                        ⏸ Nonaktif
-                      </span>
-                    )}
-                        </div>
-                        <span className="text-[10px] text-gray-400 leading-snug">Pemilik: {m.owner}</span>
-                        <span className="text-[10px] text-gray-400 font-mono">Loc: {m.coords[0].toFixed(4)}, {m.coords[1].toFixed(4)}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2.5 shrink-0">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
-                          isFood ? 'bg-orange-100 text-orange-800' : 'bg-teal-100 text-teal-800'
-                        }`}>
-                          {isFood ? 'Kuliner' : 'Wisata'}
-                        </span>
-                        
-                        <button
-                          onClick={() => handleEditMerchantClick(m)}
-                          className="text-blue-500 hover:text-blue-750 transition-colors p-1 hover:bg-blue-50 rounded active:scale-90"
-                          title="Edit detail mitra pariwisata"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        
-                        <button
-                          onClick={() => handleToggleRequest(m)}
-                          className={`p-1 rounded transition-all active:scale-90 ${
-                            isInactive 
-                              ? 'text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50' 
-                              : 'text-red-500 hover:text-red-700 hover:bg-red-50'
-                          }`}
-                          title={isInactive ? "Aktifkan kembali mitra" : "Nonaktifkan sementara mitra"}
-                        >
-                          <Power className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-150 pb-3 mb-4">
+              <h3 className="font-display font-semibold text-sm text-gray-700">Daftar UMKM Kreatif Terbina</h3>
+              
+              {/* Search Input */}
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3.5 top-2.5 w-4 h-4 text-gray-400 animate-pulse" />
+                <input 
+                  type="text" 
+                  value={merchantSearch} 
+                  onChange={e => setMerchantSearch(e.target.value)}
+                  placeholder="Cari nama atau pemilik..."
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl text-xs bg-white outline-none focus:border-[#006666]"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+              {merchants.filter(m => 
+                m.name.toLowerCase().includes(merchantSearch.toLowerCase()) || 
+                m.owner.toLowerCase().includes(merchantSearch.toLowerCase())
+              ).length > 0 ? (
+                merchants
+                  .filter(m => 
+                    m.name.toLowerCase().includes(merchantSearch.toLowerCase()) || 
+                    m.owner.toLowerCase().includes(merchantSearch.toLowerCase())
                   )
-                })
+                  .map(m => {
+                    const isFood = m.type === "kuliner"
+                    const isInactive = m.status === 'nonaktif'
+                    return (
+                      <div 
+                        key={m.id} 
+                        className={`bg-white border rounded-2xl p-4 flex items-center justify-between gap-3 transition-all ${
+                          isInactive
+                            ? 'border-gray-200 bg-gray-50/70 opacity-70'
+                            : 'border-gray-200 hover:shadow-soft hover:border-primary/30'
+                        }`}
+                      >
+                        <div className="flex flex-col gap-0.5">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                              isInactive ? 'bg-gray-400' : 'bg-emerald-500 shadow-[0_0_6px_#10b981]'
+                            }`}></div>
+                            <strong className="text-xs text-gray-800 font-bold">{m.name}</strong>
+                            <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                              isInactive ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'
+                            }`}>
+                              {isInactive ? 'Nonaktif' : 'Aktif'}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-gray-400 leading-snug">Pemilik: {m.owner}</span>
+                          <span className="text-[10px] text-gray-400 font-mono">Loc: {m.coords[0].toFixed(4)}, {m.coords[1].toFixed(4)}</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2.5 shrink-0">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                            isFood ? 'bg-orange-100 text-orange-800' : 'bg-teal-100 text-teal-800'
+                          }`}>
+                            {isFood ? 'Kuliner' : 'Wisata'}
+                          </span>
+                          
+                          <button
+                            onClick={() => handleEditMerchantClick(m)}
+                            className="text-blue-500 hover:text-blue-750 transition-colors p-1 hover:bg-blue-50 rounded active:scale-90"
+                            title="Edit detail mitra pariwisata"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          
+                          <button
+                            onClick={() => handleToggleRequest(m)}
+                            className={`p-1 rounded transition-all active:scale-90 ${
+                              isInactive 
+                                ? 'text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50' 
+                                : 'text-red-500 hover:text-red-700 hover:bg-red-50'
+                            }`}
+                            title={isInactive ? "Aktifkan kembali mitra" : "Nonaktifkan sementara mitra"}
+                          >
+                            <Power className="w-4 h-4" />
+                          </button>
+
+                          {/* Hapus Permanen Button */}
+                          <button
+                            onClick={() => setConfirmDeleteMerchantId(m.id)}
+                            className="text-red-500 hover:text-red-750 p-1 hover:bg-red-50 rounded active:scale-90"
+                            title="Hapus Permanen Mitra"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })
               ) : (
                 <EmptyState 
                   icon={Map}
-                  title="Belum ada mitra terdaftar"
-                  subtitle="Daftarkan UMKM pariwisata Gresik legal baru melalui formulir validasi dinas di sebelah kiri."
+                  title="Tidak ada mitra ditemukan"
+                  subtitle="Coba kata kunci pencarian lain."
                 />
               )}
             </div>
           </div>
 
+          {/* Confirmation Modal for Permanent Delete */}
+          {confirmDeleteMerchantId && (
+            <div className="fixed inset-0 bg-black/50 z-[400] flex items-center justify-center p-4">
+              <div className="bg-white rounded-2xl max-w-[400px] w-full p-6 shadow-xl text-gray-800">
+                <h3 className="font-bold text-base text-gray-800 mb-2">Hapus Permanen Mitra</h3>
+                <p className="text-xs text-gray-500 mb-4">Apakah Anda yakin ingin menghapus mitra ini secara permanen dari database? Tindakan ini tidak dapat dibatalkan!</p>
+                <div className="flex gap-3">
+                  <button onClick={() => setConfirmDeleteMerchantId(null)} className="flex-grow border border-gray-300 rounded-xl py-2.5 text-xs font-semibold hover:bg-gray-50">
+                    Batalkan
+                  </button>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/admin/merchants/${confirmDeleteMerchantId}`, { method: 'DELETE' })
+                        if (!res.ok) throw new Error('Gagal menghapus mitra')
+                        showToast('Mitra berhasil dihapus secara permanen!', 'success')
+                        setConfirmDeleteMerchantId(null)
+                        onRefresh()
+                      } catch (err) { showToast(err.message, 'error') }
+                    }}
+                    className="flex-grow bg-red-650 hover:bg-red-700 text-white rounded-xl py-2.5 text-xs font-semibold transition-all active:scale-95"
+                  >
+                    Ya, Hapus Permanen
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+      )}
+
+      {/* DAFTARKAN UMKM TAB */}
+      {activePage === 'daftar' && (
+        <div className="space-y-6 animate-fade-in max-w-xl">
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-soft p-6">
+            <div className="flex items-center gap-2 border-b border-gray-150 pb-3 mb-5">
+              <FileCheck className="w-5 h-5 text-gray-700" />
+              <h3 className="font-display font-bold text-sm text-gray-700">Validasi Pendaftaran UMKM Baru</h3>
+            </div>
+
+            <form onSubmit={handleOpenPreviewModal} className="space-y-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold">Nama UMKM / Objek Wisata</label>
+                <input 
+                  type="text" 
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Nama warung / objek wisata baru" 
+                  required
+                  className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold">Nama Pemilik Legal</label>
+                  <input 
+                    type="text" 
+                    value={owner}
+                    onChange={(e) => setOwner(e.target.value)}
+                    placeholder="Nama pemilik asli" 
+                    required
+                    className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary"
+                  />
+                </div>
+                
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold">Kategori Layanan</label>
+                  <select 
+                    value={type}
+                    onChange={(e) => setType(e.target.value)}
+                    className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary cursor-pointer"
+                  >
+                    <option value="kuliner">Kuliner Lokal</option>
+                    <option value="wisata">Objek Wisata / Sejarah</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-[1fr_1fr_auto] gap-4 items-end">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold">Latitude</label>
+                  <input 
+                    type="number" 
+                    value={lat}
+                    onChange={(e) => setLat(e.target.value)}
+                    step="0.000001" 
+                    placeholder="Contoh: -7.1610" 
+                    required
+                    className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold">Longitude</label>
+                  <input 
+                    type="number" 
+                    value={lng}
+                    onChange={(e) => setLng(e.target.value)}
+                    step="0.000001" 
+                    placeholder="Contoh: 112.6565" 
+                    required
+                    className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMapOpen(true)}
+                  className="bg-[#006666]/10 text-[#006666] hover:bg-[#006666] border border-[#006666] hover:text-white rounded-xl px-4.5 py-2.5 text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5 h-10 shadow-soft"
+                  title="Pilih koordinat lokasi langsung dari peta interaktif"
+                >
+                  <MapPin className="w-4 h-4 shrink-0" />
+                  <span>Peta</span>
+                </button>
+              </div>
+
+              {locationName && (
+                <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5">
+                  <MapPin className="w-3 h-3 shrink-0" />
+                  <span className="font-semibold">{locationName}</span>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold">Deskripsi Layanan & Keunikan Wisata</label>
+                <textarea 
+                  value={desc}
+                  onChange={(e) => setDesc(e.target.value)}
+                  placeholder="Tuliskan deskripsi lengkap beserta kuliner unggulan khas daerah..." 
+                  required
+                  rows="3"
+                  className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary resize-y"
+                ></textarea>
+              </div>
+
+              <button 
+                type="submit"
+                className="bg-slate-900 hover:bg-slate-800 text-white rounded-xl py-3 font-display font-semibold text-xs active:scale-95 transition-transform flex items-center justify-center gap-1.5 shadow-soft w-full mt-2"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Daftarkan & Sahkan UMKM</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* KELOLA AKUN TAB */}
+      {activePage === 'akun' && (
+        <div className="space-y-6 animate-fade-in">
+          <div>
+            <h3 className="font-display font-bold text-xl text-gray-800">👥 Manajemen Akun</h3>
+            <p className="text-xs text-gray-500 mt-1">Kelola akun login semua pengguna platform</p>
+          </div>
+
+          {/* CREATE — Buat Akun UMKM */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-soft">
+            <h4 className="font-bold text-sm text-gray-700 mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
+              <UserPlus className="w-4 h-4 text-primary" /> Buat Akun Pemilik UMKM
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold">Pilih Merchant</label>
+                <select value={newUmkmMerchantId} onChange={e => setNewUmkmMerchantId(e.target.value)}
+                  className="border border-gray-250 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary cursor-pointer bg-white">
+                  <option value="">-- Pilih merchant --</option>
+                  {merchants.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                </select>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold">Username</label>
+                <input type="text" value={newUmkmUsername} onChange={e => setNewUmkmUsername(e.target.value)}
+                  placeholder="Contoh: warung_krawu"
+                  className="border border-gray-250 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary bg-white" />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold">Password Awal</label>
+                <input type="password" value={newUmkmPassword} onChange={e => setNewUmkmPassword(e.target.value)}
+                  placeholder="Min. 6 karakter"
+                  className="border border-gray-250 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary bg-white" />
+              </div>
+            </div>
+            <button
+              onClick={async () => {
+                if (!newUmkmUsername || !newUmkmPassword || !newUmkmMerchantId) {
+                  showToast('Semua field wajib diisi', 'warning'); return
+                }
+                const merchant = merchants.find(m => m.id === newUmkmMerchantId)
+                try {
+                  const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: newUmkmUsername, password: newUmkmPassword, role: 'umkm', fullname: merchant?.owner || newUmkmUsername })
+                  })
+                  if (!res.ok) throw new Error((await res.json()).error)
+                  showToast(`Akun @${newUmkmUsername} berhasil dibuat!`, 'success')
+                  setNewUmkmUsername(''); setNewUmkmPassword(''); setNewUmkmMerchantId('')
+                  loadUsers()
+                } catch (err) { showToast(err.message, 'error') }
+              }}
+              className="mt-4 bg-[#006666] hover:bg-[#005555] text-white rounded-xl px-5 py-2.5 text-xs font-semibold active:scale-95 transition-all shadow-md">
+              Buat Akun
+            </button>
+          </div>
+
+          {/* READ — Daftar Semua User */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-soft">
+            <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-2">
+              <h4 className="font-bold text-sm text-gray-700">Semua Akun Terdaftar</h4>
+              <button onClick={loadUsers}
+                className="text-xs text-primary font-semibold flex items-center gap-1 hover:underline">
+                <RefreshCw className="w-3.5 h-3.5" /> Refresh
+              </button>
+            </div>
+
+            {isLoadingUsers ? (
+              <div className="flex justify-center py-8">
+                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                {userList.map(u => (
+                  <div key={u.id} className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-xl animate-fade-in">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs">
+                        {u.fullname?.substring(0,2).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-800">{u.fullname}</p>
+                        <p className="text-[10px] text-gray-400">@{u.username}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[9px] font-bold px-2 py-1 rounded-full ${
+                        u.role === 'superadmin' ? 'bg-purple-100 text-purple-600' :
+                        u.role === 'itsec' ? 'bg-sky-100 text-sky-600' :
+                        u.role === 'umkm' ? 'bg-orange-100 text-orange-600' :
+                        'bg-teal-100 text-teal-600'
+                      }`}>
+                        {u.role}
+                      </span>
+                      {/* UPDATE — Reset Password */}
+                      <button
+                        onClick={() => { setResetPasswordUserId(u.id); setNewResetPassword('') }}
+                        className="text-blue-500 hover:text-blue-750 p-1.5 rounded-lg hover:bg-blue-50 transition-all"
+                        title="Reset password">
+                        <KeyRound className="w-3.5 h-3.5" />
+                      </button>
+                      {/* DELETE — Hapus Akun (kecuali superadmin) */}
+                      {u.role !== 'superadmin' && (
+                        <button
+                          onClick={async () => {
+                            try {
+                              const res = await fetch(`/api/auth/users/${u.id}`, { method: 'DELETE' })
+                              if (!res.ok) throw new Error('Gagal menghapus akun')
+                              showToast(`Akun @${u.username} dihapus`, 'info')
+                              loadUsers()
+                            } catch (err) { showToast(err.message, 'error') }
+                          }}
+                          className="text-red-500 hover:text-red-750 p-1.5 rounded-lg hover:bg-red-50 transition-all"
+                          title="Hapus akun">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Modal UPDATE — Reset Password */}
+            {resetPasswordUserId && (
+              <div className="fixed inset-0 bg-black/50 z-[400] flex items-center justify-center p-4">
+                <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl text-gray-800 animate-scale-in">
+                  <h3 className="font-bold text-base text-gray-800 mb-4 border-b border-gray-100 pb-2">Reset Password</h3>
+                  <input type="password" value={newResetPassword} onChange={e => setNewResetPassword(e.target.value)}
+                    placeholder="Password baru (min. 6 karakter)"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary mb-4 bg-white" />
+                  <div className="flex gap-3">
+                    <button onClick={() => setResetPasswordUserId(null)}
+                      className="flex-grow border border-gray-300 rounded-xl py-2.5 text-xs font-semibold hover:bg-gray-50">
+                      Batal
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (newResetPassword.length < 6) { showToast('Password min. 6 karakter', 'warning'); return }
+                        try {
+                          const res = await fetch(`/api/auth/users/${resetPasswordUserId}/reset-password`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ password: newResetPassword })
+                          })
+                          if (!res.ok) throw new Error('Gagal reset password')
+                          showToast('Password berhasil direset!', 'success')
+                          setResetPasswordUserId(null)
+                        } catch (err) { showToast(err.message, 'error') }
+                      }}
+                      className="flex-grow bg-[#006666] hover:bg-[#005555] text-white rounded-xl py-2.5 text-xs font-semibold transition-all">
+                      Simpan
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Coordinate Picker Modal (Leaflet.js Map Picker) */}
       {mapOpen && (
