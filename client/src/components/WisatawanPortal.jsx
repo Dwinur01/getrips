@@ -422,7 +422,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
             }`} />
             <span>{tab.label}</span>
             {tab.badge && (
-              <span className="bg-secondary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">
+              <span className="bg-secondary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0">
                 {tab.badge}
               </span>
             )}
@@ -502,7 +502,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
                         {m.type === 'kuliner' ? '🍽️' : '🏛️'}
                       </div>
                     )}
-                    <span className={`absolute top-3 right-3 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm text-white ${
+                    <span className={`absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm text-white ${
                       m.type === 'kuliner' ? 'bg-orange-600/90' : 'bg-teal-700/90'
                     }`}>
                       {m.type === 'kuliner' ? 'Kuliner' : 'Wisata'}
@@ -916,7 +916,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
                         {m.type === 'kuliner' ? '🍽️' : '🏛️'}
                       </div>
                     )}
-                    <span className={`absolute top-3 right-3 text-[9px] font-bold px-2.5 py-1 rounded-full shadow-sm text-white ${
+                    <span className={`absolute top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm text-white ${
                       m.type === 'kuliner' ? 'bg-orange-600/90' : 'bg-teal-700/90'
                     }`}>
                       {m.type === 'kuliner' ? 'Kuliner' : 'Wisata'}

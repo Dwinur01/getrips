@@ -42,41 +42,6 @@ function ItSecPortal({ threats, globalApiKey, onRefresh, user, showToast }) {
     return () => clearInterval(interval)
   }, [autoRefresh])
 
-  const renderHighlightedJSON = (text) => {
-    if (!text) return null
-    if (!text.trim().startsWith('{') && !text.trim().startsWith('[')) {
-      return <span>{text}</span>
-    }
-    
-    try {
-      const obj = JSON.parse(text)
-      const highlighted = JSON.stringify(obj, null, 2)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g, function (match) {
-          let cls = 'text-sky-300' // blue for values
-          if (/^"/.test(match)) {
-            if (/:$/.test(match)) {
-              cls = 'text-emerald-400 font-semibold' // emerald for keys
-            } else {
-              cls = 'text-amber-300 font-medium' // yellow for strings
-            }
-          } else if (/true|false/.test(match)) {
-            cls = 'text-purple-400' // purple for booleans
-          } else if (/null/.test(match)) {
-            cls = 'text-gray-400' // gray for null
-          } else {
-            cls = 'text-pink-400' // pink for numbers
-          }
-          return `<span class="${cls}">${match}</span>`
-        })
-      
-      return <div dangerouslySetInnerHTML={{ __html: highlighted }} />
-    } catch (e) {
-      return <span>{text}</span>
-    }
-  }
 
   const fetchQuota = async () => {
     try {
@@ -252,7 +217,7 @@ function ItSecPortal({ threats, globalApiKey, onRefresh, user, showToast }) {
   const itSecTabs = [
     { id: 'monitor', label: 'Monitor', Icon: Shield },
     { id: 'playground', label: 'Playground', Icon: Terminal },
-    { id: 'laporan', label: 'Laporan', Icon: ShieldAlert, badge: threats.length > 0 ? threats.length : null },
+    { id: 'laporan', label: 'Laporan', Icon: ShieldAlert, badge: threats.filter(t => new Date(t.timestamp).toDateString() === new Date().toDateString()).length || null },
     { id: 'config', label: 'Konfigurasi', Icon: Settings }
   ]
 
@@ -338,7 +303,7 @@ function ItSecPortal({ threats, globalApiKey, onRefresh, user, showToast }) {
             }`}>
             <tab.Icon className="w-3.5 h-3.5" />
             <span className="whitespace-nowrap">{tab.label}</span>
-            {tab.badge && <span className="bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">{tab.badge}</span>}
+            {tab.badge && <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{tab.badge}</span>}
           </button>
         ))}
       </nav>

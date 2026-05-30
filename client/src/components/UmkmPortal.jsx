@@ -266,7 +266,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
             <tab.Icon className="w-3.5 h-3.5 shrink-0" />
             <span>{tab.label}</span>
             {tab.badge && (
-              <span className="bg-secondary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">
+              <span className="bg-secondary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0">
                 {tab.badge}
               </span>
             )}
@@ -454,7 +454,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
                         <div className="flex items-start justify-between mb-3">
                           <div className="w-10 h-10 rounded-xl bg-orange-50 text-2xl flex items-center justify-center">🍴</div>
                           {idx === 0 && (
-                            <span className="bg-secondary/10 text-secondary text-[9px] font-bold px-2 py-1 rounded-full border border-secondary/20">
+                            <span className="bg-secondary/10 text-secondary text-[10px] font-bold px-2 py-1 rounded-full border border-secondary/20">
                               🔥 Terlaris
                             </span>
                           )}
@@ -624,7 +624,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
                         <span key={word}
                           className="bg-primary-light text-primary border border-primary/20 rounded-full px-3 py-1.5 text-xs font-semibold"
                           style={{ fontSize: `${Math.min(11 + count * 1.5, 18)}px` }}>
-                          {word} <span className="opacity-50 text-[9px] font-mono font-bold">{count}x</span>
+                          {word} <span className="opacity-50 text-[10px] font-mono font-bold">{count}x</span>
                         </span>
                       ))}
                     </div>

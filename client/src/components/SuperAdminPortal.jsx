@@ -795,7 +795,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={`text-[9px] font-bold px-2 py-1 rounded-full ${
+                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
                         u.role === 'superadmin' ? 'bg-purple-100 text-purple-600' :
                         u.role === 'itsec' ? 'bg-sky-100 text-sky-600' :
                         u.role === 'umkm' ? 'bg-orange-100 text-orange-600' :

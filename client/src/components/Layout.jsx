@@ -367,7 +367,7 @@ function Layout() {
             }`}
           >
             <Map className="w-5 h-5" />
-            <span className="text-[9px] mt-0.5">Wisatawan</span>
+            <span className="text-[10px] mt-0.5">Wisatawan</span>
           </button>
         )}
         {showUmkmBtn && (
@@ -378,7 +378,7 @@ function Layout() {
             }`}
           >
             <Store className="w-5 h-5" />
-            <span className="text-[9px] mt-0.5">UMKM</span>
+            <span className="text-[10px] mt-0.5">UMKM</span>
           </button>
         )}
         {showItSecBtn && (
@@ -389,7 +389,7 @@ function Layout() {
             }`}
           >
             <ShieldCheck className="w-5 h-5" />
-            <span className="text-[9px] mt-0.5">IT Sec</span>
+            <span className="text-[10px] mt-0.5">IT Sec</span>
           </button>
         )}
         {showAdminBtn && (
@@ -400,7 +400,7 @@ function Layout() {
             }`}
           >
             <Sliders className="w-5 h-5" />
-            <span className="text-[9px] mt-0.5">Admin</span>
+            <span className="text-[10px] mt-0.5">Admin</span>
           </button>
         )}
       </nav>
