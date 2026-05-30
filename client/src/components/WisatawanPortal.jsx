@@ -2,6 +2,25 @@ import React, { useState, useEffect, useRef } from 'react'
 import { SlidersHorizontal, Sparkles, MapPin, ListTodo, ShieldAlert, Lock, Send, ShieldX, Utensils, Compass, Loader2, TreePine, Church, Landmark, Star, Download, MessageSquare, RefreshCw, Home, UserCircle, ArrowRight, Edit2, Trash2, Search } from 'lucide-react'
 import EmptyState from './EmptyState'
 
+const getCategoryDetails = (type) => {
+  switch (type) {
+    case 'kuliner':
+      return { label: 'Kuliner Lokal', emoji: '🍽️', colorClass: 'bg-orange-100 text-orange-700 border-orange-200', bgLight: 'bg-orange-50', gradient: 'from-orange-500 to-amber-500', markerColor: '#e05624' };
+    case 'alam':
+      return { label: 'Wisata Alam', emoji: '🌲', colorClass: 'bg-green-100 text-green-700 border-green-200', bgLight: 'bg-green-50', gradient: 'from-emerald-500 to-teal-500', markerColor: '#10b981' };
+    case 'religi':
+      return { label: 'Wisata Religi', emoji: '🕌', colorClass: 'bg-purple-100 text-purple-700 border-purple-200', bgLight: 'bg-purple-50', gradient: 'from-purple-500 to-indigo-500', markerColor: '#8b5cf6' };
+    case 'sejarah':
+      return { label: 'Wisata Sejarah', emoji: '🏛️', colorClass: 'bg-teal-100 text-teal-700 border-teal-200', bgLight: 'bg-teal-50', gradient: 'from-[#006666] to-[#008080]', markerColor: '#006666' };
+    case 'belanja':
+      return { label: 'Belanja & Oleh-oleh', emoji: '🛍️', colorClass: 'bg-blue-100 text-blue-700 border-blue-200', bgLight: 'bg-blue-50', gradient: 'from-blue-500 to-cyan-500', markerColor: '#3b82f6' };
+    case 'rekreasi':
+      return { label: 'Rekreasi & Hiburan', emoji: '🎡', colorClass: 'bg-rose-100 text-rose-700 border-rose-200', bgLight: 'bg-rose-50', gradient: 'from-rose-500 to-pink-500', markerColor: '#f43f5e' };
+    default:
+      return { label: 'Wisata Umum', emoji: '📍', colorClass: 'bg-gray-100 text-gray-700 border-gray-200', bgLight: 'bg-gray-50', gradient: 'from-gray-500 to-slate-500', markerColor: '#6b7280' };
+  }
+}
+
 function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToast }) {
   const [budget, setBudget] = useState(200000)
   const [duration, setDuration] = useState('2')
@@ -185,13 +204,9 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
     routeLayerGroup.current.clearLayers()
 
     merchants.forEach(m => {
-      const bgClass = m.type === "kuliner" ? "bg-gradient-to-br from-orange-500 to-amber-500" : "bg-gradient-to-br from-[#006666] to-[#008080]"
-      const svgIcon = m.type === "kuliner" 
-        ? `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v8c0 1.1.9 2 2 2h1a2 2 0 0 0 2-2zM18 22v-3"/></svg>`
-        : `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22h18M5 22V10M9 22V10M15 22V10M19 22V10M12 2L2 7h20L12 2z"/></svg>`
-
-      const iconHtml = `<div class="${bgClass} w-[30px] h-[30px] rounded-full flex items-center justify-center border-2 border-white text-white shadow-lg transition-all duration-300 hover:scale-120 hover:rotate-12 cursor-pointer">
-        ${svgIcon}
+      const details = getCategoryDetails(m.type)
+      const iconHtml = `<div class="bg-gradient-to-br ${details.gradient} w-[30px] h-[30px] rounded-full flex items-center justify-center border-2 border-white text-xs shadow-lg transition-all duration-300 hover:scale-120 hover:rotate-12 cursor-pointer select-none">
+        ${details.emoji}
       </div>`
       
       const customIcon = L.divIcon({
@@ -205,7 +220,7 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
       const popupContent = `
         <div style="font-family: sans-serif; padding: 2px;">
           <h4 style="margin:0 0 2px 0; color:#006666; font-size:13px; font-weight:700;">${m.name}</h4>
-          <p style="margin:0 0 4px 0; font-size:10px; color:#6b7280; font-weight:600;">${m.type === 'kuliner' ? 'Kuliner UMKM' : 'Wisata Sejarah'}</p>
+          <p style="margin:0 0 4px 0; font-size:10px; color:${details.markerColor}; font-weight:700;">${details.emoji} ${details.label}</p>
           <p style="margin:0 0 4px 0; font-size:11px; color:#374151; line-height:1.3;">${m.description.substring(0, 90)}...</p>
           <span style="font-size:11px; color:#f59e0b; font-weight:600;">⭐ ${m.rating} (${m.reviewsCount} Ulasan)</span>
         </div>
@@ -498,20 +513,18 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
                     {m.image ? (
                       <img src={m.image} alt={m.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
-                      <div className={`w-full h-full flex items-center justify-center text-3xl bg-gradient-to-br ${m.type === 'kuliner' ? 'from-orange-400 to-amber-400' : 'from-[#006666] to-[#008080]'} text-white`}>
-                        {m.type === 'kuliner' ? '🍽️' : '🏛️'}
+                      <div className={`w-full h-full flex items-center justify-center text-3xl bg-gradient-to-br ${getCategoryDetails(m.type).gradient} text-white`}>
+                        {getCategoryDetails(m.type).emoji}
                       </div>
                     )}
-                    <span className={`absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm text-white ${
-                      m.type === 'kuliner' ? 'bg-orange-600/90' : 'bg-teal-700/90'
-                    }`}>
-                      {m.type === 'kuliner' ? 'Kuliner' : 'Wisata'}
+                    <span className={`absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm text-white bg-gradient-to-r ${getCategoryDetails(m.type).gradient}`}>
+                      {getCategoryDetails(m.type).emoji} {getCategoryDetails(m.type).label}
                     </span>
                   </div>
                   <div className="p-4 flex-grow flex flex-col justify-between">
                     <div>
                       <h4 className="font-bold text-sm text-gray-800 group-hover:text-primary transition-colors line-clamp-1">{m.name}</h4>
-                      <p className="text-[10px] text-gray-400 mt-1 line-clamp-1">{m.type === 'kuliner' ? 'Kuliner UMKM Khas Gresik' : 'Wisata Sejarah & Budaya'}</p>
+                      <p className="text-[10px] text-gray-400 mt-1 line-clamp-1">{getCategoryDetails(m.type).label} Unggulan Gresik</p>
                     </div>
                     <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
                       <span className="text-xs text-amber-500 font-bold flex items-center gap-0.5">★ {m.rating}</span>
@@ -758,9 +771,13 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
             {/* Map View */}
             <div className={`flex-grow flex flex-col ${activeTab === 'map-view' ? 'flex' : 'hidden'}`}>
               <div ref={mapContainerRef} className="flex-grow min-h-[380px] rounded-xl border border-gray-200 z-10"></div>
-              <div className="flex gap-4 mt-3 text-xs font-semibold text-gray-500">
-                <span className="flex items-center gap-1.5"><span className="w-3.5 h-3.5 rounded-full bg-[#e05624] inline-block"></span> Kuliner UMKM</span>
-                <span className="flex items-center gap-1.5"><span className="w-3.5 h-3.5 rounded-full bg-[#006666] inline-block"></span> Wisata & Sejarah</span>
+              <div className="flex gap-x-4 gap-y-2 mt-3 text-xs font-semibold text-gray-500 flex-wrap">
+                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#e05624] inline-block"></span> 🍽️ Kuliner</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#006666] inline-block"></span> 🏛️ Sejarah</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#10b981] inline-block"></span> 🌲 Alam</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#8b5cf6] inline-block"></span> 🕌 Religi</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#3b82f6] inline-block"></span> 🛍️ Belanja</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#f43f5e] inline-block"></span> 🎡 Rekreasi</span>
               </div>
             </div>
 
@@ -813,12 +830,10 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
                       return (
                         <div key={idx} className="relative group">
                           {/* Bullet circle indicator */}
-                          <span className={`absolute left-[-26px] top-[4px] w-3 h-3 rounded-full border-2 border-white shadow ${
-                            isFood ? 'bg-secondary' : 'bg-primary'
-                          }`}></span>
+                          <span className={`absolute left-[-26px] top-[4px] w-3 h-3 rounded-full border-2 border-white shadow bg-gradient-to-br ${getCategoryDetails(item.type).gradient}`}></span>
 
                           <div className={`rounded-xl p-4 bg-gray-50 border-l-4 transition-all hover:bg-gray-100 ${
-                            isFood ? 'border-secondary' : 'border-primary'
+                            item.type === 'kuliner' ? 'border-secondary' : 'border-primary'
                           }`}>
                             <span className="text-[10px] font-bold text-gray-400 uppercase">{item.time} • Hari {item.day}</span>
                             <h5 className="font-display font-semibold text-sm text-gray-800 mt-0.5">{item.activity}</h5>
@@ -877,8 +892,8 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
               <h3 className="font-display font-bold text-xl text-gray-800">Semua Destinasi & Kuliner</h3>
               <p className="text-xs text-gray-500 mt-0.5">{merchants.length} tempat di Kabupaten Gresik</p>
             </div>
-            <div className="flex gap-2">
-              {['Semua', 'Kuliner', 'Wisata'].map(f => (
+            <div className="flex gap-2 flex-wrap">
+              {['Semua', 'Kuliner', 'Sejarah', 'Alam', 'Religi', 'Belanja', 'Rekreasi'].map(f => (
                 <button key={f} onClick={() => setDestFilter(f.toLowerCase())}
                   className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
                     destFilter === f.toLowerCase()
@@ -912,14 +927,12 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
                     {m.image ? (
                       <img src={m.image} alt={m.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
-                      <div className={`w-full h-full flex items-center justify-center text-4xl bg-gradient-to-br ${m.type === 'kuliner' ? 'from-orange-400 to-amber-400' : 'from-[#006666] to-[#008080]'} text-white`}>
-                        {m.type === 'kuliner' ? '🍽️' : '🏛️'}
+                      <div className={`w-full h-full flex items-center justify-center text-4xl bg-gradient-to-br ${getCategoryDetails(m.type).gradient} text-white`}>
+                        {getCategoryDetails(m.type).emoji}
                       </div>
                     )}
-                    <span className={`absolute top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm text-white ${
-                      m.type === 'kuliner' ? 'bg-orange-600/90' : 'bg-teal-700/90'
-                    }`}>
-                      {m.type === 'kuliner' ? 'Kuliner' : 'Wisata'}
+                    <span className={`absolute top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm text-white bg-gradient-to-r ${getCategoryDetails(m.type).gradient}`}>
+                      {getCategoryDetails(m.type).emoji} {getCategoryDetails(m.type).label}
                     </span>
                   </div>
                   <div className="p-5 flex-grow flex flex-col justify-between">
@@ -975,15 +988,13 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
                     className="bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-primary"
                   >
                     {merchants.map(m => (
-                      <option key={m.id} value={m.id}>{m.name} ({m.type === 'kuliner' ? 'Kuliner' : 'Wisata'})</option>
+                      <option key={m.id} value={m.id}>{m.name} ({getCategoryDetails(m.type).label})</option>
                     ))}
                   </select>
                   {selectedReviewMerchant && (
                     <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-start gap-3 mt-1.5">
-                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-white shrink-0 text-xs font-bold ${
-                        selectedReviewMerchant.type === 'kuliner' ? 'bg-secondary' : 'bg-primary'
-                      }`}>
-                        {selectedReviewMerchant.type === 'kuliner' ? '🍽️' : '🏛️'}
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-white shrink-0 text-xs font-bold bg-gradient-to-br ${getCategoryDetails(selectedReviewMerchant.type).gradient}`}>
+                        {getCategoryDetails(selectedReviewMerchant.type).emoji}
                       </div>
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-gray-800 truncate">{selectedReviewMerchant.name}</p>

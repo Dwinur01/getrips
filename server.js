@@ -56,7 +56,7 @@ async function generateMockItinerary(budget, durationDays, preferences, allergie
 
     const availableSpots = {
         kuliner: merchants.filter(m => m.type === 'kuliner'),
-        wisata: merchants.filter(m => m.type === 'wisata')
+        wisata: merchants.filter(m => m.type !== 'kuliner')
     };
 
     let totalEstimatedCost = 0;
@@ -275,7 +275,7 @@ Hasilkan keluaran JSON terstruktur yang KAKU dan valid sesuai dengan skema JSON 
       "description": "Deskripsi aktivitas detail beserta penjelasan pergantian menu aman jika terpengaruh alergi",
       "lat": koordinat latitude riil sesuai merchant,
       "lng": koordinat longitude riil sesuai merchant,
-      "type": "kuliner" | "wisata"
+      "type": "kuliner" | "sejarah" | "alam" | "religi" | "belanja" | "rekreasi"
     }
   ],
   "allergyWarning": "String pengingat atau Null jika tidak memiliki alergi"
@@ -286,6 +286,7 @@ Hasilkan keluaran JSON terstruktur yang KAKU dan valid sesuai dengan skema JSON 
         if (rateLimit.remaining === 0) {
             throw new Error("Rate Limit Triggered on API call");
         }
+        waf.recordRequest(ipAddress);
         
         // Track the query
         waf.scanHeuristics(""); 
@@ -488,6 +489,7 @@ Keluaran wajib berformat JSON kaku dengan skema berikut tanpa tanda markdown:
         if (rateLimit.remaining === 0) {
             throw new Error("Rate limit triggered");
         }
+        waf.recordRequest(ipAddress);
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });

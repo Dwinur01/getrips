@@ -15144,6 +15144,7 @@ async function bootstrapMySQLSchema() {
                 coords_lng DOUBLE NOT NULL,
                 rating FLOAT DEFAULT 5.0,
                 reviewsCount INT DEFAULT 0,
+                status VARCHAR(50) DEFAULT 'aktif',
                 catalog TEXT
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         `);

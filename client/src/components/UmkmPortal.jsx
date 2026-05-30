@@ -2,6 +2,25 @@ import React, { useState, useEffect } from 'react'
 import { MessageSquare, Star, BrainCircuit, Smile, Frown, ShoppingBag, Plus, Trash2, X, RefreshCw, Pencil, TrendingUp, AlertTriangle, Search, LayoutDashboard, Store, Phone, Clock, BarChart2, Edit3 } from 'lucide-react'
 import EmptyState from './EmptyState'
 
+const getCategoryDetails = (type) => {
+  switch (type) {
+    case 'kuliner':
+      return { label: 'Kuliner Lokal', emoji: '🍽️', colorClass: 'bg-orange-100 text-orange-700 border-orange-200', bgLight: 'bg-orange-50', gradient: 'from-orange-500 to-amber-500', markerColor: '#e05624' };
+    case 'alam':
+      return { label: 'Wisata Alam', emoji: '🌲', colorClass: 'bg-green-100 text-green-700 border-green-200', bgLight: 'bg-green-50', gradient: 'from-emerald-500 to-teal-500', markerColor: '#10b981' };
+    case 'religi':
+      return { label: 'Wisata Religi', emoji: '🕌', colorClass: 'bg-purple-100 text-purple-700 border-purple-200', bgLight: 'bg-purple-50', gradient: 'from-purple-500 to-indigo-500', markerColor: '#8b5cf6' };
+    case 'sejarah':
+      return { label: 'Wisata Sejarah', emoji: '🏛️', colorClass: 'bg-teal-100 text-teal-700 border-teal-200', bgLight: 'bg-teal-50', gradient: 'from-[#006666] to-[#008080]', markerColor: '#006666' };
+    case 'belanja':
+      return { label: 'Belanja & Oleh-oleh', emoji: '🛍️', colorClass: 'bg-blue-100 text-blue-700 border-blue-200', bgLight: 'bg-blue-50', gradient: 'from-blue-500 to-cyan-500', markerColor: '#3b82f6' };
+    case 'rekreasi':
+      return { label: 'Rekreasi & Hiburan', emoji: '🎡', colorClass: 'bg-rose-100 text-rose-700 border-rose-200', bgLight: 'bg-rose-50', gradient: 'from-rose-500 to-pink-500', markerColor: '#f43f5e' };
+    default:
+      return { label: 'Wisata Umum', emoji: '📍', colorClass: 'bg-gray-100 text-gray-700 border-gray-200', bgLight: 'bg-gray-50', gradient: 'from-gray-500 to-slate-500', markerColor: '#6b7280' };
+  }
+}
+
 function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToast }) {
   const [selectedMerchantId, setSelectedMerchantId] = useState('')
   const [catalogModalOpen, setCatalogModalOpen] = useState(false)
@@ -655,16 +674,16 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
                 {activeMerchant?.image ? (
                   <img src={activeMerchant.image} alt={activeMerchant.name} className="w-20 h-20 rounded-2xl object-cover shrink-0 border border-gray-200 shadow-sm" />
                 ) : (
-                  <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shrink-0 ${activeMerchant?.type === 'kuliner' ? 'bg-orange-50' : 'bg-teal-50'}`}>
-                    {activeMerchant?.type === 'kuliner' ? '🍽' : '🏛'}
+                  <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shrink-0 ${getCategoryDetails(activeMerchant?.type).bgLight}`}>
+                    {getCategoryDetails(activeMerchant?.type).emoji}
                   </div>
                 )}
                 <div className="min-w-0">
                   <h4 className="font-display font-extrabold text-xl text-gray-800 truncate">{activeMerchant?.name}</h4>
-                  <p className="text-sm text-gray-500">Pemilik: {activeMerchant?.owner}</p>
+                  <p className="text-sm text-gray-550">Pemilik: {activeMerchant?.owner}</p>
                   <div className="flex items-center gap-2 mt-2 flex-wrap">
-                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${activeMerchant?.type === 'kuliner' ? 'bg-orange-100 text-orange-600' : 'bg-teal-100 text-teal-600'}`}>
-                      {activeMerchant?.type === 'kuliner' ? '🍽️ Kuliner UMKM' : '🏛️ Wisata Sejarah'}
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${getCategoryDetails(activeMerchant?.type).colorClass}`}>
+                      {getCategoryDetails(activeMerchant?.type).emoji} {getCategoryDetails(activeMerchant?.type).label}
                     </span>
                     <span className="text-xs text-amber-500 font-bold">⭐ {activeMerchant?.rating}</span>
                   </div>

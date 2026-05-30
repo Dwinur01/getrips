@@ -2,6 +2,25 @@ import React, { useState, useEffect, useRef } from 'react'
 import { FileCheck, CheckCircle2, MapPin, Map, Pencil, Eye, X, Power, TrendingUp, Star, MessageSquare, ShieldAlert, UserPlus, KeyRound, Trash2, RefreshCw, Search, LayoutDashboard, Plus, Users } from 'lucide-react'
 import EmptyState from './EmptyState'
 
+const getCategoryDetails = (type) => {
+  switch (type) {
+    case 'kuliner':
+      return { label: 'Kuliner Lokal', emoji: '🍽️', colorClass: 'bg-orange-100 text-orange-700 border-orange-200', bgLight: 'bg-orange-50', gradient: 'from-orange-500 to-amber-500', markerColor: '#e05624' };
+    case 'alam':
+      return { label: 'Wisata Alam', emoji: '🌲', colorClass: 'bg-green-100 text-green-700 border-green-200', bgLight: 'bg-green-50', gradient: 'from-emerald-500 to-teal-500', markerColor: '#10b981' };
+    case 'religi':
+      return { label: 'Wisata Religi', emoji: '🕌', colorClass: 'bg-purple-100 text-purple-700 border-purple-200', bgLight: 'bg-purple-50', gradient: 'from-purple-500 to-indigo-500', markerColor: '#8b5cf6' };
+    case 'sejarah':
+      return { label: 'Wisata Sejarah', emoji: '🏛️', colorClass: 'bg-teal-100 text-teal-700 border-teal-200', bgLight: 'bg-teal-50', gradient: 'from-[#006666] to-[#008080]', markerColor: '#006666' };
+    case 'belanja':
+      return { label: 'Belanja & Oleh-oleh', emoji: '🛍️', colorClass: 'bg-blue-100 text-blue-700 border-blue-200', bgLight: 'bg-blue-50', gradient: 'from-blue-500 to-cyan-500', markerColor: '#3b82f6' };
+    case 'rekreasi':
+      return { label: 'Rekreasi & Hiburan', emoji: '🎡', colorClass: 'bg-rose-100 text-rose-700 border-rose-200', bgLight: 'bg-rose-50', gradient: 'from-rose-500 to-pink-500', markerColor: '#f43f5e' };
+    default:
+      return { label: 'Wisata Umum', emoji: '📍', colorClass: 'bg-gray-100 text-gray-700 border-gray-200', bgLight: 'bg-gray-50', gradient: 'from-gray-500 to-slate-500', markerColor: '#6b7280' };
+  }
+}
+
 function SuperAdminPortal({ merchants, onRefresh, showToast }) {
   const [activePage, setActivePage] = useState('overview')
   const [userList, setUserList] = useState([])
@@ -281,8 +300,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
   const fetchLocationName = async (latitude, longitude, isEdit = false) => {
     try {
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=id`,
-        { headers: { 'User-Agent': 'Grestrip/1.0' } }
+        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=id`
       );
       const data = await res.json();
       const parts = [
@@ -305,7 +323,16 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
   const DonutChart = ({ data }) => {
     const total = Object.values(data).reduce((s, v) => s + v, 0);
     if (total === 0) return null;
-    const colors = { kuliner: '#e05624', wisata: '#006666', lainnya: '#f59e0b' };
+    const colors = { 
+      kuliner: '#e05624', 
+      sejarah: '#006666', 
+      alam: '#10b981', 
+      religi: '#8b5cf6', 
+      belanja: '#3b82f6', 
+      rekreasi: '#f43f5e', 
+      wisata: '#0ea5e9',
+      lainnya: '#f59e0b' 
+    };
     let offset = 0;
     const radius = 40;
     const circumference = 2 * Math.PI * radius;
@@ -471,7 +498,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
                     return (
                       <div 
                         key={m.id} 
-                        className={`bg-white border rounded-2xl p-4 flex items-center justify-between gap-3 transition-all ${
+                        className={`bg-white border rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
                           isInactive
                             ? 'border-gray-200 bg-gray-50/70 opacity-70'
                             : 'border-gray-200 hover:shadow-soft hover:border-primary/30'
@@ -482,8 +509,8 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
                           {m.image ? (
                             <img src={m.image} alt={m.name} className="w-12 h-12 rounded-xl object-cover shrink-0 border border-gray-150" />
                           ) : (
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg shrink-0 ${isFood ? 'bg-orange-50 text-orange-650' : 'bg-teal-50 text-[#006666]'}`}>
-                              {isFood ? '🍽' : '🏛'}
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg shrink-0 ${getCategoryDetails(m.type).bgLight}`}>
+                              {getCategoryDetails(m.type).emoji}
                             </div>
                           )}
                           <div className="flex flex-col gap-0.5">
@@ -503,11 +530,9 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
                           </div>
                         </div>
                         
-                        <div className="flex items-center gap-2.5 shrink-0">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
-                            isFood ? 'bg-orange-100 text-orange-800' : 'bg-teal-100 text-teal-800'
-                          }`}>
-                            {isFood ? 'Kuliner' : 'Wisata'}
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 shrink-0 justify-start sm:justify-end w-full sm:w-auto mt-2 sm:mt-0">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${getCategoryDetails(m.type).colorClass}`}>
+                            {getCategoryDetails(m.type).emoji} {getCategoryDetails(m.type).label}
                           </span>
                           
                           <button
@@ -625,13 +650,17 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
                     onChange={(e) => setType(e.target.value)}
                     className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary cursor-pointer"
                   >
-                    <option value="kuliner">Kuliner Lokal</option>
-                    <option value="wisata">Objek Wisata / Sejarah</option>
+                    <option value="kuliner">🍽️ Kuliner Lokal / Café</option>
+                    <option value="sejarah">🏛️ Wisata Sejarah & Cagar Budaya</option>
+                    <option value="alam">🌲 Wisata Alam & Bahari</option>
+                    <option value="religi">🕌 Wisata Religi & Ziarah</option>
+                    <option value="belanja">🛍️ Belanja & Oleh-Oleh Khas</option>
+                    <option value="rekreasi">🎡 Rekreasi & Hiburan Keluarga</option>
                   </select>
                 </div>
               </div>
 
-              <div className="grid grid-cols-[1fr_1fr_auto] gap-4 items-end">
+              <div className="grid grid-cols-2 sm:grid-cols-[1fr_1fr_auto] gap-4 items-end">
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-semibold">Latitude</label>
                   <input 
@@ -659,7 +688,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
                 <button
                   type="button"
                   onClick={() => setMapOpen(true)}
-                  className="bg-[#006666]/10 text-[#006666] hover:bg-[#006666] border border-[#006666] hover:text-white rounded-xl px-4.5 py-2.5 text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5 h-10 shadow-soft"
+                  className="col-span-2 sm:col-span-1 w-full sm:w-auto bg-[#006666]/10 text-[#006666] hover:bg-[#006666] border border-[#006666] hover:text-white rounded-xl px-4.5 py-2.5 text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1.5 h-10 shadow-soft"
                   title="Pilih koordinat lokasi langsung dari peta interaktif"
                 >
                   <MapPin className="w-4 h-4 shrink-0" />
@@ -784,7 +813,7 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
             ) : (
               <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
                 {userList.map(u => (
-                  <div key={u.id} className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-xl animate-fade-in">
+                  <div key={u.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-gray-50 border border-gray-200 rounded-xl animate-fade-in">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs">
                         {u.fullname?.substring(0,2).toUpperCase()}
@@ -1015,8 +1044,12 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
                     onChange={(e) => setEditType(e.target.value)}
                     className="bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-primary cursor-pointer"
                   >
-                    <option value="kuliner">Kuliner Lokal</option>
-                    <option value="wisata">Objek Wisata / Sejarah</option>
+                    <option value="kuliner">🍽️ Kuliner Lokal / Café</option>
+                    <option value="sejarah">🏛️ Wisata Sejarah & Cagar Budaya</option>
+                    <option value="alam">🌲 Wisata Alam & Bahari</option>
+                    <option value="religi">🕌 Wisata Religi & Ziarah</option>
+                    <option value="belanja">🛍️ Belanja & Oleh-Oleh Khas</option>
+                    <option value="rekreasi">🎡 Rekreasi & Hiburan Keluarga</option>
                   </select>
                 </div>
               </div>

@@ -1726,7 +1726,7 @@
       "id": "m79",
       "name": "Desa Wisata Tenun Wedani",
       "owner": "BUMDes Wedani",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
       "description": "Desa penghasil kain tenun tradisional di mana pengunjung dapat mempraktikkan cara menenun sarung goyor secara langsung.",
       "coords": [
@@ -1748,7 +1748,7 @@
       "id": "m80",
       "name": "Seni Tari Pencak Macan Lumpur",
       "owner": "Paguyuban Seni Lumpur",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80",
       "description": "Padepokan kesenian khas pesisir Gresik berupa sendratari pencak silat berkostum loreng harimau pelestari budaya.",
       "coords": [
@@ -1770,7 +1770,7 @@
       "id": "m81",
       "name": "Seni Musik Terbang Jidur Bungah",
       "owner": "Grup Hadrah Jidur Bungah",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
       "description": "Padepokan musik kolaborasi rebana besar (Jidur) dan tiupan terompet selompret khas timur tengah akulturasi budaya.",
       "coords": [
@@ -1792,7 +1792,7 @@
       "id": "m82",
       "name": "Upacara Adat Sanggring Kolak Ayam Sembayat",
       "owner": "Panitia Adat Masjid Sembayat",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
       "description": "Tradisi kuliner khas Sembayat memasak kolak ayam peninggalan Sunan Dalem abad 16 yang dipercaya menyembuhkan penyakit.",
       "coords": [
@@ -1814,7 +1814,7 @@
       "id": "m83",
       "name": "Kampung Damar Kurung",
       "owner": "Keluarga Mbah Masmundari Heritage",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80",
       "description": "Desa penghasil lampion kertas lukis tradisional (Damar Kurung) pelestari warisan legendaris seniman Mbah Masmundari.",
       "coords": [
@@ -1836,7 +1836,7 @@
       "id": "m84",
       "name": "Tradisi Rebo Wekasan Suci",
       "owner": "Masyarakat Adat Desa Suci",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
       "description": "Upacara adat tasyakuran meminum air dari sendang (mata air) kuno masjid Suci penolak bala di rabu terakhir bulan shofar.",
       "coords": [
@@ -1858,7 +1858,7 @@
       "id": "m85",
       "name": "Seni Tari Damar Kurung",
       "owner": "Sanggar Seni Tari Kembang Sore",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
       "description": "Sanggar latihan pertunjukan kreasi tari berpasangan bertema kegembiraan lampion damar kurung yang dinamis.",
       "coords": [
@@ -1880,7 +1880,7 @@
       "id": "m86",
       "name": "Desa Pembuat Kerajinan Anyaman Lontar",
       "owner": "Karang Taruna Hendrosari",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80",
       "description": "Kampung budaya pembuat topi, tikar, tas, dan kipas berbahan baku daun pohon siwalan (lontar) khas pesisir.",
       "coords": [
@@ -1902,7 +1902,7 @@
       "id": "m87",
       "name": "Tradisi Sanggring Bawean",
       "owner": "Lembaga Adat Bawean",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
       "description": "Festival seni bela diri tradisional Bawean mirip pencak silat namun diiringi tabuhan musik melayu kasidah wangi gesek.",
       "coords": [
@@ -1924,7 +1924,7 @@
       "id": "m88",
       "name": "Sanggar Seni Wayang Kulit Cerme",
       "owner": "Ki Dalang Wardoyo",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pembuatan wayang kulit tatah berbahan kulit kerbau asli dengan pewarnaan cat serbuk emas prada kuno.",
       "coords": [
@@ -1946,7 +1946,7 @@
       "id": "m89",
       "name": "Museum Sunan Giri",
       "owner": "Upt Museum Sunan Giri",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
       "description": "Museum sejarah menyimpan peninggalan prasejarah, keramik kuno dinasti Ming, naskah daun lontar kuno, dan pusaka sunan Giri.",
       "coords": [
@@ -1968,7 +1968,7 @@
       "id": "m90",
       "name": "Konservasi Mangrove Ujungpangkah",
       "owner": "Dinas Perikanan & Kelautan Gresik",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat penelitian pelestarian ekosistem rawa pantai Manyar, dilengkapi pemandu penjelasan fungsi mangrove penahan abrasi.",
       "coords": [
@@ -1990,7 +1990,7 @@
       "id": "m91",
       "name": "Balai Konservasi Terumbu Karang Bawean",
       "owner": "Yayasan Karang Lestari Bawean",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pembelajaran pembibitan transplantasi terumbu karang meja (Acropora) untuk mengembalikan kelestarian biota laut.",
       "coords": [
@@ -2012,7 +2012,7 @@
       "id": "m92",
       "name": "Agrowisata Kebun Nanas Kebomas",
       "owner": "Kelompok Tani Makmur Kebomas",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
       "description": "Perkebunan holtikultura nanas madu di lereng bukit Kebomas, pengunjung diajarkan cara stek tunas dan memanen nanas matang.",
       "coords": [
@@ -2034,7 +2034,7 @@
       "id": "m93",
       "name": "Pusat Edukasi Sampah (ECO-Depo) Gresik",
       "owner": "KRL Lingkungan Suci",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80",
       "description": "Model pengolahan limbah sampah kering menjadi pupuk organik cair dan kerajinan bernilai jual tinggi khas daur ulang GKB.",
       "coords": [
@@ -2056,7 +2056,7 @@
       "id": "m94",
       "name": "Kampung Edukasi Lidah Buaya",
       "owner": "KWT Srikandi Suci",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80",
       "description": "Kampung percontohan menanam lidah buaya raksasa (Aloe Vera Chinensis) dan praktik mengolah dagingnya menjadi nata de aloe.",
       "coords": [
@@ -2078,7 +2078,7 @@
       "id": "m95",
       "name": "Balai Penelitian Padi Cerme",
       "owner": "Dinas Pertanian Jatim Unit Cerme",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
       "description": "Sawah percontohan varietas padi unggul tahan asin rawa payau, edukasi cara menyemai bibit dan panen padi bagi pelajar.",
       "coords": [
@@ -2100,7 +2100,7 @@
       "id": "m96",
       "name": "Penangkaran Penyu Abu-abu Dalegan",
       "owner": "Sahabat Penyu Dalegan",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat penyelamatan telur penyu dari predator dan edukasi melepas tukik (anak penyu) kembali ke laut bebas.",
       "coords": [
@@ -2122,7 +2122,7 @@
       "id": "m97",
       "name": "Kampung Susu Kambing Etawa Panceng",
       "owner": "Peternakan Etawa Barokah",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80",
       "description": "Kawasan peternakan kambing etawa mandiri, belajar memerah susu kambing steril dan mencicipi susu aneka rasa.",
       "coords": [
@@ -2144,7 +2144,7 @@
       "id": "m98",
       "name": "Perpustakaan & Pusat Kearsipan Gresik",
       "owner": "Dinas Perpustakaan Pemkab Gresik",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
       "description": "Perpustakaan modern dengan ribuan koleksi buku digital, arsip koran zaman kolonial Grissee, dan ruang baca anak.",
       "coords": [
@@ -2166,7 +2166,7 @@
       "id": "m99",
       "name": "Desa Wisata Jamur Penataan",
       "owner": "KWT Jamur Penataan",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80",
       "description": "Desa percontohan budidaya jamur tiram putih organik, belajar pengolahan baglog hingga panen jamur segar.",
       "coords": [
@@ -2188,7 +2188,7 @@
       "id": "m100",
       "name": "Kampung Budi Daya Gurami Manyar",
       "owner": "Pokdakan Gurami Manyar",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80",
       "description": "Kawasan budidaya ikan gurami unggulan Manyar, edukasi manajemen pakan pelet alami dan pembibitan gurami.",
       "coords": [
@@ -2266,7 +2266,7 @@
       "id": "m103",
       "name": "Sanggar Tari Kembang Kebomas",
       "owner": "Cak Lia",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa sanggar tari kembang yang berada di kawasan strategis Kecamatan Kebomas, Gresik.",
       "coords": [
@@ -2294,7 +2294,7 @@
       "id": "m104",
       "name": "Pusat Lepas Tukik Manyar",
       "owner": "Cak Roni",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat lepas tukik yang berada di kawasan strategis Kecamatan Manyar, Gresik.",
       "coords": [
@@ -2490,7 +2490,7 @@
       "id": "m111",
       "name": "Kerajinan Lampion Damar Kurung Driyorejo",
       "owner": "Cak Warkop",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa kerajinan lampion damar kurung yang berada di kawasan strategis Kecamatan Driyorejo, Gresik.",
       "coords": [
@@ -2518,7 +2518,7 @@
       "id": "m112",
       "name": "Kebun Nanas Madu Kedamean",
       "owner": "Cak Sejarah",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa kebun nanas madu yang berada di kawasan strategis Kecamatan Kedamean, Gresik.",
       "coords": [
@@ -2714,7 +2714,7 @@
       "id": "m119",
       "name": "Teater Rakyat Gresik Sangkapura Bawean",
       "owner": "Cak Sidayu",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa teater rakyat gresik yang berada di kawasan strategis Kecamatan Sangkapura Bawean, Gresik.",
       "coords": [
@@ -2742,7 +2742,7 @@
       "id": "m120",
       "name": "Pusat Karang Bawean Kebomas",
       "owner": "Cak Bawean",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat karang bawean yang berada di kawasan strategis Kecamatan Kebomas, Gresik.",
       "coords": [
@@ -2938,7 +2938,7 @@
       "id": "m127",
       "name": "Sanggar Tari Kembang Wringinanom",
       "owner": "Cak Cak",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa sanggar tari kembang yang berada di kawasan strategis Kecamatan Wringinanom, Gresik.",
       "coords": [
@@ -2966,7 +2966,7 @@
       "id": "m128",
       "name": "Pusat Lepas Tukik Driyorejo",
       "owner": "Cak Mak",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat lepas tukik yang berada di kawasan strategis Kecamatan Driyorejo, Gresik.",
       "coords": [
@@ -3162,7 +3162,7 @@
       "id": "m135",
       "name": "Kerajinan Lampion Damar Kurung Tambak Bawean",
       "owner": "Cak Kulineran",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa kerajinan lampion damar kurung yang berada di kawasan strategis Kecamatan Tambak Bawean, Gresik.",
       "coords": [
@@ -3190,7 +3190,7 @@
       "id": "m136",
       "name": "Kebun Nanas Madu Sangkapura Bawean",
       "owner": "Cak Gresik",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa kebun nanas madu yang berada di kawasan strategis Kecamatan Sangkapura Bawean, Gresik.",
       "coords": [
@@ -3386,7 +3386,7 @@
       "id": "m143",
       "name": "Teater Rakyat Gresik Duduksampeyan",
       "owner": "Cak Lia",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa teater rakyat gresik yang berada di kawasan strategis Kecamatan Duduksampeyan, Gresik.",
       "coords": [
@@ -3414,7 +3414,7 @@
       "id": "m144",
       "name": "Pusat Karang Bawean Wringinanom",
       "owner": "Cak Roni",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat karang bawean yang berada di kawasan strategis Kecamatan Wringinanom, Gresik.",
       "coords": [
@@ -3610,7 +3610,7 @@
       "id": "m151",
       "name": "Sanggar Tari Kembang Bungah",
       "owner": "Cak Warkop",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa sanggar tari kembang yang berada di kawasan strategis Kecamatan Bungah, Gresik.",
       "coords": [
@@ -3638,7 +3638,7 @@
       "id": "m152",
       "name": "Pusat Lepas Tukik Tambak Bawean",
       "owner": "Cak Sejarah",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat lepas tukik yang berada di kawasan strategis Kecamatan Tambak Bawean, Gresik.",
       "coords": [
@@ -3834,7 +3834,7 @@
       "id": "m159",
       "name": "Kerajinan Lampion Damar Kurung Balongpanggang",
       "owner": "Cak Sidayu",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa kerajinan lampion damar kurung yang berada di kawasan strategis Kecamatan Balongpanggang, Gresik.",
       "coords": [
@@ -3862,7 +3862,7 @@
       "id": "m160",
       "name": "Kebun Nanas Madu Duduksampeyan",
       "owner": "Cak Bawean",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa kebun nanas madu yang berada di kawasan strategis Kecamatan Duduksampeyan, Gresik.",
       "coords": [
@@ -4058,7 +4058,7 @@
       "id": "m167",
       "name": "Teater Rakyat Gresik Panceng",
       "owner": "Cak Cak",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa teater rakyat gresik yang berada di kawasan strategis Kecamatan Panceng, Gresik.",
       "coords": [
@@ -4086,7 +4086,7 @@
       "id": "m168",
       "name": "Pusat Karang Bawean Bungah",
       "owner": "Cak Mak",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat karang bawean yang berada di kawasan strategis Kecamatan Bungah, Gresik.",
       "coords": [
@@ -4282,7 +4282,7 @@
       "id": "m175",
       "name": "Sanggar Tari Kembang Benjeng",
       "owner": "Cak Kulineran",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa sanggar tari kembang yang berada di kawasan strategis Kecamatan Benjeng, Gresik.",
       "coords": [
@@ -4310,7 +4310,7 @@
       "id": "m176",
       "name": "Pusat Lepas Tukik Balongpanggang",
       "owner": "Cak Gresik",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat lepas tukik yang berada di kawasan strategis Kecamatan Balongpanggang, Gresik.",
       "coords": [
@@ -4506,7 +4506,7 @@
       "id": "m183",
       "name": "Kerajinan Lampion Damar Kurung Ujungpangkah",
       "owner": "Cak Lia",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa kerajinan lampion damar kurung yang berada di kawasan strategis Kecamatan Ujungpangkah, Gresik.",
       "coords": [
@@ -4534,7 +4534,7 @@
       "id": "m184",
       "name": "Kebun Nanas Madu Panceng",
       "owner": "Cak Roni",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa kebun nanas madu yang berada di kawasan strategis Kecamatan Panceng, Gresik.",
       "coords": [
@@ -4730,7 +4730,7 @@
       "id": "m191",
       "name": "Teater Rakyat Gresik Cerme",
       "owner": "Cak Warkop",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa teater rakyat gresik yang berada di kawasan strategis Kecamatan Cerme, Gresik.",
       "coords": [
@@ -4758,7 +4758,7 @@
       "id": "m192",
       "name": "Pusat Karang Bawean Benjeng",
       "owner": "Cak Sejarah",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat karang bawean yang berada di kawasan strategis Kecamatan Benjeng, Gresik.",
       "coords": [
@@ -4954,7 +4954,7 @@
       "id": "m199",
       "name": "Sanggar Tari Kembang Sidayu",
       "owner": "Cak Sidayu",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa sanggar tari kembang yang berada di kawasan strategis Kecamatan Sidayu, Gresik.",
       "coords": [
@@ -4982,7 +4982,7 @@
       "id": "m200",
       "name": "Pusat Lepas Tukik Ujungpangkah",
       "owner": "Cak Bawean",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat lepas tukik yang berada di kawasan strategis Kecamatan Ujungpangkah, Gresik.",
       "coords": [
@@ -5178,7 +5178,7 @@
       "id": "m207",
       "name": "Kerajinan Lampion Damar Kurung Gresik Kota",
       "owner": "Cak Cak",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa kerajinan lampion damar kurung yang berada di kawasan strategis Kecamatan Gresik Kota, Gresik.",
       "coords": [
@@ -5206,7 +5206,7 @@
       "id": "m208",
       "name": "Kebun Nanas Madu Cerme",
       "owner": "Cak Mak",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa kebun nanas madu yang berada di kawasan strategis Kecamatan Cerme, Gresik.",
       "coords": [
@@ -5402,7 +5402,7 @@
       "id": "m215",
       "name": "Teater Rakyat Gresik Menganti",
       "owner": "Cak Kulineran",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa teater rakyat gresik yang berada di kawasan strategis Kecamatan Menganti, Gresik.",
       "coords": [
@@ -5430,7 +5430,7 @@
       "id": "m216",
       "name": "Pusat Karang Bawean Sidayu",
       "owner": "Cak Gresik",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat karang bawean yang berada di kawasan strategis Kecamatan Sidayu, Gresik.",
       "coords": [
@@ -5626,7 +5626,7 @@
       "id": "m223",
       "name": "Sanggar Tari Kembang Manyar",
       "owner": "Cak Lia",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa sanggar tari kembang yang berada di kawasan strategis Kecamatan Manyar, Gresik.",
       "coords": [
@@ -5654,7 +5654,7 @@
       "id": "m224",
       "name": "Pusat Lepas Tukik Gresik Kota",
       "owner": "Cak Roni",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat lepas tukik yang berada di kawasan strategis Kecamatan Gresik Kota, Gresik.",
       "coords": [
@@ -5850,7 +5850,7 @@
       "id": "m231",
       "name": "Kerajinan Lampion Damar Kurung Kedamean",
       "owner": "Cak Warkop",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa kerajinan lampion damar kurung yang berada di kawasan strategis Kecamatan Kedamean, Gresik.",
       "coords": [
@@ -5878,7 +5878,7 @@
       "id": "m232",
       "name": "Kebun Nanas Madu Menganti",
       "owner": "Cak Sejarah",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa kebun nanas madu yang berada di kawasan strategis Kecamatan Menganti, Gresik.",
       "coords": [
@@ -6074,7 +6074,7 @@
       "id": "m239",
       "name": "Teater Rakyat Gresik Kebomas",
       "owner": "Cak Sidayu",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa teater rakyat gresik yang berada di kawasan strategis Kecamatan Kebomas, Gresik.",
       "coords": [
@@ -6102,7 +6102,7 @@
       "id": "m240",
       "name": "Pusat Karang Bawean Manyar",
       "owner": "Cak Bawean",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat karang bawean yang berada di kawasan strategis Kecamatan Manyar, Gresik.",
       "coords": [
@@ -6298,7 +6298,7 @@
       "id": "m247",
       "name": "Sanggar Tari Kembang Driyorejo",
       "owner": "Cak Cak",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa sanggar tari kembang yang berada di kawasan strategis Kecamatan Driyorejo, Gresik.",
       "coords": [
@@ -6326,7 +6326,7 @@
       "id": "m248",
       "name": "Pusat Lepas Tukik Kedamean",
       "owner": "Cak Mak",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat lepas tukik yang berada di kawasan strategis Kecamatan Kedamean, Gresik.",
       "coords": [
@@ -6522,7 +6522,7 @@
       "id": "m255",
       "name": "Kerajinan Lampion Damar Kurung Sangkapura Bawean",
       "owner": "Cak Kulineran",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa kerajinan lampion damar kurung yang berada di kawasan strategis Kecamatan Sangkapura Bawean, Gresik.",
       "coords": [
@@ -6550,7 +6550,7 @@
       "id": "m256",
       "name": "Kebun Nanas Madu Kebomas",
       "owner": "Cak Gresik",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa kebun nanas madu yang berada di kawasan strategis Kecamatan Kebomas, Gresik.",
       "coords": [
@@ -6746,7 +6746,7 @@
       "id": "m263",
       "name": "Teater Rakyat Gresik Wringinanom",
       "owner": "Cak Lia",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa teater rakyat gresik yang berada di kawasan strategis Kecamatan Wringinanom, Gresik.",
       "coords": [
@@ -6774,7 +6774,7 @@
       "id": "m264",
       "name": "Pusat Karang Bawean Driyorejo",
       "owner": "Cak Roni",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat karang bawean yang berada di kawasan strategis Kecamatan Driyorejo, Gresik.",
       "coords": [
@@ -6970,7 +6970,7 @@
       "id": "m271",
       "name": "Sanggar Tari Kembang Tambak Bawean",
       "owner": "Cak Warkop",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa sanggar tari kembang yang berada di kawasan strategis Kecamatan Tambak Bawean, Gresik.",
       "coords": [
@@ -6998,7 +6998,7 @@
       "id": "m272",
       "name": "Pusat Lepas Tukik Sangkapura Bawean",
       "owner": "Cak Sejarah",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat lepas tukik yang berada di kawasan strategis Kecamatan Sangkapura Bawean, Gresik.",
       "coords": [
@@ -7194,7 +7194,7 @@
       "id": "m279",
       "name": "Kerajinan Lampion Damar Kurung Duduksampeyan",
       "owner": "Cak Sidayu",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa kerajinan lampion damar kurung yang berada di kawasan strategis Kecamatan Duduksampeyan, Gresik.",
       "coords": [
@@ -7222,7 +7222,7 @@
       "id": "m280",
       "name": "Kebun Nanas Madu Wringinanom",
       "owner": "Cak Bawean",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa kebun nanas madu yang berada di kawasan strategis Kecamatan Wringinanom, Gresik.",
       "coords": [
@@ -7418,7 +7418,7 @@
       "id": "m287",
       "name": "Teater Rakyat Gresik Bungah",
       "owner": "Cak Cak",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa teater rakyat gresik yang berada di kawasan strategis Kecamatan Bungah, Gresik.",
       "coords": [
@@ -7446,7 +7446,7 @@
       "id": "m288",
       "name": "Pusat Karang Bawean Tambak Bawean",
       "owner": "Cak Mak",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat karang bawean yang berada di kawasan strategis Kecamatan Tambak Bawean, Gresik.",
       "coords": [
@@ -7642,7 +7642,7 @@
       "id": "m295",
       "name": "Sanggar Tari Kembang Balongpanggang",
       "owner": "Cak Kulineran",
-      "type": "budaya",
+      "type": "sejarah",
       "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat pelestarian warisan budaya kesenian leluhur berupa sanggar tari kembang yang berada di kawasan strategis Kecamatan Balongpanggang, Gresik.",
       "coords": [
@@ -7670,7 +7670,7 @@
       "id": "m296",
       "name": "Pusat Lepas Tukik Duduksampeyan",
       "owner": "Cak Gresik",
-      "type": "edukasi",
+      "type": "alam",
       "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
       "description": "Pusat riset dan pembelajaran edukatif lapangan berupa pusat lepas tukik yang berada di kawasan strategis Kecamatan Duduksampeyan, Gresik.",
       "coords": [

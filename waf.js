@@ -36,8 +36,8 @@ function recordRequest(ipAddress = '127.0.0.1') {
 }
 
 // Advanced Rule-based Heuristic Engine for WAF Fallback & Double-check
-const XSS_REGEX = /<script[\s\S]*?>|javascript:|onerror\s*=|onload\s*=|onmouseover\s*=|onfocus\s*=|<iframe[\s\S]*?>|<object[\s\S]*?>|<embed[\s\S]*?>/gi;
-const SQLI_REGEX = /\b(union\s+select|select\s+from|insert\s+into|delete\s+from|drop\s+table|alter\s+table|update\s+set)\b|('|")\s*or\s*('|")?\d+('|")?\s*=\s*('|")?\d+|--\s*$|\/\*[\s\S]*?\*\//gi;
+const XSS_REGEX = /<script[\s\S]*?>|javascript:|onerror\s*=|onload\s*=|onmouseover\s*=|onfocus\s*=|<iframe[\s\S]*?>|<object[\s\S]*?>|<embed[\s\S]*?>/i;
+const SQLI_REGEX = /\b(union\s+select|select\s+from|insert\s+into|delete\s+from|drop\s+table|alter\s+table|update\s+set)\b|('|")\s*or\s*('|")?\d+('|")?\s*=\s*('|")?\d+|--\s*$|\/\*[\s\S]*?\*\//i;
 
 const PROFANITY_LIST = [
     'bangsat', 'tahi', 'babi', 'anjing', 'goblok', 'tolol', 'kontol', 'memek', 
