@@ -3,6 +3,7 @@
 
 ---
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Klik_di_Sini-teal.svg?style=for-the-badge)](https://grestrip.vercel.app)
 [![Vibe Coding 2026](https://img.shields.io/badge/Vibe_Coding-2026-teal.svg?style=flat-square)](https://github.com/Dwinur01/getrips)
 [![AI Powered](https://img.shields.io/badge/AI-Gemini_2.5_Flash-orange.svg?style=flat-square)](https://ai.google.dev/)
 [![Database Mode](https://img.shields.io/badge/Database-MySQL_/_JSON_Fallback-blue.svg?style=flat-square)](https://mysql.com)
@@ -33,6 +34,31 @@ Grestrip telah mendapatkan peningkatan visual menyeluruh untuk menghadirkan anta
 > **3. Fitur Pengelolaan Visual Mandiri**
 > - **Tab Profil Toko (Portal UMKM):** Input teks *"URL Gambar Cover"* agar pelaku usaha dapat memperbarui gambar utama tokonya secara mandiri.
 > - **Pendaftaran & Edit (Portal Super Admin):** Penambahan input URL gambar cover saat Dinas Pariwisata mendaftarkan/mengedit mitra, serta **preview gambar mini (thumbnail)** langsung di dalam tabel kepengawasan pariwisata.
+
+---
+
+## 📸 Tampilan Antarmuka
+
+### Portal Wisatawan — AI Itinerary Planner
+![Portal Wisatawan](docs/screenshots/wisatawan-itinerary.png)
+
+### Portal UMKM — Sentiment Analytics
+![Portal UMKM](docs/screenshots/umkm-sentiment.png)
+
+### IT Security — WAF Monitoring Console
+![IT Security](docs/screenshots/itsec-waf.png)
+
+### Peta Interaktif Gresik
+![Peta](docs/screenshots/peta-interaktif.png)
+
+### Portal Super Admin
+![Super Admin](docs/screenshots/superadmin.png)
+
+---
+
+## 🎬 Demo Video
+
+[![Demo Grestrip](https://img.shields.io/badge/▶_Tonton_Demo-YouTube-red.svg?style=for-the-badge)](https://www.youtube.com/watch?v=demo-grestrip)
 
 ---
 
@@ -120,6 +146,41 @@ Platform ini dipecah dari sistem 1 halaman scroll menjadi **17 Sub-Halaman denga
 
 ---
 
+## 🏗️ Arsitektur Sistem
+
+```mermaid
+graph TB
+    subgraph Client ["🖥️ Frontend (React + Vite)"]
+        A[WisatawanPortal] 
+        B[UmkmPortal]
+        C[ItSecPortal]
+        D[SuperAdminPortal]
+    end
+
+    subgraph Server ["⚙️ Backend (Node.js + Express)"]
+        E[REST API Endpoints]
+        F[AI WAF Engine]
+        G[Gemini Integration]
+    end
+
+    subgraph Database ["🗄️ Database Layer"]
+        H[(MySQL Primary)]
+        I[(JSON Fallback)]
+    end
+
+    subgraph AI ["🤖 Google AI Studio"]
+        J[Gemini 2.5 Flash\nItinerary + Sentiment]
+        K[Gemini 2.5 Flash-Lite\nWAF Engine]
+    end
+
+    Client -->|HTTP Request| Server
+    Server --> Database
+    H -->|Connection Failed| I
+    Server -->|API Call| AI
+```
+
+---
+
 ## 🛡️ Lapisan Keamanan: AI WAF (Web Application Firewall)
 
 Grestrip dilengkapi dengan WAF berlapis ganda yang menyaring setiap ulasan/input teks dari pengguna:
@@ -148,6 +209,17 @@ Grestrip dilengkapi dengan WAF berlapis ganda yang menyaring setiap ulasan/input
 ---
 
 ## 🛠️ Panduan Instalasi & Penggunaan
+
+## 🔑 Akun Demo (Default Seed Data)
+
+| Role | Username | Password | Akses |
+|---|---|---|---|
+| Wisatawan | `wisatawan` | `password` | Portal Wisatawan |
+| UMKM | `umkm` | `password` | Portal UMKM |
+| IT Security | `itsec` | `password` | Portal IT Security |
+| Super Admin | `admin` | `password` | Portal Super Admin |
+
+> Akun di atas tersedia otomatis dari seed data `database.json` dan `db.js`. Password bertipe plaintext `password` dan akan otomatis dimigrasi ke hash enkripsi bcrypt setelah login pertama dilakukan secara aman.
 
 ### **Prasyarat (Prerequisites)**
 Pastikan komputer Anda sudah menginstal:
@@ -226,6 +298,12 @@ Jika Anda tidak memiliki `GEMINI_API_KEY`, aplikasi akan **berjalan secara otoma
 * **Itinerary Generator**: Menggunakan algoritma heuristik internal untuk mensimulasikan pencarian rute aman alergi.
 * **Sentiment & WAF**: Menggunakan database kata kasar bawaan dan logika validasi statis lokal.
 * *Anda dapat memasukkan API Key secara dinamis langsung dari input box di sidebar aplikasi saat sedang berjalan.*
+
+> [!WARNING]
+> **Peringatan Keamanan API Key:**
+> Input API Key via sidebar hanya direkomendasikan untuk **demo lokal** atau **testing pribadi**.
+> API Key yang dimasukkan dikirim ke backend server dalam request body dan **tidak pernah disimpan** 
+> di database atau log. Jangan gunakan API Key production di environment publik yang tidak terenkripsi HTTPS.
 
 ---
 
