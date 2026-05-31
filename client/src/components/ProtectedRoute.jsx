@@ -14,8 +14,8 @@ function ProtectedRoute({ allowedRoles }) {
   }, [user, allowedRoles]);
 
   if (!user) {
-    // If not logged in, redirect to the wisatawan portal (guest-accessible)
-    return <Navigate to="/wisatawan" replace />;
+    // If not logged in, redirect to the main gateway landing page
+    return <Navigate to="/" replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {

@@ -22,10 +22,32 @@ const getCategoryDetails = (type) => {
 }
 
 function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToast }) {
+  const todayStr = new Date().toISOString().split('T')[0]
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const tomorrowStr = tomorrow.toISOString().split('T')[0]
+
+  const [startDate, setStartDate] = useState(todayStr)
+  const [endDate, setEndDate] = useState(tomorrowStr)
+  
   const [budget, setBudget] = useState(200000)
   const [duration, setDuration] = useState('2')
   const [preferences, setPreferences] = useState(['kuliner', 'sejarah'])
   const [allergies, setAllergies] = useState('')
+
+  useEffect(() => {
+    if (startDate && endDate) {
+      const start = new Date(startDate)
+      const end = new Date(endDate)
+      if (end >= start) {
+        const diffTime = Math.abs(end - start)
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
+        setDuration(Math.min(Math.max(diffDays, 1), 7).toString())
+      } else {
+        setDuration('1')
+      }
+    }
+  }, [startDate, endDate])
   
   const [activeTab, setActiveTab] = useState('map-view')
   const [itinerary, setItinerary] = useState(null)
@@ -114,6 +136,8 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
 
   const handleResetForm = () => {
     setBudget(200000);
+    setStartDate(todayStr);
+    setEndDate(tomorrowStr);
     setDuration('2');
     setPreferences(['kuliner', 'sejarah']);
     setAllergies('');
@@ -598,36 +622,58 @@ function WisatawanPortal({ merchants, reviews, globalApiKey, onRefresh, user, sh
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold flex justify-between">
                   <span>Anggaran Perjalanan (IDR)</span>
-                  <span className="text-secondary font-bold">Rp {budget.toLocaleString('id-ID')}</span>
                 </label>
-                <input 
-                  type="range" 
-                  min="30000" 
-                  max="500000" 
-                  step="10000"
-                  value={budget}
-                  onChange={(e) => setBudget(parseInt(e.target.value))}
-                  className="w-full h-1.5 rounded bg-gray-200 accent-secondary outline-none cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] text-gray-400 font-medium">
-                  <span>Rp 30rb</span>
-                  <span>Rp 250rb</span>
-                  <span>Rp 500rb</span>
+                <div className="relative flex items-center">
+                  <span className="absolute left-3 text-xs font-bold text-gray-400">Rp</span>
+                  <input 
+                    type="number" 
+                    min="100000" 
+                    step="10000"
+                    value={budget}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      setBudget(isNaN(val) ? 100000 : val);
+                    }}
+                    className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-300 rounded-xl text-xs font-semibold outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                    placeholder="Contoh: 150000"
+                  />
                 </div>
+                {budget < 100000 && (
+                  <span className="text-[10px] text-red-500 font-medium mt-0.5">Minimal anggaran adalah Rp 100.000</span>
+                )}
+                <span className="text-[9px] text-gray-400 font-semibold mt-0.5 block">Ditulis sendiri, minimal Rp 100rb & kelipatan Rp 10rb</span>
               </div>
 
-              {/* Duration */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold">Durasi Kunjungan</label>
-                <select 
-                  value={duration} 
-                  onChange={(e) => setDuration(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                >
-                  <option value="1">1 Hari Wisata Cepat</option>
-                  <option value="2">2 Hari Rekreasi</option>
-                  <option value="3">3 Hari Eksplorasi Penuh</option>
-                </select>
+              {/* Tenggang Waktu Berwisata (Kalender) */}
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-semibold">Tenggang Waktu Berwisata</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] font-bold text-gray-400 uppercase">Mulai</span>
+                    <input 
+                      type="date" 
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-primary w-full"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] font-bold text-gray-400 uppercase">Selesai</span>
+                    <input 
+                      type="date" 
+                      value={endDate}
+                      min={startDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-primary w-full"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-between items-center bg-gray-50 border border-gray-200 rounded-xl p-2.5 mt-1">
+                  <span className="text-[10px] text-gray-500 font-semibold">Total Durasi:</span>
+                  <span className="bg-[#006666] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                    {duration} Hari
+                  </span>
+                </div>
               </div>
 
               {/* Travel Preferences */}

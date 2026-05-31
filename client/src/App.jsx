@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { AppContextProvider } from './context/AppContext'
 import Layout from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
+import LandingPage from './pages/LandingPage'
 import WisatawanPage from './pages/WisatawanPage'
 import UmkmPage from './pages/UmkmPage'
 import ItSecPage from './pages/ItSecPage'
@@ -13,9 +14,12 @@ function App() {
   return (
     <AppContextProvider>
       <Routes>
+        {/* Main Gateway/Landing Page (Full width, no sidebar layout) */}
+        <Route path="/" element={<LandingPage />} />
+
+        {/* Main Portals with Sidebar Layout */}
         <Route element={<Layout />}>
           {/* Public Routes */}
-          <Route path="/" element={<Navigate to="/wisatawan" replace />} />
           <Route path="/wisatawan" element={<WisatawanPage />} />
           <Route path="/denied" element={<AccessDeniedPage />} />
 
@@ -35,7 +39,7 @@ function App() {
           </Route>
 
           {/* Fallback Route */}
-          <Route path="*" element={<Navigate to="/wisatawan" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
     </AppContextProvider>

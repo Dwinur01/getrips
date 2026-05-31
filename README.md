@@ -34,6 +34,14 @@ Grestrip telah mendapatkan peningkatan visual menyeluruh untuk menghadirkan anta
 > **3. Fitur Pengelolaan Visual Mandiri**
 > - **Tab Profil Toko (Portal UMKM):** Input teks *"URL Gambar Cover"* agar pelaku usaha dapat memperbarui gambar utama tokonya secara mandiri.
 > - **Pendaftaran & Edit (Portal Super Admin):** Penambahan input URL gambar cover saat Dinas Pariwisata mendaftarkan/mengedit mitra, serta **preview gambar mini (thumbnail)** langsung di dalam tabel kepengawasan pariwisata.
+>
+> **🚀 4. Pembaruan Fitur Cerdas & Integrasi Media Baru (Akhir Mei 2026)**
+> - **Landing Page & Portal Gateway (`/`)**: Halaman depan baru bergaya *glassmorphism* dengan gradien dinamis yang menawan. Dilengkapi **Pusat Demo Login Instan (sekali klik)** untuk memudahkan juri berganti peran secara langsung (sebagai Budi, Haji Azza, Satria, atau Dinas Pariwisata) dan mengakses dashboard masing-masing.
+> - **Tenggang Waktu Wisata (Date Range Calendar)**: Pemilihan durasi hari konvensional digantikan oleh dua kotak input tanggal (Mulai & Selesai). Sistem akan menghitung total durasi hari secara otomatis dan dinamis.
+> - **Isian Anggaran Mandiri**: Slider anggaran digantikan oleh **kotak input angka mandiri** (minimal Rp 100.000, kelipatan kenaikan/pengurangan Rp 10.000) yang lebih presisi dan efisien.
+> - **Upload Foto Cover Base64 (Super Admin)**: Panel pendaftaran dan pengeditan profil UMKM dilengkapi tombol **upload file foto** lokal (maks 1MB) dengan pratinjau thumbnail instan.
+> - **Upload Foto Menu Base64 & Render Katalog (UMKM)**: Penambahan opsi **upload file foto hidangan** pada katalog menu baru atau edit menu. Menu yang telah diupload fotonya akan ditampilkan dengan gambar makanan asli secara bulat dan cantik di halaman katalog utama (menggantikan emoji default `🍴`).
+
 
 ---
 

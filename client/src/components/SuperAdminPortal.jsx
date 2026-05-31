@@ -703,14 +703,53 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
                 </div>
               )}
 
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold">URL Gambar Cover (Unsplash/Lainnya)</label>
+              <div className="flex flex-col gap-1.5 border border-gray-200 rounded-xl p-3 bg-gray-50/50">
+                <label className="text-xs font-semibold">Foto Cover Merchant (File Upload / URL)</label>
+                <div className="flex items-center gap-3">
+                  {image ? (
+                    <img src={image} alt="Preview Cover" className="w-14 h-14 rounded-xl object-cover shrink-0 border border-gray-200 shadow-sm" />
+                  ) : (
+                    <div className="w-14 h-14 rounded-xl bg-gray-150 text-gray-400 flex items-center justify-center text-lg shrink-0">🖼️</div>
+                  )}
+                  <div className="flex-grow flex flex-col gap-1.5">
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      id="admin-image-file"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          if (file.size > 1024 * 1024) {
+                            showToast("Ukuran foto maksimal adalah 1MB.", "warning");
+                            return;
+                          }
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setImage(reader.result);
+                            showToast("Foto merchant berhasil dimuat!", "success");
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="hidden" 
+                    />
+                    <div className="flex gap-2">
+                      <label htmlFor="admin-image-file" className="bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-bold py-1.5 px-3 rounded-lg cursor-pointer active:scale-95 transition-all text-center inline-block">
+                        Upload Foto
+                      </label>
+                      {image && (
+                        <button type="button" onClick={() => setImage('')} className="text-xs text-red-500 hover:text-red-750 font-bold">Hapus</button>
+                      )}
+                    </div>
+                    <span className="text-[9px] text-gray-400 leading-none">Atau tempel URL gambar di bawah:</span>
+                  </div>
+                </div>
                 <input 
                   type="text" 
-                  value={image}
+                  value={image.startsWith('data:') ? '' : image}
                   onChange={(e) => setImage(e.target.value)}
                   placeholder="Contoh: https://images.unsplash.com/photo-..." 
-                  className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary"
+                  className="bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-primary w-full mt-1.5"
                 />
               </div>
 
@@ -1106,14 +1145,53 @@ function SuperAdminPortal({ merchants, onRefresh, showToast }) {
                     <option value="nonaktif">Nonaktif (Sembunyikan)</option>
                   </select>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold">URL Gambar Cover</label>
+                 <div className="flex flex-col gap-1.5 border border-gray-200 rounded-xl p-3 bg-gray-50/50">
+                  <label className="text-xs font-semibold">Foto Cover Merchant (File Upload / URL)</label>
+                  <div className="flex items-center gap-3">
+                    {editImage ? (
+                      <img src={editImage} alt="Preview Cover" className="w-14 h-14 rounded-xl object-cover shrink-0 border border-gray-200 shadow-sm" />
+                    ) : (
+                      <div className="w-14 h-14 rounded-xl bg-gray-150 text-gray-400 flex items-center justify-center text-lg shrink-0">🖼️</div>
+                    )}
+                    <div className="flex-grow flex flex-col gap-1.5">
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        id="admin-edit-image-file"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            if (file.size > 1024 * 1024) {
+                              showToast("Ukuran foto maksimal adalah 1MB.", "warning");
+                              return;
+                            }
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setEditImage(reader.result);
+                              showToast("Foto merchant berhasil dimuat!", "success");
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="hidden" 
+                      />
+                      <div className="flex gap-2">
+                        <label htmlFor="admin-edit-image-file" className="bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-bold py-1.5 px-3 rounded-lg cursor-pointer active:scale-95 transition-all text-center inline-block">
+                          Upload Foto
+                        </label>
+                        {editImage && (
+                          <button type="button" onClick={() => setEditImage('')} className="text-xs text-red-500 hover:text-red-750 font-bold">Hapus</button>
+                        )}
+                      </div>
+                      <span className="text-[9px] text-gray-400 leading-none">Atau tempel URL gambar di bawah:</span>
+                    </div>
+                  </div>
                   <input 
                     type="text" 
-                    value={editImage}
+                    value={editImage.startsWith('data:') ? '' : editImage}
                     onChange={(e) => setEditImage(e.target.value)}
                     placeholder="https://images.unsplash.com/..." 
-                    className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary"
+                    className="bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-primary w-full mt-1.5"
                   />
                 </div>
               </div>

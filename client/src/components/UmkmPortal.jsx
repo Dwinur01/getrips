@@ -51,12 +51,14 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
   const [catName, setCatName] = useState('')
   const [catPrice, setCatPrice] = useState('')
   const [catDesc, setCatDesc] = useState('')
+  const [catImage, setCatImage] = useState('')
 
   // Edit catalog states
   const [editingItem, setEditingItem] = useState(null)
   const [editName, setEditName] = useState('')
   const [editPrice, setEditPrice] = useState('')
   const [editDesc, setEditDesc] = useState('')
+  const [editImage, setEditImage] = useState('')
 
   // Delete confirm state
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
@@ -143,7 +145,8 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
       id: 'c_' + Date.now(),
       name: catName.trim(),
       price: parseInt(catPrice),
-      description: catDesc.trim()
+      description: catDesc.trim(),
+      image: catImage
     }]
 
     try {
@@ -159,6 +162,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
       setCatName('')
       setCatPrice('')
       setCatDesc('')
+      setCatImage('')
       setCatalogModalOpen(false)
       onRefresh()
 
@@ -196,6 +200,7 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
     setEditName(item.name)
     setEditPrice(item.price.toString())
     setEditDesc(item.description)
+    setEditImage(item.image || '')
   }
 
   const handleEditCatalogSubmit = async (e) => {
@@ -213,7 +218,8 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
           ...item,
           name: editName.trim(),
           price: parseInt(editPrice),
-          description: editDesc.trim()
+          description: editDesc.trim(),
+          image: editImage
         }
       }
       return item
@@ -471,7 +477,11 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
                     <div key={item.id} className="bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-md transition-all flex flex-col justify-between group">
                       <div>
                         <div className="flex items-start justify-between mb-3">
-                          <div className="w-10 h-10 rounded-xl bg-orange-50 text-2xl flex items-center justify-center">🍴</div>
+                          {item.image ? (
+                            <img src={item.image} alt={item.name} className="w-10 h-10 rounded-xl object-cover shrink-0 border border-gray-150 shadow-2xs" />
+                          ) : (
+                            <div className="w-10 h-10 rounded-xl bg-orange-50 text-2xl flex items-center justify-center">🍴</div>
+                          )}
                           {idx === 0 && (
                             <span className="bg-secondary/10 text-secondary text-[10px] font-bold px-2 py-1 rounded-full border border-secondary/20">
                               🔥 Terlaris
@@ -851,6 +861,49 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
                 ></textarea>
               </div>
 
+              <div className="flex flex-col gap-1.5 border border-gray-200 rounded-xl p-3 bg-gray-50/50">
+                <label className="text-xs font-semibold">Foto Menu Hidangan</label>
+                <div className="flex items-center gap-3">
+                  {catImage ? (
+                    <img src={catImage} alt="Preview Menu" className="w-12 h-12 rounded-xl object-cover shrink-0 border border-gray-200 shadow-sm" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-xl bg-gray-150 text-gray-400 flex items-center justify-center text-lg shrink-0">🍴</div>
+                  )}
+                  <div className="flex-grow flex flex-col gap-1">
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      id="umkm-menu-file"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          if (file.size > 1024 * 1024) {
+                            showToast("Ukuran foto maksimal adalah 1MB.", "warning");
+                            return;
+                          }
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setCatImage(reader.result);
+                            showToast("Foto menu berhasil dimuat!", "success");
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="hidden" 
+                    />
+                    <div className="flex gap-2">
+                      <label htmlFor="umkm-menu-file" className="bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-bold py-1.5 px-3 rounded-lg cursor-pointer active:scale-95 transition-all text-center inline-block">
+                        Upload Foto Menu
+                      </label>
+                      {catImage && (
+                        <button type="button" onClick={() => setCatImage('')} className="text-xs text-red-500 hover:text-red-750 font-bold">Hapus</button>
+                      )}
+                    </div>
+                    <span className="text-[8px] text-gray-400">JPEG/PNG. Maksimal 1MB.</span>
+                  </div>
+                </div>
+              </div>
+
               <button 
                 type="submit"
                 className="w-full bg-primary hover:bg-primary-dark text-white rounded-xl py-3 font-display font-semibold text-xs active:scale-95 transition-transform mt-2"
@@ -912,6 +965,49 @@ function UmkmPortal({ merchants, reviews, globalApiKey, onRefresh, user, showToa
                   rows="3"
                   className="bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-primary resize-y"
                 ></textarea>
+              </div>
+
+              <div className="flex flex-col gap-1.5 border border-gray-200 rounded-xl p-3 bg-gray-50/50">
+                <label className="text-xs font-semibold">Foto Menu Hidangan</label>
+                <div className="flex items-center gap-3">
+                  {editImage ? (
+                    <img src={editImage} alt="Preview Menu" className="w-12 h-12 rounded-xl object-cover shrink-0 border border-gray-200 shadow-sm" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-xl bg-gray-150 text-gray-400 flex items-center justify-center text-lg shrink-0">🍴</div>
+                  )}
+                  <div className="flex-grow flex flex-col gap-1">
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      id="umkm-edit-menu-file"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          if (file.size > 1024 * 1024) {
+                            showToast("Ukuran foto maksimal adalah 1MB.", "warning");
+                            return;
+                          }
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setEditImage(reader.result);
+                            showToast("Foto menu berhasil dimuat!", "success");
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="hidden" 
+                    />
+                    <div className="flex gap-2">
+                      <label htmlFor="umkm-edit-menu-file" className="bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-bold py-1.5 px-3 rounded-lg cursor-pointer active:scale-95 transition-all text-center inline-block">
+                        Upload Foto Menu
+                      </label>
+                      {editImage && (
+                        <button type="button" onClick={() => setEditImage('')} className="text-xs text-red-500 hover:text-red-750 font-bold">Hapus</button>
+                      )}
+                    </div>
+                    <span className="text-[8px] text-gray-400">JPEG/PNG. Maksimal 1MB.</span>
+                  </div>
+                </div>
               </div>
 
               <button 

@@ -60,8 +60,12 @@ function Layout() {
       <div className="flex flex-col h-full">
         {/* Logo Header */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="bg-[#e0f2f1] w-[42px] h-[42px] rounded-xl flex items-center justify-center shrink-0">
+          <div 
+            onClick={() => navigate('/')} 
+            className="flex items-center gap-3 cursor-pointer select-none active:scale-95 transition-transform"
+            title="Kembali ke Beranda Utama"
+          >
+            <div className="bg-[#e0f2f1] w-[42px] h-[42px] rounded-xl flex items-center justify-center shrink-0 shadow-inner">
               <Compass className="w-6 h-6 text-[#006666]" />
             </div>
             <div className="flex flex-col leading-none">
@@ -251,7 +255,11 @@ function Layout() {
           ? 'bg-[#12181f]/85 border-[#1f2a36] text-[#e2e8f0]' 
           : 'bg-white/85 border-[#e9ecef] text-[#1b262c]'
       }`}>
-        <div className="flex items-center gap-2.5">
+        <div 
+          onClick={() => navigate('/')} 
+          className="flex items-center gap-2.5 cursor-pointer active:scale-95 transition-transform"
+          title="Kembali ke Beranda Utama"
+        >
           <div className="bg-[#e0f2f1] w-[34px] h-[34px] rounded-lg flex items-center justify-center">
             <Compass className="w-5 h-5 text-[#006666]" />
           </div>
@@ -337,7 +345,13 @@ function Layout() {
           <div className={`flex items-center gap-2 text-[10px] font-semibold mb-2 ${
             activePortal === 'itsec' ? 'text-gray-500' : 'text-gray-400'
           }`}>
-            <span>Grestrip</span>
+            <span 
+              onClick={() => navigate('/')} 
+              className="cursor-pointer hover:underline hover:text-[#006666] transition-colors"
+              title="Kembali ke Beranda Utama"
+            >
+              Grestrip
+            </span>
             <span>/</span>
             <span className={`flex items-center gap-1.5 ${activePortal === 'itsec' ? 'text-sky-400' : 'text-primary'}`}>
               {activePortal === 'wisatawan' && <Map className="w-3.5 h-3.5 text-[#006666] inline" />}
