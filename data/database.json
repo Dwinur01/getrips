@@ -15056,7 +15056,7 @@
     },
     {
       "username": "umkm",
-      "password": "password",
+      "password": "$2b$10$NvKEYd7BJDSW0Vh10zgN4en4iPsuyIiCtZvWQrqrQodajclV.zOWq",
       "role": "umkm",
       "fullname": "Haji Azza (Pemilik UMKM)"
     },
@@ -15068,7 +15068,7 @@
     },
     {
       "username": "admin",
-      "password": "password",
+      "password": "$2b$10$tBFgY5ECDPxAOdwRjO7r.ukQIfdQZJdzAYjW5QnNlKjPJT33dSfyC",
       "role": "superadmin",
       "fullname": "Dinas Pariwisata Gresik"
     }
@@ -15568,6 +15568,125 @@
             "day": 2,
             "time": "15:00 - 18:00",
             "activity": "Rekreasi Sore Hari: Menikmati Sunset di Pantai Pasir Putih Dalegan"
+          }
+        ],
+        "allergyWarning": null
+      }
+    },
+    "4e7c2e1c6078967149bc69fb75c36f5c0e0429a3bc2d55d33c4add6312413147": {
+      "expiry": "2026-06-01T03:21:08.585Z",
+      "value": {
+        "title": "Eksplorasi Gresik 3 Hari - Pilihan Terbaik Wisata & Kuliner",
+        "description": "Itinerary perjalanan hemat dan aman yang dirancang khusus sesuai dengan preferensi Anda. ",
+        "totalCost": 165000,
+        "timeline": [
+          {
+            "role": "lunch",
+            "cost": 20000,
+            "location": "Nasi Krawu Bu Azza",
+            "description": "Menikmati hidangan khas Nasi Krawu Daging. Nasi pulen hangat disajikan di atas daun pisang dengan suwiran daging sapi gurih.",
+            "lat": -7.161,
+            "lng": 112.6565,
+            "type": "kuliner",
+            "day": 1,
+            "time": "08:30 - 11:30",
+            "activity": "Kuliner Pagi Autentik: Sarapan di Nasi Krawu Bu Azza"
+          },
+          {
+            "role": "afternoon",
+            "cost": 12000,
+            "location": "Sego Rumat Khas Gresik",
+            "description": "Bersantai dengan memesan Sego Rumat Telur. Kuliner sarapan pagi khas berupa nasi lodeh sayur gurih yang disajikan dengan ta...",
+            "lat": -7.1622,
+            "lng": 112.658,
+            "type": "kuliner",
+            "day": 1,
+            "time": "12:00 - 13:30",
+            "activity": "Makan Siang Autentik: Kuliner di Sego Rumat Khas Gresik"
+          },
+          {
+            "role": "morning",
+            "cost": 20000,
+            "location": "Bukit Kapur Sekapuk (Selo Tirto Giri)",
+            "description": "Menikmati keindahan destinasi wisata Situs tambang kapur aktif yang disulap menjadi taman arsitektur batu pilar kuno ...",
+            "lat": -6.9245,
+            "lng": 112.463,
+            "type": "wisata",
+            "day": 1,
+            "time": "15:00 - 18:00",
+            "activity": "Rekreasi Sore Hari: Menikmati Sunset di Bukit Kapur Sekapuk (Selo Tirto Giri)"
+          },
+          {
+            "role": "afternoon",
+            "cost": 12000,
+            "location": "Sego Rumat Khas Gresik",
+            "description": "Bersantai dengan memesan Sego Rumat Telur. Kuliner sarapan pagi khas berupa nasi lodeh sayur gurih yang disajikan dengan ta...",
+            "lat": -7.1622,
+            "lng": 112.658,
+            "type": "kuliner",
+            "day": 2,
+            "time": "08:30 - 11:30",
+            "activity": "Kuliner Pagi Autentik: Sarapan di Sego Rumat Khas Gresik"
+          },
+          {
+            "role": "lunch",
+            "cost": 65000,
+            "location": "Otak-otak Bandeng Pak Elan II",
+            "description": "Menikmati hidangan khas Otak-otak Bandeng Bakar (Utuh). Satu ekor bandeng utuh tanpa duri isi otak-otak panggang wangi.",
+            "lat": -7.1642,
+            "lng": 112.645,
+            "type": "kuliner",
+            "day": 2,
+            "time": "12:00 - 13:30",
+            "activity": "Makan Siang Autentik: Kuliner di Otak-otak Bandeng Pak Elan II"
+          },
+          {
+            "role": "morning",
+            "cost": 5000,
+            "location": "Bukit Jamur Bungah",
+            "description": "Menikmati keindahan destinasi wisata Fenomena alam langka batuan kapur terkikis angin membentuk payung menyerupai cen...",
+            "lat": -7.062,
+            "lng": 112.583,
+            "type": "wisata",
+            "day": 2,
+            "time": "15:00 - 18:00",
+            "activity": "Rekreasi Sore Hari: Menikmati Sunset di Bukit Jamur Bungah"
+          },
+          {
+            "role": "afternoon",
+            "cost": 12000,
+            "location": "Sego Rumat Khas Gresik",
+            "description": "Bersantai dengan memesan Sego Rumat Telur. Kuliner sarapan pagi khas berupa nasi lodeh sayur gurih yang disajikan dengan ta...",
+            "lat": -7.1622,
+            "lng": 112.658,
+            "type": "kuliner",
+            "day": 3,
+            "time": "08:30 - 11:30",
+            "activity": "Kuliner Pagi Autentik: Sarapan di Sego Rumat Khas Gresik"
+          },
+          {
+            "role": "lunch",
+            "cost": 4000,
+            "location": "Warung Kopi Amak (Kopi Kasar)",
+            "description": "Menikmati hidangan khas Kopi Kasar Cangkir. Kopi robusta tubruk dengan ampas kasar yang bisa diseruput nikmat.",
+            "lat": -7.1585,
+            "lng": 112.652,
+            "type": "kuliner",
+            "day": 3,
+            "time": "12:00 - 13:30",
+            "activity": "Makan Siang Autentik: Kuliner di Warung Kopi Amak (Kopi Kasar)"
+          },
+          {
+            "role": "morning",
+            "cost": 15000,
+            "location": "Telaga Ngipik (Gresik Indah)",
+            "description": "Menikmati keindahan destinasi wisata Oasis hijau di tengah kawasan industri berupa danau sejuk dengan fasilitas sewa ...",
+            "lat": -7.151,
+            "lng": 112.6395,
+            "type": "wisata",
+            "day": 3,
+            "time": "15:00 - 18:00",
+            "activity": "Rekreasi Sore Hari: Menikmati Sunset di Telaga Ngipik (Gresik Indah)"
           }
         ],
         "allergyWarning": null
